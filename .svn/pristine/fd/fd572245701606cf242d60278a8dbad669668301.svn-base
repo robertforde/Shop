@@ -1,0 +1,34 @@
+package com.daniel.dao;
+
+import java.util.List;
+
+import com.daniel.model.Order;
+import com.daniel.model.Tradesman;
+
+
+public interface TradesmanDao {
+
+	// Method to check if a tradesman already exists
+	public Tradesman tradesmanExists(Tradesman tradesman)throws Exception;
+	
+	// Method to insert a tradesman into the tradesman table
+	public void tradesmanInsert(Tradesman tradesman) throws Exception;
+	
+	// Method to update a tradesman in the tradesmen table
+	public int tradesmanUpdate(Tradesman tradesman) throws Exception;
+	
+	// Method to delete a tradesman from the tradesman table
+	public int tradesmanDelete(String id) throws Exception;
+
+	// Method to retrieve a tradesman based on its ID 
+	public Tradesman tradesmanRetrieve(int id) throws Exception;
+
+	// Method to return a list of all tradesmen that match the user's selection criteria
+	public List<Tradesman> tradesmenLoadFiltered(String selection, String filter) throws Exception;
+			
+	// Method to find return a list of tradesmen based on certain user selected filters 
+	public List<Tradesman> findFilteredTradesmen(String name, String address1, String address2, String phone) throws Exception;
+
+	// Method to find the customer details in the appropriate table (based on the order's saletype) with the passed in id and return it
+	public Tradesman selectFilteredTradesman(Order order, int id) throws Exception;
+}

@@ -1,0 +1,98 @@
+package com.daniel;
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
+
+import com.daniel.dao.DAO;
+import com.daniel.model.InvoiceSettings;
+
+
+public class Dan{
+
+	DAO dao = new DAO();
+	private InvoiceSettings invoiceSettings = new InvoiceSettings();
+	private JFrame frame;
+	private JTabbedPane tabbedPane;
+	private RetailOrderScreen retailOrderScreen;
+	private TradeOrderScreen tradeOrderScreen;
+	
+	
+	public RetailOrderScreen getRetailOrderScreen() {
+		return retailOrderScreen;
+	}
+
+	public void setRetailOrderScreen(RetailOrderScreen retailOrderScreen) {
+		this.retailOrderScreen = retailOrderScreen;
+	}
+	
+	public TradeOrderScreen getTradeOrderScreen() {
+		return tradeOrderScreen;
+	}
+
+	public void setTradeOrderScreen(TradeOrderScreen tradeOrderScreen) {
+		this.tradeOrderScreen = tradeOrderScreen;
+	}
+
+	
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Dan window = new Dan();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Create the application.
+	 */
+	public Dan() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		dao.connect();
+		
+		frame = new JFrame();
+		frame.setBounds(30, 50, 1310, 660);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		frame.setTitle("D & S Plumbing & Fixings - Version 2.14");
+		
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBounds(0, 0, 1294, 624);
+		frame.getContentPane().add(tabbedPane);
+								
+		// Load the screens for the various tabs and activate their listeners
+		setRetailOrderScreen(new RetailOrderScreen(tabbedPane, dao, invoiceSettings));
+
+		setTradeOrderScreen(new TradeOrderScreen(tabbedPane, dao, invoiceSettings));
+		
+		new AccountListScreen(tabbedPane, dao, invoiceSettings);
+		
+		new QuotationScreen(tabbedPane, dao, invoiceSettings, getRetailOrderScreen(), getTradeOrderScreen());
+		
+		new CustomersScreen(tabbedPane, dao);
+		
+		new ProductsScreen(tabbedPane, dao);
+		
+		new TradesmenScreen(tabbedPane, dao);
+		
+		new StockScreen(tabbedPane, dao);
+		
+		new SettingsScreen(tabbedPane, dao, invoiceSettings);
+		
+	}
+}

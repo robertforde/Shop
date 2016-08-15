@@ -1,0 +1,299 @@
+package com.daniel;
+
+import java.awt.Color;
+
+import javax.swing.JFrame;
+
+import com.daniel.dao.DAO;
+import com.daniel.model.Account;
+import com.daniel.model.InvoiceSettings;
+import com.daniel.model.TradeOrder;
+import com.daniel.model.TradeOrderLine;
+
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import javax.swing.JButton;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
+import net.proteanit.sql.DbUtils;
+
+import java.awt.Font;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+public class AccountConvertListScreen extends JFrame{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private DAO dao;
+	private InvoiceSettings invoiceSettings;
+	private AccountDetailScreen accountDetailScreen;
+	private AccountListScreen accountListScreen;
+	private Account acc;
+	
+	private JTable tblAccountConvertQuote;
+	
+	public DAO getDao() {
+		return dao;
+	}
+	
+	public void setDao(DAO dao) {
+		this.dao = dao;
+	}
+	
+	public InvoiceSettings getInvoiceSettings() {
+		return invoiceSettings;
+	}
+	
+	public void setInvoiceSettings(InvoiceSettings invoiceSettings) {
+		this.invoiceSettings = invoiceSettings;
+	}
+	
+	public Account getAcc() {
+		return acc;
+	}
+	
+	public void setAcc(Account acc) {
+		this.acc = acc;
+	}
+	
+	public AccountDetailScreen getAccountDetailScreen() {
+		return accountDetailScreen;
+	}
+
+	public void setAccountDetailScreen(AccountDetailScreen accountDetailScreen) {
+		this.accountDetailScreen = accountDetailScreen;
+	}
+
+	public AccountListScreen getAccountListScreen() {
+		return accountListScreen;
+	}
+
+	public void setAccountListScreen(AccountListScreen accountListScreen) {
+		this.accountListScreen = accountListScreen;
+	}
+
+	
+	public AccountConvertListScreen(DAO dao, InvoiceSettings invoiceSettings, Account acc, AccountDetailScreen accountDetailScreen, AccountListScreen accountListScreen){
+
+		setDao(dao);
+		setInvoiceSettings(invoiceSettings);
+		setAcc(acc);
+		setAccountDetailScreen(accountDetailScreen);
+		setAccountListScreen(accountListScreen);
+		
+		getContentPane().setBackground(Color.DARK_GRAY);
+		getContentPane().setLayout(null);
+		
+		JPanel panelAccountConvertList = new JPanel();
+		panelAccountConvertList.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelAccountConvertList.setBounds(37, 11, 407, 229);
+		getContentPane().add(panelAccountConvertList);
+		panelAccountConvertList.setLayout(null);
+		
+		JScrollPane scrlAccountConvertQuote = new JScrollPane();
+		scrlAccountConvertQuote.setBounds(51, 11, 305, 207);
+		panelAccountConvertList.add(scrlAccountConvertQuote);
+		
+		tblAccountConvertQuote = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+			
+			public TableCellRenderer getCellRenderer( int row, int col ) { 
+				
+				TableCellRenderer renderer = super.getCellRenderer(row,col);
+				
+				// Right justify the last column (Price)
+				if ( col == dataModel.getColumnCount() - 1 ) 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.RIGHT );
+				
+				// Left justify the other columns
+				else 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.LEFT );
+				
+				return renderer; 
+			}
+			
+		};
+		tblAccountConvertQuote.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblAccountConvertQuote.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		// This formats the Headers
+		tblAccountConvertQuote.getTableHeader().setFont(new Font("Times New Roman", Font.BOLD, 16));
+		scrlAccountConvertQuote.setViewportView(tblAccountConvertQuote);
+		scrlAccountConvertQuote.setViewportView(tblAccountConvertQuote);
+		
+		JButton btnNewButton = new JButton("CONVERT");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				TradeOrder tradeOrder = new TradeOrder();
+				ArrayList<TradeOrderLine> orderList = new ArrayList<TradeOrderLine>();
+				String query;
+				PreparedStatement pst;
+				ResultSet rs;
+				int row;
+				int selectedQuoteNo;
+
+				// We use the table's getSelectedRow() method to find the row that the User selected. 
+				row = tblAccountConvertQuote.getSelectedRow();
+				
+				if(row != -1){
+					// Then we can get the id of the selected quote by getting the model of the table and then using the getValueAt() method we can get the specific
+					// row and column that we require. This returns an Object so we get the toString and then convert it to an Integer.
+					selectedQuoteNo = Integer.parseInt(tblAccountConvertQuote.getModel().getValueAt(row, 1).toString());
+	
+					try {
+						
+						// We find this quote in the quoteheader table and load it's values into the tradeOrder object that we created.
+						query = "SELECT * FROM quoteheader WHERE quotationNo = ?";
+						pst = getDao().conn.prepareStatement(query);
+						pst.setInt(1, selectedQuoteNo);
+						rs = pst.executeQuery();
+						
+						while(rs.next()){
+							tradeOrder.setRepNo(rs.getString(2));
+							tradeOrder.setTotalExVat(String.valueOf(rs.getFloat(3)));
+							tradeOrder.setTotalVat(String.valueOf(rs.getFloat(4)));
+							tradeOrder.setTotalPreRounding(String.valueOf(rs.getFloat(5)));
+							tradeOrder.setRounding(String.valueOf(rs.getFloat(6)));
+							tradeOrder.setTotalPostRounding(String.valueOf(rs.getFloat(7)));
+							tradeOrder.setOrderDate(rs.getDate(8));
+							tradeOrder.setPayType(rs.getString(9));
+							tradeOrder.setSaleType("Trade");
+							tradeOrder.setTotalCost(rs.getFloat(11));
+							tradeOrder.setCustId(rs.getInt(12));
+							tradeOrder.setName(rs.getString(13));
+							tradeOrder.setAddress1(rs.getString(14));
+							tradeOrder.setAddress2(rs.getString(15));
+							tradeOrder.setPhone(rs.getString(16));
+						}
+						
+						// We find this quote in the quotedetail table and load it's details into the orderlist variable.
+						query = "SELECT * FROM quotedetail WHERE quotationNo = ?";
+						pst = getDao().conn.prepareStatement(query);
+						
+						pst.setInt(1, selectedQuoteNo);
+						rs = pst.executeQuery(); 
+					
+						while(rs.next()){
+							TradeOrderLine tradeOrderLine = new TradeOrderLine();
+							tradeOrderLine.setItemCode(rs.getString(3));
+							tradeOrderLine.setItemDescription(rs.getString(4));
+							tradeOrderLine.setOrderQty(String.valueOf(rs.getInt(5)));
+							tradeOrderLine.setItemPrice(String.valueOf(rs.getFloat(6)));
+							tradeOrderLine.setItemTradePrice(rs.getFloat(7));
+							tradeOrderLine.setValueExDiscount(String.valueOf(rs.getFloat(8)));
+							tradeOrderLine.setValueExVat(String.valueOf(rs.getFloat(11)));
+							tradeOrderLine.setLineCostValue(rs.getFloat(12));
+							orderList.add(tradeOrderLine);
+						}
+						
+						// Assign orderlist to the orderlist of the tradeOrder object we created and set it's saletype to Account
+						tradeOrder.setOrderList(orderList);
+						tradeOrder.setSaleType("Account");
+						
+						pst.close();
+						rs.close();
+					
+					} catch (Exception ex) {
+						JOptionPane.showMessageDialog(null, ex);
+					}
+
+					// Dispose of this screen and open the account order screen with this quote
+					AccountConvertListScreen.this.dispose();
+					AccountOrderScreen accOrderScreen = new AccountOrderScreen(getDao(), getInvoiceSettings(), getAcc(), getAccountDetailScreen(), getAccountListScreen(), tradeOrder);
+					
+					// Make all of the appropriate panels visible on the AccountOrderScreen
+					accOrderScreen.getPanelAccountCurrentOrder().setVisible(true);
+					accOrderScreen.getPanelAccountGrossProfit().setVisible(true);
+					accOrderScreen.getPanelAccountPaymentMethod().setVisible(true);
+					accOrderScreen.getPanelAccountPrintOrder().setVisible(true);
+					accOrderScreen.getPanelAccountRounding().setVisible(true);
+						
+					// Update the gross profit labels and the total labels on the AccountOrderScreen 
+					accOrderScreen.getLblAccountTotalExVat().setText(tradeOrder.getTotalExVat());
+					accOrderScreen.getLblAccountTotalPrice().setText(tradeOrder.getTotalPostRounding());
+					tradeOrder.calcGrossProfit(accOrderScreen.getLblAccountGrossProfitValue(), accOrderScreen.getLblAccountGrossProfitPercent());
+						
+					// Update the rep code on the AccountOrderScreen
+					accOrderScreen.getTxtAccountLineRep().setText((tradeOrder.getRepNo()));
+					accOrderScreen.getTxtAccountLineRep().setEnabled(false);
+					accOrderScreen.getTxtAccountLineRep().setEditable(false);
+				
+				} else {
+					JOptionPane.showMessageDialog(null, "You must first select a Quote from the List !");
+				}
+			}	
+		});
+		btnNewButton.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnNewButton.setBounds(180, 266, 125, 38);
+		getContentPane().add(btnNewButton);
+
+		setDao(dao);
+		setInvoiceSettings(invoiceSettings);
+		setAcc(acc);
+
+		setBounds(410, 250, 500, 350);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setVisible(true);
+		setTitle(getAcc().getName() + " QUOTES");
+		
+		refreshAccountConvertQuoteTable();
+		
+	}
+
+	
+	public void refreshAccountConvertQuoteTable(){
+		
+		try {
+			
+			String query = "SELECT orderDate AS DATE, quotationNo AS NUMBER, FORMAT(totalPostRounding,2) AS AMOUNT FROM quoteheader WHERE saleType = " +
+								"'AccQuote' AND custId = ?"; 
+					
+			PreparedStatement pst = getDao().conn.prepareStatement(query);
+			pst.setInt( 1, getAcc().getId());
+
+			ResultSet rs = pst.executeQuery();
+			
+			// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+			tblAccountConvertQuote.setModel(DbUtils.resultSetToTableModel(rs));
+						
+			// Set the column widths
+			tblAccountConvertQuote.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			TableColumnModel columnModel = tblAccountConvertQuote.getColumnModel();
+			columnModel.getColumn(0).setPreferredWidth(100);
+			columnModel.getColumn(1).setPreferredWidth(90);
+			columnModel.getColumn(2).setPreferredWidth(95);
+			
+			pst.close();
+			rs.close();
+			
+		}catch(Exception e){
+			JOptionPane.showMessageDialog(null, e);
+		}
+		
+	}
+
+}

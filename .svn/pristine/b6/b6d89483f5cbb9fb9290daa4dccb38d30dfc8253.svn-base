@@ -1,0 +1,110 @@
+package com.daniel;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
+
+import com.daniel.dao.DAO;
+import com.daniel.model.InvoiceSettings;
+
+public class QuotationScreen extends JPanel {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private DAO dao;
+	private InvoiceSettings invoiceSettings;
+	private RetailOrderScreen retailOrderScreen;
+	private TradeOrderScreen tradeOrderScreen;
+
+
+	public DAO getDao() {
+		return dao;
+	}
+
+	public void setDao(DAO dao) {
+		this.dao = dao;
+	}
+
+	public InvoiceSettings getInvoiceSettings() {
+		return invoiceSettings;
+	}
+
+	public void setInvoiceSettings(InvoiceSettings invoiceSettings) {
+		this.invoiceSettings = invoiceSettings;
+	}
+
+	public RetailOrderScreen getRetailOrderScreen() {
+		return retailOrderScreen;
+	}
+
+	public void setRetailOrderScreen(RetailOrderScreen retailOrderScreen) {
+		this.retailOrderScreen = retailOrderScreen;
+	}
+	
+	public TradeOrderScreen getTradeOrderScreen() {
+		return tradeOrderScreen;
+	}
+
+	public void setTradeOrderScreen(TradeOrderScreen tradeOrderScreen) {
+		this.tradeOrderScreen = tradeOrderScreen;
+	}
+
+	
+	public QuotationScreen(final JTabbedPane tabbedPane, DAO dao, InvoiceSettings invoiceSettings, RetailOrderScreen retailOrderScreen, TradeOrderScreen tradeOrderScreen){
+		
+		setDao(dao);
+		setInvoiceSettings(invoiceSettings);
+		setRetailOrderScreen(retailOrderScreen);
+		setTradeOrderScreen(tradeOrderScreen);
+		
+		setBackground(Color.DARK_GRAY);
+		setBounds(0, 0, 1294, 624);
+		tabbedPane.addTab("Quotes", null, this, null);
+		setLayout(null);
+		
+		JPanel panelQuotationOptions = new JPanel();
+		panelQuotationOptions.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelQuotationOptions.setBounds(112, 93, 1068, 197);
+		this.add(panelQuotationOptions);
+		panelQuotationOptions.setLayout(null);
+		
+		JButton btnRetailQuotation = new JButton("RETAIL");
+		btnRetailQuotation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RetailQuotation retailQuotation = new RetailQuotation(getDao(), getInvoiceSettings());
+			}
+		});
+		btnRetailQuotation.setBounds(93, 66, 221, 70);
+		panelQuotationOptions.add(btnRetailQuotation);
+		btnRetailQuotation.setFont(new Font("Georgia", Font.BOLD, 24));
+		
+		JButton btnTradeQuotation = new JButton("TRADE");
+		btnTradeQuotation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				TradeQuotation tradeQuotation = new TradeQuotation(getDao(), getInvoiceSettings());
+			}
+		});
+		btnTradeQuotation.setBounds(418, 66, 221, 70);
+		panelQuotationOptions.add(btnTradeQuotation);
+		btnTradeQuotation.setFont(new Font("Georgia", Font.BOLD, 24));
+		
+		JButton btnConvertQuotation = new JButton("CONVERT");
+		btnConvertQuotation.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ConvertQuotation convertQuotation = new ConvertQuotation(getDao(), getInvoiceSettings(), getRetailOrderScreen(), getTradeOrderScreen(), tabbedPane); 
+			}
+		});
+		btnConvertQuotation.setBounds(747, 66, 221, 70);
+		panelQuotationOptions.add(btnConvertQuotation);
+		btnConvertQuotation.setFont(new Font("Georgia", Font.BOLD, 24));
+
+	}
+}

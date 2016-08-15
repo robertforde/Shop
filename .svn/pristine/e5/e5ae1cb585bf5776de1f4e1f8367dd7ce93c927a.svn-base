@@ -1,0 +1,49 @@
+package com.daniel.model;
+
+import java.util.Date;
+import java.util.ArrayList;
+
+public class Order {
+
+	private ArrayList<OrderLine> orderList = new ArrayList<OrderLine>();
+	private String orderTotal = "0.00";
+	private int receiptNo;
+	private Date orderDate;
+
+	public ArrayList<OrderLine> getOrderList() {
+		return orderList;
+	}
+
+	public void setOrderList(ArrayList<OrderLine> orderList) {
+		this.orderList = orderList;
+	} 
+
+	public void addOrderLine(OrderLine orderLine) {
+		orderList.add(orderLine);
+	}
+
+	public String getOrderTotal() {
+		return orderTotal;
+	}
+
+	public void setOrderTotal(String orderTotal) {
+		this.orderTotal = orderTotal;
+	}
+
+	public int getReceiptNo() {
+		return receiptNo;
+	}
+
+	public void setReceiptNo(int receiptNo) {
+		this.receiptNo = receiptNo;
+	}
+
+	public Date getOrderDate() {
+		return orderDate;
+	}
+
+	public void setOrderDate(Date orderDate) {
+		this.orderDate = orderDate;
+	}
+	
+}

@@ -1,0 +1,236 @@
+package com.daniel.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import javax.swing.JOptionPane;
+
+import com.daniel.model.Item;
+
+public class DAO {
+
+public Connection conn = null;
+	
+	public void connect(){
+	
+		try{
+			// Load the JDBC driver
+			String name = "jdbc:mysql://localhost:3306/shop";
+			String user = "root";
+			String pass = "mysql";
+			
+			Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection(name,user,pass);
+            						
+		}catch (Exception e){
+			System.out.println("SQLException" + e.getMessage());
+		}
+	}
+	
+	public void closeConnection(){
+		try{
+			conn.close();
+		}catch (Exception e){
+			
+		}
+	}
+	
+	public boolean customersInsert(String name, String addr1, String addr2, String phone) throws Exception{
+		
+		boolean done = false;
+		// Check if this customer already exists
+		String query = "SELECT name FROM customer WHERE name = ? AND addressLine1=? AND addressLine2=? AND phone=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString( 1, name );
+		pst.setString( 2, addr1 );
+		pst.setString( 3, addr2 );
+		pst.setString( 4, phone );
+		ResultSet rs = pst.executeQuery();
+		if(!rs.next()){
+			pst.close();
+			query = "INSERT INTO customer (name, addressLine1, addressLine2, phone) VALUES(?,?,?,?)";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.execute();
+
+			JOptionPane.showMessageDialog(null, "Customer " + name + " has been inserted !");
+			done = true;
+		} else {
+			JOptionPane.showMessageDialog(null, "Customer " + name + " is already in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+	public boolean customersUpdate(String id, String name, String addr1, String addr2, String phone) throws Exception{
+		
+		boolean done = false;
+		// Firstly Check if the record exists
+		String query = "SELECT * FROM customer WHERE customerID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, Integer.valueOf(id) );
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			pst.close();
+			query = "UPDATE customer SET name = ?, addressLine1 = ?, addressLine2 = ?, phone = ? WHERE customerID = ?";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.setInt( 5, Integer.valueOf(id) );
+			pst.execute();
+			JOptionPane.showMessageDialog(null, "Customer " + name + " has been updated !");
+			done = true;
+
+		}else {
+			JOptionPane.showMessageDialog(null, "Customer " + name + " is not in the Database !");
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return done;
+	
+	}
+	
+	public boolean customersDelete(String id, String name) throws Exception{
+		int intId = Integer.valueOf(id);
+		boolean done = false;
+		
+		// Firstly Check if the record exists
+		String query = "SELECT name FROM customer WHERE customerID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1,  intId);
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			// We use the showConfirmDialog method of the JOptionPane object to show a confirmation dialog.
+			// This method's parameters: parent object, the message, the title, type of JOptionPane (yes=0,no=1)
+			int action = JOptionPane.showConfirmDialog(null, "Do you really want to delete this record","Delete",JOptionPane.YES_NO_OPTION);
+			
+			if (action==0) {
+				query = "UPDATE CUSTOMER SET deleted=1 WHERE customerID = ?";
+				pst = conn.prepareStatement(query);
+				pst.setInt( 1, intId );
+				
+				pst.execute();
+				JOptionPane.showMessageDialog(null, "Customer " + name + " has been deleted !");
+				done = true;
+				
+			}
+		}else{
+			JOptionPane.showMessageDialog(null, "Customer " + name + " is not in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+	
+	public boolean tradesmenInsert(String name, String addr1, String addr2, String phone) throws Exception{
+		
+		boolean done = false;
+		// Check if this tradesman already exists
+		String query = "SELECT name FROM tradesman WHERE name = ? AND addressLine1=? AND addressLine2=? AND phone=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString( 1, name );
+		pst.setString( 2, addr1 );
+		pst.setString( 3, addr2 );
+		pst.setString( 4, phone );
+		ResultSet rs = pst.executeQuery();
+		if(!rs.next()){
+			pst.close();
+			query = "INSERT INTO tradesman (name, addressLine1, addressLine2, phone) VALUES(?,?,?,?)";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.execute();
+
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " has been inserted !");
+			done = true;
+		} else {
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " is already in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+	public boolean tradesmenUpdate(String id, String name, String addr1, String addr2, String phone) throws Exception{
+		
+		boolean done = false;
+		// Firstly Check if the record exists
+		String query = "SELECT * FROM tradesman WHERE tradesmanID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, Integer.valueOf(id) );
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			pst.close();
+			query = "UPDATE tradesman SET name = ?, addressLine1 = ?, addressLine2 = ?, phone = ? WHERE tradesmanID = ?";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.setInt( 5, Integer.valueOf(id) );
+			pst.execute();
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " has been updated !");
+			done = true;
+
+		}else {
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " is not in the Database !");
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return done;
+	
+	}
+
+	public boolean tradesmenDelete(String id, String name) throws Exception{
+		int intId = Integer.valueOf(id);
+		boolean done = false;
+		
+		// Firstly Check if the record exists
+		String query = "SELECT name FROM tradesman WHERE tradesmanID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1,  intId);
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			// We use the showConfirmDialog method of the JOptionPane object to show a confirmation dialog.
+			// This method's parameters: parent object, the message, the title, type of JOptionPane (yes=0,no=1)
+			int action = JOptionPane.showConfirmDialog(null, "Do you really want to delete this record","Delete",JOptionPane.YES_NO_OPTION);
+			
+			if (action==0) {
+				query = "UPDATE TRADESMAN SET deleted=1 WHERE tradesmanID = ?";
+				pst = conn.prepareStatement(query);
+				pst.setInt( 1, intId );
+				
+				pst.execute();
+				JOptionPane.showMessageDialog(null, "Tradesman " + name + " has been deleted !");
+				done = true;
+				
+			}
+		}else{
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " is not in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+}

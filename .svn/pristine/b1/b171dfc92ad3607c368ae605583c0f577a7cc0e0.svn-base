@@ -1,0 +1,27 @@
+package com.daniel.utilities;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class Utilities {
+	
+	public static float floatToNumDec(float theFloat, int decimals){
+		BigDecimal bd = new BigDecimal(theFloat);
+		bd = bd.setScale(decimals, RoundingMode.HALF_UP);
+		theFloat = bd.floatValue();
+		return theFloat;
+	}
+
+	public static String stringToDec(String s){
+		int dot = s.indexOf(".");
+		String dec = s.substring(dot+1);
+
+		if(dot == -1) {
+			s += ".00";
+		}else if (dec.length() == 1) {
+			s += "0";
+		}
+		return s;
+	}
+	
+}

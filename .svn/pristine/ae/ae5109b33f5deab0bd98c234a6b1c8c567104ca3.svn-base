@@ -1,0 +1,38 @@
+package com.daniel.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+import com.daniel.model.Item;
+
+public class DAO {
+
+public Connection conn = null;
+	
+	public void connect(){
+	
+		try{
+			// Load the JDBC driver
+			String name = "jdbc:mysql://localhost:3306/shop";
+			String user = "root";
+			String pass = "mysql";
+			
+			Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection(name,user,pass);
+            						
+		}catch (Exception e){
+			System.out.println("SQLException" + e.getMessage());
+		}
+	}
+	
+	public void closeConnection(){
+		try{
+			conn.close();
+		}catch (Exception e){
+			
+		}
+	}
+	
+}

@@ -1,0 +1,383 @@
+package com.daniel;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import java.awt.Font;
+
+import javax.swing.JButton;
+
+import com.daniel.model.Order;
+import com.daniel.model.RetailOrder;
+import com.daniel.dao.DAO;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
+import net.proteanit.sql.DbUtils;
+import java.awt.Color;
+import javax.swing.UIManager;
+import javax.swing.ListSelectionModel;
+
+public class CustomerDetails extends JFrame{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JTextField txtCustDetailsName;
+	private JTextField txtCustDetailsAddress1;
+	private JTextField txtCustDetailsAddress2;
+	private JTextField txtCustDetailsPhone;
+	private JButton btnCustDetailsSave;
+	private JButton btnCustDetailsCancel;
+	private JLabel lblCustDetailsAddress2;
+	
+	private DAO dao;
+	private Order order;
+	private JTable tblCustDetails;
+	private JTextField txtCustDetailsId;
+
+	
+	public Order getOrder() {
+		return order;
+	}
+
+	public void setOrder(Order order) {
+		this.order = order;
+	}
+			
+	public DAO getDao() {
+		return dao;
+	}
+
+	public void setDao(DAO dao) {
+		this.dao = dao;
+	}
+	
+	public void filterCustomers(KeyEvent arg0){
+		try {
+
+			// Find the users filters entered and build the sql query string
+			boolean first = true;
+			PreparedStatement pst;
+			String query = "";
+			
+			if(getOrder().getSaleType().equals("Retail") || getOrder().getSaleType().equals("RetailQuote")) {
+				query = "SELECT customerID AS ID, name AS NAME, addressLine1 As ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM customer";
+				
+			} else if(getOrder().getSaleType().equals("Trade") || getOrder().getSaleType().equals("TradeQuote")) {
+				query = "SELECT tradesmanID AS ID, name AS NAME, addressLine1 As ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM tradesman";
+				
+			}else {
+				query = "SELECT accountID AS ID, name AS NAME, addressLine1 As ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM account";
+			}
+			
+			if(!txtCustDetailsName.getText().equals("")) {
+				if(first){
+					query += " WHERE name LIKE '%" + txtCustDetailsName.getText() + "%'";
+					first = false;
+				} else{
+					query += " AND name LIKE '%" + txtCustDetailsName.getText() + "%'";
+				}
+			}
+			
+			if(!txtCustDetailsAddress1.getText().equals("")) {
+				if(first){
+					query += " WHERE addressLine1 LIKE '%" + txtCustDetailsAddress1.getText() + "%'";
+					first = false;
+				} else{
+					query += " AND addressLine1 LIKE '%" + txtCustDetailsAddress1.getText() + "%'";
+				}
+			}
+			
+			if(!txtCustDetailsAddress2.getText().equals("")) {
+				if(first){
+					query += " WHERE addressLine2 LIKE '%" + txtCustDetailsAddress2.getText() + "%'";
+					first = false;
+				} else{
+					query += " AND addressLine2 LIKE '%" + txtCustDetailsAddress2.getText() + "%'";
+				}
+			}
+			
+			if(!txtCustDetailsPhone.getText().equals("")) {
+				if(first){
+					query += " WHERE phone LIKE '%" + txtCustDetailsPhone.getText() + "%'";
+					first = false;
+				} else{
+					query += " AND phone LIKE '%" + txtCustDetailsPhone.getText() + "%'";
+				}
+			}
+			
+			// If no filters
+			if(first) {
+				query += " WHERE deleted=0 ORDER BY name DESC";	
+			}else {
+				query += " AND deleted=0 ORDER BY name DESC";						
+			}
+			
+			pst = getDao().conn.prepareStatement(query);
+
+					
+			ResultSet rs = pst.executeQuery();
+					
+			tblCustDetails.setModel(DbUtils.resultSetToTableModel(rs));
+			tblCustDetails.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			
+			TableColumnModel columnModel = tblCustDetails.getColumnModel();
+			columnModel.getColumn(0).setPreferredWidth(10);
+			columnModel.getColumn(1).setPreferredWidth(226);
+			columnModel.getColumn(2).setPreferredWidth(300);
+			columnModel.getColumn(3).setPreferredWidth(300);
+			columnModel.getColumn(4).setPreferredWidth(173);
+			
+			// Set the tab key to the customer details possible matches table
+			if(arg0 != null && arg0.getKeyCode() == KeyEvent.VK_TAB){
+				tblCustDetails.requestFocus();
+			}
+
+			pst.close();
+			rs.close();
+				
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+		}
+	}
+	
+	public void customerSelected() {
+		try {
+		
+			// We use the table's getSelectedRow() method to find the row that the User selected. 
+			int row = tblCustDetails.getSelectedRow();
+	
+			// Then we can get the id of the selected row by getting the model of the table and then using the getValueAt() method we can get the specific
+			// row and column that we require.
+			// This returns an Object so we get the toString and then integer of it.
+			int id = Integer.valueOf(tblCustDetails.getModel().getValueAt(row, 0).toString());
+			
+			String query = "SELECT * FROM ";
+			if(getOrder().getSaleType().equals("Retail") || getOrder().getSaleType().equals("RetailQuote")) {
+				query += "customer WHERE customerID = ?";
+			} else if(getOrder().getSaleType().equals("Trade") || getOrder().getSaleType().equals("TradeQuote")) {
+				query += "tradesman WHERE tradesmanID = ? ";
+			}else
+				query += "account WHERE accountID = ? ";
+			
+			PreparedStatement pst = dao.conn.prepareStatement(query);
+			pst.setInt( 1, id);
+			ResultSet rs = pst.executeQuery();
+			
+			while(rs.next()){
+				// Put selected name, address and phone into the appropriate members of the order object
+				if(getOrder().getSaleType().equals("Retail") || getOrder().getSaleType().equals("RetailQuote")) {
+					txtCustDetailsId.setText(rs.getString("customerId"));
+					
+				}else if(getOrder().getSaleType().equals("Trade") || getOrder().getSaleType().equals("TradeQuote")) {
+					txtCustDetailsId.setText(rs.getString("tradesmanId"));
+					
+				}else{
+					txtCustDetailsId.setText(rs.getString("accountId"));
+				}
+				
+				txtCustDetailsName.setText(rs.getString("name"));
+				txtCustDetailsAddress1.setText(rs.getString("addressLine1"));
+				txtCustDetailsAddress2.setText(rs.getString("addressLine2"));
+				txtCustDetailsPhone.setText(rs.getString("phone"));
+			}
+			
+			txtCustDetailsName.requestFocus();
+			
+			pst.close();
+			rs.close();
+			
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+		}
+	}
+
+	public CustomerDetails(Order order, DAO dao){
+		getContentPane().setBackground(Color.LIGHT_GRAY);
+		
+		setDao(dao);
+		
+		new JFrame();
+		setBounds(150, 150, 1079, 475);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		getContentPane().setLayout(null);
+		setVisible(true);
+		
+		JLabel lblCustDetailsName = new JLabel("Name");
+		lblCustDetailsName.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblCustDetailsName.setBounds(22, 23, 71, 14);
+		getContentPane().add(lblCustDetailsName);
+		
+		JLabel lblCustDetailsAddress1 = new JLabel("Address Line 1");
+		lblCustDetailsAddress1.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblCustDetailsAddress1.setBounds(271, 23, 154, 14);
+		getContentPane().add(lblCustDetailsAddress1);
+		
+		txtCustDetailsName = new JTextField();
+		txtCustDetailsName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				// Disable the normal tab key focus on the Name textbox
+				txtCustDetailsName.setFocusTraversalKeysEnabled(false);
+				
+				filterCustomers(arg0);
+			}
+		});
+		txtCustDetailsName.setBounds(22, 48, 226, 20);
+		getContentPane().add(txtCustDetailsName);
+		txtCustDetailsName.setColumns(10);
+		
+		txtCustDetailsAddress1 = new JTextField();
+		txtCustDetailsAddress1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				// Disable the normal tab key focus on the address line1 textbox
+				txtCustDetailsAddress1.setFocusTraversalKeysEnabled(false);
+				
+				filterCustomers(arg0);
+			}
+		});
+		txtCustDetailsAddress1.setBounds(271, 48, 300, 20);
+		getContentPane().add(txtCustDetailsAddress1);
+		txtCustDetailsAddress1.setColumns(10);
+		
+		txtCustDetailsAddress2 = new JTextField();
+		txtCustDetailsAddress2.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				// Disable the normal tab key focus on the address line 2
+				txtCustDetailsAddress2.setFocusTraversalKeysEnabled(false);
+				
+				filterCustomers(arg0);
+			}
+		});
+		txtCustDetailsAddress2.setBounds(581, 48, 300, 20);
+		getContentPane().add(txtCustDetailsAddress2);
+		txtCustDetailsAddress2.setColumns(10);
+		
+		JLabel lblCustDetailsPhone = new JLabel("Phone");
+		lblCustDetailsPhone.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblCustDetailsPhone.setBounds(911, 23, 71, 14);
+		getContentPane().add(lblCustDetailsPhone);
+		
+		txtCustDetailsPhone = new JTextField();
+		txtCustDetailsPhone.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				// Disable the normal tab key focus on the address line1 textbox
+				txtCustDetailsPhone.setFocusTraversalKeysEnabled(false);
+				
+				filterCustomers(arg0);
+			}
+		});
+		txtCustDetailsPhone.setBounds(911, 48, 127, 20);
+		getContentPane().add(txtCustDetailsPhone);
+		txtCustDetailsPhone.setColumns(10);
+		
+		btnCustDetailsSave = new JButton("SAVE");
+		btnCustDetailsSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int id = getOrder().getCustId();
+
+				// If new customer then leave the id as 0
+				if(id == 0 && !txtCustDetailsId.getText().equals("")){
+					id = Integer.parseInt(txtCustDetailsId.getText());
+				}
+				
+				getOrder().setCustId(id);
+				getOrder().setName(txtCustDetailsName.getText());
+				getOrder().setAddress1(txtCustDetailsAddress1.getText());
+				getOrder().setAddress2(txtCustDetailsAddress2.getText());
+				getOrder().setPhone(txtCustDetailsPhone.getText());
+				dispose();
+			}
+		});
+		btnCustDetailsSave.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustDetailsSave.setBounds(331, 390, 120, 38);
+		getContentPane().add(btnCustDetailsSave);
+		
+		btnCustDetailsCancel = new JButton("CANCEL");
+		btnCustDetailsCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		btnCustDetailsCancel.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustDetailsCancel.setBounds(615, 390, 120, 38);
+		getContentPane().add(btnCustDetailsCancel);
+		
+		lblCustDetailsAddress2 = new JLabel("Address Line 2");
+		lblCustDetailsAddress2.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblCustDetailsAddress2.setBounds(581, 23, 154, 14);
+		getContentPane().add(lblCustDetailsAddress2);
+		
+		JPanel panelCustDetails = new JPanel();
+		panelCustDetails.setBounds(22, 96, 1016, 281);
+		getContentPane().add(panelCustDetails);
+		panelCustDetails.setLayout(null);
+		
+		JScrollPane scrCustDetails = new JScrollPane();
+		scrCustDetails.setBounds(0, 0, 1028, 281);
+		panelCustDetails.add(scrCustDetails);
+		
+		tblCustDetails = new JTable();
+		tblCustDetails.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblCustDetails.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// If enter pressed call a method to fill the customer fields with this their name, address1, address2 and phone  
+				if(arg0.getKeyCode() == 10) {
+					customerSelected();					
+				}
+			}
+		});
+		tblCustDetails.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				customerSelected();
+			}
+		});
+		scrCustDetails.setViewportView(tblCustDetails);
+		
+		txtCustDetailsId = new JTextField();
+		txtCustDetailsId.setEditable(false);
+		txtCustDetailsId.setEnabled(false);
+		txtCustDetailsId.setBounds(10, 48, 10, 20);
+		getContentPane().add(txtCustDetailsId);
+		txtCustDetailsId.setColumns(10);
+		txtCustDetailsId.setVisible(false);
+		
+		setTitle("Customer Details");
+		
+		this.setOrder(order);
+		//If the order has details for the name address or phone then put them into the fields
+		if (!order.getName().isEmpty())
+			txtCustDetailsName.setText(order.getName());
+		if (!order.getAddress1().isEmpty())
+			txtCustDetailsAddress1.setText(order.getAddress1());
+		if (!order.getAddress2().isEmpty())
+			txtCustDetailsAddress2.setText(order.getAddress2());
+		if (!order.getPhone().isEmpty())
+			txtCustDetailsPhone.setText(order.getPhone());
+		
+		// Call the filter method to display the table based on what is entered
+		filterCustomers(null);
+	}
+}

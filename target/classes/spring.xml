@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    
+    <context:annotation-config />
+	
+	<context:component-scan base-package="com.daniel" />
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/shop" />
+		<property name="username" value="root" />
+		<property name="password" value="mysql" />
+		<property name="initialSize" value="2" />
+		<property name="maxTotal"   value="5" />
+	</bean>
+	
+	<!-- We create a bean for the ProductDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="productDaoImpl" class="com.daniel.dao.ProductDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- We create a bean for the TradesmanDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="tradesmanDaoImpl" class="com.daniel.dao.TradesmanDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- We create a bean for the CustomerDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="customerDaoImpl" class="com.daniel.dao.CustomerDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- We create a bean for the StaffDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="staffDaoImpl" class="com.daniel.dao.StaffDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- We create a bean for the ReceiptSettingsDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="receiptSettingsDaoImpl" class="com.daniel.dao.ReceiptSettingsDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- We create a bean for the RefundedDetailDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="refundedDetailDaoImpl" class="com.daniel.dao.RefundedDetailDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- We create a bean for the AccountDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="accountDaoImpl" class="com.daniel.dao.AccountDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+		
+	<!-- We create a bean for the QuoteDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="quoteDaoImpl" class="com.daniel.dao.QuoteDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- We create a bean for the OrderDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="orderDaoImpl" class="com.daniel.dao.OrderDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- We create a bean for the SuspendedDaoImpl object and we inject the dataSource bean as a property to it -->
+	<bean id="suspendedDaoImpl" class="com.daniel.dao.SuspendedDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+		
+</beans>

@@ -1,0 +1,60 @@
+package com.daniel.model;
+
+public class OrderLine {
+
+	private String itemCode;
+	private String itemDescription;
+	private String orderQty;
+	private String itemPrice;
+	private String orderPrice;
+	private int receiptNo;
+	
+	public String getOrderPrice() {
+		return orderPrice;
+	}
+	
+	public void setOrderPrice(String orderPrice) {
+		this.orderPrice = orderPrice;
+	}
+	
+	public String getItemCode() {
+		return itemCode;
+	}
+	
+	public void setItemCode(String itemCode) {
+		this.itemCode = itemCode;
+	}
+	
+	public String getItemDescription() {
+		return itemDescription;
+	}
+	
+	public void setItemDescription(String itemDescription) {
+		this.itemDescription = itemDescription;
+	}
+	
+	public String getOrderQty() {
+		return orderQty;
+	}
+	
+	public void setOrderQty(String orderQty) {
+		this.orderQty = orderQty;
+	}
+	
+	public String getItemPrice() {
+		return itemPrice;
+	}
+	
+	public void setItemPrice(String itemPrice) {
+		this.itemPrice = itemPrice;
+	}
+
+	public int getReceiptNo() {
+		return receiptNo;
+	}
+
+	public void setReceiptNo(int receiptNo) {
+		this.receiptNo = receiptNo;
+	} 
+		
+}

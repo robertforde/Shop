@@ -1,0 +1,1768 @@
+package com.daniel.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+import net.proteanit.sql.DbUtils;
+
+import com.daniel.model.Account;
+import com.daniel.model.InvoiceSettings;
+import com.daniel.model.Item;
+import com.daniel.model.Order;
+import com.daniel.model.Payment;
+import com.daniel.model.RefundedDetail;
+import com.daniel.model.RetailOrder;
+import com.daniel.model.RetailOrderLine;
+import com.daniel.model.TradeOrder;
+import com.daniel.model.TradeOrderLine;
+import com.daniel.model.Transaction;
+import com.daniel.utilities.Utilities;
+import com.toedter.calendar.JDateChooser;
+
+public class DAO {
+
+	public static Connection conn = null;
+	
+	public static void connect(){
+	
+		try{
+			// Load the JDBC driver
+			String name = "jdbc:mysql://localhost:3306/shop";
+			String user = "root";
+			String pass = "mysql";
+			
+			Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection(name,user,pass);
+            						
+		}catch (Exception e){
+			System.out.println("SQLException" + e.getMessage());
+		}
+	}
+	
+	
+	public static void closeConnection(){
+		try{
+			conn.close();
+		}catch (Exception e){
+			
+		}
+	}
+	
+	
+	// Method to insert a customer into the customer table
+	public static boolean customerInsert(String name, String addr1, String addr2, String phone, boolean msg) throws Exception{
+		
+		boolean done = false;
+		// Check if this customer already exists
+		String query = "SELECT name FROM customer WHERE name = ? AND addressLine1=? AND addressLine2=? AND phone=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString( 1, name );
+		pst.setString( 2, addr1 );
+		pst.setString( 3, addr2 );
+		pst.setString( 4, phone );
+		ResultSet rs = pst.executeQuery();
+		if(!rs.next()){
+			pst.close();
+			query = "INSERT INTO customer (name, addressLine1, addressLine2, phone) VALUES(?,?,?,?)";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.executeUpdate();
+
+			if(msg) {
+				JOptionPane.showMessageDialog(null, "Customer " + name + " has been inserted !");
+			}
+			
+			done = true;
+			
+		} else {
+			JOptionPane.showMessageDialog(null, "Customer " + name + " is already in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+	
+	// Method to update a customer in the customer table
+	public static boolean customerUpdate(String id, String name, String addr1, String addr2, String phone, boolean msg) throws Exception{
+		
+		boolean done = false;
+		// Firstly Check if the record exists
+		String query = "SELECT * FROM customer WHERE customerID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, Integer.valueOf(id) );
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			pst.close();
+			query = "UPDATE customer SET name = ?, addressLine1 = ?, addressLine2 = ?, phone = ? WHERE customerID = ?";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.setInt( 5, Integer.valueOf(id) );
+			pst.executeUpdate();
+			
+			if(msg){
+				JOptionPane.showMessageDialog(null, "Customer " + name + " has been updated !");
+			}
+			
+			done = true;
+
+		}else {
+			JOptionPane.showMessageDialog(null, "Customer " + name + " is not in the Database !");
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return done;
+	
+	}
+	
+	
+	// Method to delete a customer from the customer table
+	public static boolean customerDelete(String id, String name) throws Exception{
+		int intId = Integer.valueOf(id);
+		boolean done = false;
+		
+		// Firstly Check if the record exists
+		String query = "SELECT name FROM customer WHERE customerID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1,  intId);
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			// We use the showConfirmDialog method of the JOptionPane object to show a confirmation dialog.
+			// This method's parameters: parent object, the message, the title, type of JOptionPane (yes=0,no=1)
+			int action = JOptionPane.showConfirmDialog(null, "Do you really want to delete this record","Delete",JOptionPane.YES_NO_OPTION);
+			
+			if (action==0) {
+				query = "UPDATE CUSTOMER SET deleted=1 WHERE customerID = ?";
+				pst = conn.prepareStatement(query);
+				pst.setInt( 1, intId );
+				
+				pst.executeUpdate();
+				JOptionPane.showMessageDialog(null, "Customer " + name + " has been deleted !");
+				done = true;
+				
+			}
+		}else{
+			JOptionPane.showMessageDialog(null, "Customer " + name + " is not in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+	
+	// Method to retreive a customer based on its ID and load it's details into the textfields passed
+	public static void customerRetreive(int id, JTextField txtCustomersID, JTextField txtCustomersName, JTextField txtCustomersAddressLine1, 
+			JTextField txtCustomersAddressLine2, JTextField txtCustomersPhone) throws Exception{
+		
+		String idString = String.valueOf(id);
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		query = "SELECT * FROM customer WHERE customerID = ? ";
+		pst = conn.prepareStatement(query);
+		pst.setInt( 1, id);
+
+		rs = pst.executeQuery();
+
+		while(rs.next()){
+			txtCustomersID.setText(idString);
+			txtCustomersName.setText(rs.getString("name"));
+			txtCustomersAddressLine1.setText(rs.getString("addressLine1") );
+			txtCustomersAddressLine2.setText(rs.getString("addressLine2") );
+			txtCustomersPhone.setText(rs.getString("phone") );
+		}
+		
+		pst.close();
+		rs.close();
+	}
+	
+	
+	// Method to retreive all of the Customrs from the customers table that match the selected criteria and set the resulatset as the model for the passed table
+	public static void customersLoadFiltered(String selection, String filter, JTable tblCustomersList) throws Exception{
+		
+		String query;
+		PreparedStatement  pst;
+		ResultSet rs;
+		
+		query = "SELECT customerID AS ID, name AS NAME, addressLine1 AS ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM customer WHERE " + selection + " LIKE ?" +
+		" AND deleted=0 ORDER BY " + selection;
+		
+		pst = conn.prepareStatement(query);
+		pst.setString(1, filter);
+		rs = pst.executeQuery();
+		
+		// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+		tblCustomersList.setModel(DbUtils.resultSetToTableModel(rs));
+			
+		pst.close();
+		rs.close();	
+	}
+	
+
+	// Method to insert a tradesman into the tradesman table
+	public static boolean tradesmanInsert(String name, String addr1, String addr2, String phone, boolean msg) throws Exception{
+		
+		boolean done = false;
+		// Check if this tradesman already exists
+		String query = "SELECT name FROM tradesman WHERE name = ? AND addressLine1=? AND addressLine2=? AND phone=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString( 1, name );
+		pst.setString( 2, addr1 );
+		pst.setString( 3, addr2 );
+		pst.setString( 4, phone );
+		ResultSet rs = pst.executeQuery();
+		if(!rs.next()){
+			pst.close();
+			query = "INSERT INTO tradesman (name, addressLine1, addressLine2, phone) VALUES(?,?,?,?)";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.executeUpdate();
+
+			if(msg) {
+				JOptionPane.showMessageDialog(null, "Tradesman " + name + " has been inserted !");
+			}
+			
+			done = true;
+		} else {
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " is already in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+
+	
+	// Method to update a tradesman in the tradesmen table
+	public static boolean tradesmanUpdate(String id, String name, String addr1, String addr2, String phone, boolean msg) throws Exception{
+		
+		boolean done = false;
+		// Firstly Check if the record exists
+		String query = "SELECT * FROM tradesman WHERE tradesmanID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, Integer.valueOf(id) );
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			pst.close();
+			query = "UPDATE tradesman SET name = ?, addressLine1 = ?, addressLine2 = ?, phone = ? WHERE tradesmanID = ?";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.setInt( 5, Integer.valueOf(id) );
+			pst.executeUpdate();
+			
+			if(msg){
+				JOptionPane.showMessageDialog(null, "Tradesman " + name + " has been updated !");
+			}
+			
+			done = true;
+
+		}else {
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " is not in the Database !");
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return done;
+	
+	}
+
+	
+	// Method to delete a tradesman from the tradesmen table
+	public static boolean tradesmanDelete(String id, String name) throws Exception{
+		int intId = Integer.valueOf(id);
+		boolean done = false;
+		
+		// Firstly Check if the record exists
+		String query = "SELECT name FROM tradesman WHERE tradesmanID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1,  intId);
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			// We use the showConfirmDialog method of the JOptionPane object to show a confirmation dialog.
+			// This method's parameters: parent object, the message, the title, type of JOptionPane (yes=0,no=1)
+			int action = JOptionPane.showConfirmDialog(null, "Do you really want to delete this record","Delete",JOptionPane.YES_NO_OPTION);
+			
+			if (action==0) {
+				query = "UPDATE TRADESMAN SET deleted=1 WHERE tradesmanID = ?";
+				pst = conn.prepareStatement(query);
+				pst.setInt( 1, intId );
+				
+				pst.executeUpdate();
+				JOptionPane.showMessageDialog(null, "Tradesman " + name + " has been deleted !");
+				done = true;
+				
+			}
+		}else{
+			JOptionPane.showMessageDialog(null, "Tradesman " + name + " is not in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+	
+	// Method to retreive a tradesman based on its ID and load it's details into the textfields passed
+	public static void tradesmanRetreive(int id, JTextField txtTradesmenID, JTextField txtTradesmenName, JTextField txtTradesmenAddressLine1, 
+			JTextField txtTradesmenAddressLine2, JTextField txtTradesmenPhone) throws Exception {
+		
+		String idString = String.valueOf(id);
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		query = "SELECT * FROM tradesman WHERE tradesmanID= ? ";
+		pst = conn.prepareStatement(query);
+		pst.setInt( 1, id);
+
+		rs = pst.executeQuery();
+		
+		while(rs.next()){
+			txtTradesmenID.setText(idString);
+			txtTradesmenName.setText(rs.getString("name"));
+			txtTradesmenAddressLine1.setText(rs.getString("addressLine1") );
+			txtTradesmenAddressLine2.setText(rs.getString("addressLine2") );
+			txtTradesmenPhone.setText(rs.getString("phone") );
+		}
+		
+		pst.close();
+		rs.close();
+
+	}
+	
+	
+	// Method to retreive all of the tradesmen from the tradesman table based on the selected filter and set them as the model for the passed table
+	public static void tradesmenLoadFiltered(String selection, String filter, JTable tblTradesmenList) throws Exception{
+		
+		String query;
+		PreparedStatement  pst;
+		ResultSet rs;
+		
+		query = "SELECT tradesmanID AS ID, name AS NAME, addressLine1 AS ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM tradesman WHERE " + selection + " LIKE ?" +
+		" AND deleted=0 ORDER BY " + selection;
+		
+		pst = conn.prepareStatement(query);
+		pst.setString(1, filter);
+		
+		rs = pst.executeQuery();
+		
+		// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+		tblTradesmenList.setModel(DbUtils.resultSetToTableModel(rs));
+
+		pst.close();
+		rs.close();
+		
+	}
+	
+	
+	// Method to assign saved values to receipt printing settings
+	public static void retrieveDatabasePrintSettings(InvoiceSettings invoiceSettings) throws Exception{
+
+		// Load the current receipt printing settings
+		String query = "SELECT * FROM receiptsettings";
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery(query);
+			
+		while(rs.next()){
+			invoiceSettings.setReceiptTopBanner(rs.getInt("topBanner"));
+			invoiceSettings.setReceiptTopBannerX(rs.getInt("topBannerX"));
+			invoiceSettings.setReceiptTopBannerY(rs.getInt("topBannerY"));
+			invoiceSettings.setReceiptVerticalGridLines(rs.getInt("VerticalGridLines"));
+			invoiceSettings.setReceiptBodyImage(rs.getInt("bodyImage"));
+			invoiceSettings.setReceiptBodyImageX(rs.getInt("bodyImageX"));
+			invoiceSettings.setReceiptBodyImageY(rs.getInt("bodyImageY"));
+			invoiceSettings.setReceiptVatRate(rs.getFloat("vatRate"));
+			invoiceSettings.setReceiptFooterLine1(rs.getString("footerLine1"));
+			invoiceSettings.setReceiptFooterLine2(rs.getString("footerLine2"));
+			invoiceSettings.setReceiptFooterLine3(rs.getString("footerLine3"));
+		}
+			
+		st.close();
+		rs.close();
+	}
+
+	
+	// Method to save print settings to the Database
+	public static void savePrintSettingsToDatabase(InvoiceSettings invoiceSettings) throws Exception{
+			
+		String query = "UPDATE receiptsettings SET topBanner = ?,  topBannerX = ?, topBannerY = ?, verticalGridLines = ?, bodyImage = ?, bodyImageX = ?, " + 
+				"bodyImageY = ?, vatRate = ?, footerLine1 = ?, footerLine2 = ?, footerLine3 = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, invoiceSettings.getReceiptTopBanner() );
+		pst.setInt( 2, invoiceSettings.getReceiptTopBannerX() );
+		pst.setInt( 3, invoiceSettings.getReceiptTopBannerY() );
+		pst.setInt( 4, invoiceSettings.getReceiptVerticalGridLines() );
+		pst.setInt( 5, invoiceSettings.getReceiptBodyImage() );
+		pst.setInt( 6, invoiceSettings.getReceiptBodyImageX() );
+		pst.setInt( 7, invoiceSettings.getReceiptBodyImageY() );
+		pst.setFloat( 8, invoiceSettings.getReceiptVatRate() );
+		pst.setString( 9, invoiceSettings.getReceiptFooterLine1() );
+		pst.setString( 10, invoiceSettings.getReceiptFooterLine2() );
+		pst.setString( 11, invoiceSettings.getReceiptFooterLine3() );
+
+		pst.executeUpdate();
+		pst.close();
+
+	}
+	
+	
+	// Method to find this invoice in the orderdetail table and load it's details as a tablemodel and an Object array
+	public static void refundLoadInvoiceDetail(int selectedInvoiceNo, float plusVat, DefaultTableModel tableModelInvoiceDetail) throws Exception{
+		
+		String query = "SELECT lineNo AS LINE, itemCode AS ITEM, itemDescription AS DESCRIPTION, qty AS QTY, FORMAT(price,2) AS PRICE, FORMAT(discPercent,2) AS 'DISC%', " + 
+				"FORMAT( ((price - (price*discpercent/100)) * " + plusVat + ")  ,2) AS 'INC VAT' FROM orderdetail WHERE receiptNo = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		
+		pst.setInt(1, selectedInvoiceNo);
+		ResultSet rs = pst.executeQuery(); 
+		
+		// Loop through the resultset and add the transactions to an array of Objects, based on the dates selected, to create the table
+		while(rs.next()){
+			int invoiceQty = rs.getInt("QTY");
+			if(invoiceQty == 1) {
+				Object[] line = {rs.getString("LINE"), rs.getString("ITEM"), rs.getString("DESCRIPTION"), rs.getString("PRICE"), rs.getString("DISC%"), rs.getString("INC VAT")};
+				tableModelInvoiceDetail.addRow(line);
+										
+			}else {
+				int lines = 1;
+				while(lines<=invoiceQty){
+					Object[] line = {rs.getString("LINE"), rs.getString("ITEM"), rs.getString("DESCRIPTION"), rs.getString("PRICE"), rs.getString("DISC%"), rs.getString("INC VAT")};
+					tableModelInvoiceDetail.addRow(line);
+					lines++;
+				}									
+			}
+		}
+		
+		pst.close();
+		rs.close();
+		
+	}
+	
+
+	// Method to find the matching invoices in the orderheader table and load their details as a tablemodel of a passed in table
+	public static void refundFilterInvoices(JRadioButton rdbtnRetailRefund, JRadioButton rdbtnTradeRefund, JTextField txtRefundInvoiceNo, JTextField txtRefundName, 
+			JDateChooser txtRefundFromDate, JDateChooser txtRefundToDate, JTextField txtRefundAddress, JTextField txtRefundPhone, JTextField txtRefundValue, 
+			JTable tblRefundInvoicesFiltered) throws Exception{
+		
+		// Find the users filters entered and build the sql query string
+		ResultSet rs;
+		PreparedStatement pst;
+		String query = "";
+		String saleTypeFilter;
+				
+		if(rdbtnRetailRefund.isSelected())
+			saleTypeFilter = "Retail";
+		else if(rdbtnTradeRefund.isSelected())
+			saleTypeFilter = "Trade";
+		else
+		saleTypeFilter = "Account";
+			
+		query = "SELECT receiptNo as INVOICE, name AS NAME, addressLine1 AS ADDRESS, DATE_FORMAT(orderDate,'%d-%m-%Y') AS DATE, phone AS PHONE, "
+				+ "FORMAT(totalPostRounding,2) AS VALUE FROM orderheader WHERE saleType='" + saleTypeFilter + "'";
+		
+		if(!txtRefundInvoiceNo.getText().equals(""))
+			query += " AND receiptNo = " + txtRefundInvoiceNo.getText();
+		
+		if(!txtRefundName.getText().equals(""))
+			query += " AND name LIKE '%" + txtRefundName.getText() + "%'";
+
+		if(!txtRefundAddress.getText().equals(""))
+			query += " AND addressLine1 LIKE '%" + txtRefundAddress.getText() + "%'";
+		
+		Date fromDate = txtRefundFromDate.getDateEditor().getDate();
+		if(fromDate != null) {
+			java.sql.Date sqlFromDate = new java.sql.Date(fromDate.getTime());
+			query += " AND orderDate >= '" + sqlFromDate + "'";
+		}
+		
+		Date toDate = txtRefundToDate.getDateEditor().getDate();
+		if(toDate != null) {
+			java.sql.Date sqlToDate = new java.sql.Date(toDate.getTime());
+			query += " AND orderDate <= '" + sqlToDate + "'";
+		}
+						
+		if(!txtRefundPhone.getText().equals(""))
+			query += " AND phone LIKE '%" + txtRefundPhone.getText() + "%'";
+			
+		if(!txtRefundValue.getText().equals(""))
+			query += " AND FORMAT(totalPostRounding,2) = " + Float.parseFloat(txtRefundValue.getText());
+	
+		query += " ORDER BY receiptNo";
+			
+		
+		pst = conn.prepareStatement(query);
+		rs = pst.executeQuery();
+					
+		tblRefundInvoicesFiltered.setModel(DbUtils.resultSetToTableModel(rs));
+		
+		pst.close();
+		rs.close();
+
+	}
+	
+	
+	// Method to find the matching invoices in the orderheader table and load their details as a tablemodel of a passed in table
+	public static void refundFilterInvoicesByItem(JRadioButton rdbtnRetailRefund, JRadioButton rdbtnTradeRefund, JTextField txtRefundInvoiceNo, JTextField txtRefundName, 
+			JDateChooser txtRefundFromDate, JDateChooser txtRefundToDate, JTextField txtRefundAddress, JTextField txtRefundPhone, JTextField txtRefundValue, 
+			JTextField txtRefundSrchItemCode, JTextField txtRefundSrchItemDesc, JTable tblRefundInvoicesFiltered) throws Exception{
+			
+		// Find the users filters entered and build the sql query string
+		ResultSet rs;
+		PreparedStatement pst;
+		String query = "";
+		String saleTypeFilter;
+	
+		if(rdbtnRetailRefund.isSelected())
+			saleTypeFilter = "Retail";
+		else if(rdbtnTradeRefund.isSelected())
+			saleTypeFilter = "Trade";
+		else
+			saleTypeFilter = "Account";
+			
+		query = "SELECT DISTINCT header.receiptNo AS INVOICE_NO, header.name AS NAME, header.addressLine1 AS ADDRESS, DATE_FORMAT(header.orderDate,'%d-%m-%Y') AS DATE, "
+				+ "header.phone AS PHONE, + FORMAT(header.totalPostRounding,2) AS VALUE  FROM orderdetail detail JOIN orderheader header ON "
+				+ "header.receiptNo=detail.receiptNo WHERE saleType='" + saleTypeFilter + "'";
+		
+		if (!txtRefundSrchItemCode.getText().equals(""))
+			query += " AND detail.itemCode LIKE '%" + txtRefundSrchItemCode.getText() + "%'";
+		
+		if (!txtRefundSrchItemDesc.getText().equals(""))
+			query += " AND detail.itemDescription LIKE '%" + txtRefundSrchItemDesc.getText() + "%'";
+		
+		if(!txtRefundInvoiceNo.getText().equals(""))
+			query += " AND header.receiptNo = " + txtRefundInvoiceNo.getText();
+		
+		if(!txtRefundName.getText().equals(""))
+			query += " AND header.name LIKE '%" + txtRefundName.getText() + "%'";
+	
+		if(!txtRefundAddress.getText().equals(""))
+			query += " AND header.addressLine1 LIKE '%" + txtRefundAddress.getText() + "%'";
+		
+		Date fromDate = txtRefundFromDate.getDateEditor().getDate();
+		if(fromDate != null) {
+			java.sql.Date sqlFromDate = new java.sql.Date(fromDate.getTime());
+			query += " AND header.orderDate >= '" + sqlFromDate + "'";
+		}
+		
+		Date toDate = txtRefundToDate.getDateEditor().getDate();
+		if(toDate != null) {
+			java.sql.Date sqlToDate = new java.sql.Date(toDate.getTime());
+			query += " AND header.orderDate <= '" + sqlToDate + "'";
+		}
+					
+		if(!txtRefundPhone.getText().equals(""))
+			query += " AND header.phone LIKE '%" + txtRefundPhone.getText() + "%'";
+		
+		if(!txtRefundValue.getText().equals(""))
+			query += " AND FORMAT(totalPostRounding,2) = " + Float.parseFloat(txtRefundValue.getText());
+		
+		query += " ORDER BY header.receiptNo";
+		
+		
+		pst = conn.prepareStatement(query);
+	
+		rs = pst.executeQuery();
+			
+		tblRefundInvoicesFiltered.setModel(DbUtils.resultSetToTableModel(rs));
+		
+		pst.close();
+		rs.close();
+
+	}
+	
+	
+	// Method to update the orderdetail and refundeddetail tables based on the items that are being refunded 
+	public static void refundUpdateDetail(RefundedDetail refundedDetail) throws Exception{
+		
+		// Find the cost price of this refund
+		String query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, costPrice/qty AS unitCost FROM orderdetail WHERE receiptNo=? AND lineNo=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt(1, refundedDetail.getReceiptNo());
+		pst.setInt(2, refundedDetail.getLineNo());
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			refundedDetail.setItemCode(rs.getString("ITEM"));
+			refundedDetail.setItemDescription(rs.getString("DESCRIPTION"));
+			refundedDetail.setCostPrice(rs.getFloat("unitCost"));
+		}
+		
+		// Update the orderdetail
+		query = "UPDATE orderdetail SET qty=qty-1, valueExDiscount=valueExDiscount-?, discValue=discValue-?, valueExVat=valueExVat-?, costPrice=costPrice-?, " + 
+				"refundedValue=refundedValue+? WHERE receiptNo=? AND lineNo=?";
+		pst = conn.prepareStatement(query);
+		pst.setFloat(1, refundedDetail.getPrice());
+		pst.setFloat(2, refundedDetail.getDiscValue());
+		pst.setFloat(3, refundedDetail.getValueExVat());
+		pst.setFloat(4, refundedDetail.getCostPrice());
+		pst.setFloat(5, refundedDetail.getValueIncVat());
+		pst.setInt(6, refundedDetail.getReceiptNo());
+		pst.setInt(7, refundedDetail.getLineNo());
+		pst.executeUpdate();
+		
+		// Save the refunded line to the refundeddetail table
+		query = "INSERT INTO refundeddetail (receiptNo, lineNo, itemCode, itemDescription, qty, price, discValue, valueExVat, vat, valueIncVat, costPrice) " + 
+				"values(?,?,?,?,?,?,?,?,?,?,?)";
+		pst = conn.prepareStatement(query);
+		pst.setInt(1, refundedDetail.getReceiptNo());
+		pst.setInt(2, refundedDetail.getLineNo());
+		pst.setString(3, refundedDetail.getItemCode());
+		pst.setString(4, refundedDetail.getItemDescription());
+		pst.setInt(5, 1);
+		pst.setFloat(6, refundedDetail.getPrice());
+		pst.setFloat(7, refundedDetail.getDiscValue());
+		pst.setFloat(8, refundedDetail.getValueExVat());
+		pst.setFloat(9, refundedDetail.getVat());
+		pst.setFloat(10, refundedDetail.getValueIncVat());
+		pst.setFloat(11, refundedDetail.getCostPrice());
+		pst.executeUpdate();
+		
+		pst.close();
+		rs.close();
+
+	}
+
+	
+	// Method to update the orderheader table based on the items that are being refunded 
+	public static void refundUpdateHeader(int selectedInvoiceNo, float totExVat, float totVat, float totalRefunded, float totCost) throws Exception{
+		
+		// Update the orderheader table based on this refund
+		String query = "UPDATE orderheader SET totalExVat=totalExVat-?, totalVat=totalVat-?, totalPreRounding=totalPreRounding-?, totalPostRounding=totalPostRounding-?, " + 
+				"totalCostPrice=totalCostPrice-?, refundValue=refundValue+? WHERE receiptNo=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setFloat(1, totExVat);
+		pst.setFloat(2, totVat);
+		pst.setFloat(3, totalRefunded);
+		pst.setFloat(4, totalRefunded);
+		pst.setFloat(5, totCost);
+		pst.setFloat(6, totalRefunded);
+		pst.setInt(7, selectedInvoiceNo);
+		pst.executeUpdate();
+
+		pst.close();
+	}
+	
+	
+	// Method to find a quote and it's detail lines in the quotheader and quotedetail tables and load them into the tradeOrder passed
+	public static void loadTradeQuote(TradeOrder tradeOrder, int selectedQuoteNo, String type) throws Exception{
+		
+		ArrayList<TradeOrderLine> orderList = new ArrayList<TradeOrderLine>();
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		// We find this quote in the quoteheader table and load it's values into the tradeOrder object that we created.
+		query = "SELECT * FROM quoteheader WHERE quotationNo = ?";
+		pst = conn.prepareStatement(query);
+		pst.setInt(1, selectedQuoteNo);
+		rs = pst.executeQuery();
+		
+		while(rs.next()){
+			tradeOrder.setRepNo(rs.getString(2));
+			tradeOrder.setTotalExVat(String.valueOf(rs.getFloat(3)));
+			tradeOrder.setTotalVat(String.valueOf(rs.getFloat(4)));
+			tradeOrder.setTotalPreRounding(String.valueOf(rs.getFloat(5)));
+			tradeOrder.setRounding(String.valueOf(rs.getFloat(6)));
+			tradeOrder.setTotalPostRounding(String.valueOf(rs.getFloat(7)));
+			tradeOrder.setOrderDate(rs.getDate(8));
+			tradeOrder.setPayType(rs.getString(9));
+			tradeOrder.setSaleType("Trade");
+			tradeOrder.setTotalCost(rs.getFloat(11));
+			tradeOrder.setCustId(rs.getInt(12));
+			tradeOrder.setName(rs.getString(13));
+			tradeOrder.setAddress1(rs.getString(14));
+			tradeOrder.setAddress2(rs.getString(15));
+			tradeOrder.setPhone(rs.getString(16));
+		}
+		
+		// We find this quote in the quotedetail table and load it's details into the orderlist variable.
+		query = "SELECT * FROM quotedetail WHERE quotationNo = ?";
+		pst = conn.prepareStatement(query);
+		
+		pst.setInt(1, selectedQuoteNo);
+		rs = pst.executeQuery(); 
+	
+		while(rs.next()){
+			TradeOrderLine tradeOrderLine = new TradeOrderLine();
+			tradeOrderLine.setItemCode(rs.getString(3));
+			tradeOrderLine.setItemDescription(rs.getString(4));
+			tradeOrderLine.setOrderQty(String.valueOf(rs.getInt(5)));
+			tradeOrderLine.setItemPrice(String.valueOf(rs.getFloat(6)));
+			tradeOrderLine.setItemTradePrice(rs.getFloat(7));
+			tradeOrderLine.setValueExDiscount(String.valueOf(rs.getFloat(8)));
+			tradeOrderLine.setValueExVat(String.valueOf(rs.getFloat(11)));
+			tradeOrderLine.setLineCostValue(rs.getFloat(12));
+			orderList.add(tradeOrderLine);
+		}
+		
+		// Assign orderlist to the orderlist of the tradeOrder object we created and set it's saletype appropriately
+		tradeOrder.setOrderList(orderList);
+		tradeOrder.setSaleType(type);
+		
+		pst.close();
+		rs.close();
+		
+	}
+	
+	
+	// Method to find a quote and it's detail lines in the quotheader and quotedetail tables and load them into the tradeOrder passed
+	public static void loadRetailQuote(RetailOrder retailOrder, int selectedQuoteNo, String type) throws Exception{
+		
+		ArrayList<RetailOrderLine> orderList = new ArrayList<RetailOrderLine>();
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		// We find this quote in the quoteheader table and load it's values into the retailOrder object that was passed.
+		query = "SELECT * FROM quoteheader WHERE quotationNo = ?";
+		pst = conn.prepareStatement(query);
+		pst.setInt(1, selectedQuoteNo);
+		rs = pst.executeQuery();
+		
+		while(rs.next()){
+			retailOrder.setRepNo(rs.getString(2));
+			retailOrder.setTotalExVat(String.valueOf(rs.getFloat(3)));
+			retailOrder.setTotalVat(String.valueOf(rs.getFloat(4)));
+			retailOrder.setTotalPreRounding(String.valueOf(rs.getFloat(5)));
+			retailOrder.setRounding(String.valueOf(rs.getFloat(6)));
+			retailOrder.setTotalPostRounding(String.valueOf(rs.getFloat(7)));
+			retailOrder.setOrderDate(rs.getDate(8));
+			retailOrder.setPayType(rs.getString(9));
+			retailOrder.setSaleType("Trade");
+			retailOrder.setTotalCost(rs.getFloat(11));
+			retailOrder.setCustId(rs.getInt(12));
+			retailOrder.setName(rs.getString(13));
+			retailOrder.setAddress1(rs.getString(14));
+			retailOrder.setAddress2(rs.getString(15));
+			retailOrder.setPhone(rs.getString(16));
+		}
+		
+		// We find this quote in the quotedetail table and load it's details into the orderlist variable.
+		query = "SELECT * FROM quotedetail WHERE quotationNo = ?";
+		pst = conn.prepareStatement(query);
+		
+		pst.setInt(1, selectedQuoteNo);
+		rs = pst.executeQuery(); 
+	
+		while(rs.next()){
+			RetailOrderLine retailOrderLine = new RetailOrderLine();
+			retailOrderLine.setItemCode(rs.getString(3));
+			retailOrderLine.setItemDescription(rs.getString(4));
+			retailOrderLine.setOrderQty(String.valueOf(rs.getInt(5)));
+			retailOrderLine.setItemPrice(String.valueOf(rs.getFloat(6)));
+			retailOrderLine.setItemTradePrice(rs.getFloat(7));
+			retailOrderLine.setValueExDiscount(String.valueOf(rs.getFloat(8)));
+			retailOrderLine.setDiscountPercent(String.valueOf(rs.getFloat(9)));
+			retailOrderLine.setDiscountValue(String.valueOf(rs.getFloat(10)));
+			retailOrderLine.setValueExVat(String.valueOf(rs.getFloat(11)));
+			retailOrderLine.setLineCostValue(rs.getFloat(12));
+			orderList.add(retailOrderLine);
+		}
+		
+		// Assign orderlist to the orderlist of the retailOrder object we created and set it's saletype appropriately
+		retailOrder.setOrderList(orderList);
+		retailOrder.setSaleType(type);
+		
+		pst.close();
+		rs.close();
+		
+	}
+
+	
+	// Method to retrieve the quotes for a particular account and set them as the model for a table
+	public static void accountRefreshConvertQuoteTable(int accId, JTable tblAccountConvertQuote) throws Exception{
+		
+		String query = "SELECT orderDate AS DATE, quotationNo AS NUMBER, FORMAT(totalPostRounding,2) AS AMOUNT FROM quoteheader WHERE saleType = " +
+								"'AccQuote' AND custId = ?"; 
+					
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, accId);
+
+		ResultSet rs = pst.executeQuery();
+		
+		// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+		tblAccountConvertQuote.setModel(DbUtils.resultSetToTableModel(rs));
+			
+		pst.close();
+		rs.close();
+			
+	}
+	
+	
+	//Method to retrieve the 20 latest transactions for a particular account and load them as the model for a table 
+	public static void accountDetailRefreshLatestTrans(int accId, JTable tblAccountDetailTransactions) throws Exception{
+		
+		String query = "SELECT orderDate AS D, DATE_FORMAT(orderDate,'%d-%m-%Y') AS DATE, receiptNo AS NUMBER, 'ORDER' AS TYPE, FORMAT(totalPostRounding,2) AS AMOUNT FROM orderheader WHERE custId=? " + 
+				"UNION " + 
+				"SELECT payDate AS D, DATE_FORMAT(payDate,'%d-%m-%Y') AS DATE, paymentId AS NUMBER, 'PAYMENT' AS TYPE, FORMAT(amount,2) AS AMOUNT FROM accountPayment WHERE accountId=? " + 
+				"ORDER BY D DESC LIMIT 20 ";
+		
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, accId);
+		pst.setInt( 2, accId);
+
+		ResultSet rs = pst.executeQuery();
+
+		// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+		tblAccountDetailTransactions.setModel(DbUtils.resultSetToTableModel(rs));
+			
+		pst.close();
+		rs.close();
+
+	}
+
+	
+	// Method to return an account based on the id passed
+	public static Account accountListClickAccount(int id, JTextField txtAccountListID, JTextField txtAccountListName, JTextField txtAccountListAddressLine1, JTextField txtAccountListAddressLine2, JTextField txtAccountListPhone) throws Exception{
+		
+		Account acc = null;
+		String query = "SELECT * FROM account WHERE accountID= ? ";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, id);
+
+		ResultSet rs = pst.executeQuery();
+		
+		while(rs.next()){
+			txtAccountListID.setText(((Integer) id).toString());
+			txtAccountListName.setText(rs.getString("name"));
+			txtAccountListAddressLine1.setText(rs.getString("addressLine1") );
+			txtAccountListAddressLine2.setText(rs.getString("addressLine2") );
+			txtAccountListPhone.setText(rs.getString("phone") );
+			acc = new Account(id, rs.getString("name"), rs.getString("addressLine1"), rs.getString("addressLine2"), rs.getString("phone"), rs.getFloat("balance"));
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return acc;
+
+	}
+	
+	
+	// Method used to insert a new account into the account table
+	public static boolean accountInsert(String name, String addr1, String addr2, String phone) throws Exception{
+		
+		boolean done = false;
+		// Check if this account already exists
+		String query = "SELECT name FROM account WHERE name = ? AND addressLine1=? AND addressLine2=? AND phone=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString( 1, name );
+		pst.setString( 2, addr1 );
+		pst.setString( 3, addr2 );
+		pst.setString( 4, phone );
+		ResultSet rs = pst.executeQuery();
+		if(!rs.next()){
+			pst.close();
+			query = "INSERT INTO account (name, addressLine1, addressLine2, phone) VALUES(?,?,?,?)";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.executeUpdate();
+
+			JOptionPane.showMessageDialog(null, "Account " + name + " has been inserted !");
+			done = true;
+		} else {
+			JOptionPane.showMessageDialog(null, "Account " + name + " is already in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+
+	
+	// Method to update an accounts name, address and phone
+	public static boolean accountUpdate(String id, String name, String addr1, String addr2, String phone) throws Exception{
+		
+		boolean done = false;
+		// Firstly Check if the record exists
+		String query = "SELECT * FROM account WHERE accountID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1, Integer.valueOf(id) );
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			pst.close();
+			query = "UPDATE account SET name = ?, addressLine1 = ?, addressLine2 = ?, phone = ? WHERE accountID = ?";
+			pst = conn.prepareStatement(query);
+			pst.setString( 1, name );
+			pst.setString( 2, addr1 );
+			pst.setString( 3, addr2 );
+			pst.setString( 4, phone );
+			pst.setInt( 5, Integer.valueOf(id) );
+			pst.executeUpdate();
+			JOptionPane.showMessageDialog(null, "Account " + name + " has been updated !");
+			done = true;
+
+		}else {
+			JOptionPane.showMessageDialog(null, "Account " + name + " is not in the Database !");
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return done;
+	
+	}
+
+
+	// Method to Delete the account whose ID is passed in
+	public static boolean accountDelete(String id, String name) throws Exception{
+		int intId = Integer.valueOf(id);
+		boolean done = false;
+		
+		// Firstly Check if the record exists
+		String query = "SELECT name FROM account WHERE accountID = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setInt( 1,  intId);
+		ResultSet rs = pst.executeQuery();
+		if(rs.next()){
+			// We use the showConfirmDialog method of the JOptionPane object to show a confirmation dialog.
+			// This method's parameters: parent object, the message, the title, type of JOptionPane (yes=0,no=1)
+			int action = JOptionPane.showConfirmDialog(null, "Do you really want to delete this record","Delete",JOptionPane.YES_NO_OPTION);
+			
+			if (action==0) {
+				query = "UPDATE account SET deleted=1 WHERE accountID = ?";
+				pst = conn.prepareStatement(query);
+				pst.setInt( 1, intId );
+				
+				pst.executeUpdate();
+				JOptionPane.showMessageDialog(null, "Account " + name + " has been deleted !");
+				done = true;
+				
+			}
+		}else{
+			JOptionPane.showMessageDialog(null, "Account " + name + " is not in the Database !");
+		}
+		pst.close();
+		rs.close();
+		
+		return done;
+	}
+	
+	
+	// Method to retrieve accounts based on a selection and a filter. It loads the retrieved accounts as a model into a passed in table
+	public static void accountRefreshAccountsTable(String selection, String filter, JTable tblAccountListList) throws Exception{
+		
+		String query = "SELECT accountID AS ID, name AS NAME, addressLine1 AS ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE, FORMAT(balance,2) AS BALANCE FROM account " + 
+				"WHERE " + selection + " LIKE ? AND deleted=0 ORDER BY " + selection;
+		PreparedStatement  pst = conn.prepareStatement(query);
+		pst.setString(1, filter);
+		ResultSet rs = pst.executeQuery();
+		
+		// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+		tblAccountListList.setModel(DbUtils.resultSetToTableModel(rs));
+		
+		pst.close();
+		rs.close();
+	}
+
+	
+	// Method to find an Item based on it's description and return an Item object
+	public static Item findItem(String desc) throws Exception{
+		
+		String query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, retailPrice AS RETAIL, costPrice AS COST, tradePrice AS TRADE "
+				+ "FROM item WHERE itemDescription = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString(1, desc);
+		ResultSet rs = pst.executeQuery();
+		Item foundItem = new Item();
+				
+		// Check if we found any matches to the description entered
+		if(rs.next()){
+			foundItem.setItemCode(rs.getString("ITEM"));
+			foundItem.setItemDescription(rs.getString("DESCRIPTION"));
+			foundItem.setRetailPrice(Utilities.floatToNumDec(rs.getFloat("RETAIL"),2));
+			foundItem.setTradePrice(Utilities.floatToNumDec(rs.getFloat("TRADE"),2));
+			foundItem.setCostPrice(Utilities.floatToNumDec(rs.getFloat("COST"),2));
+		
+		}else {
+			foundItem.setItemCode("");
+			foundItem.setItemDescription(desc);
+			foundItem.setRetailPrice(0.00f);
+			foundItem.setTradePrice(0.00f);
+			foundItem.setCostPrice(0.00f);
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return foundItem;
+	}
+	
+	
+	// Method to find possible description matches, if found then update tablemodel provided, if not then return false
+	public static boolean findPossibleItemMatches(String desc, JTable tblAccountItemDescription) throws Exception{
+		
+		boolean matches = false;
+		String ordSrchText = "%" + desc + "%";
+		String query = "SELECT itemDescription AS DESCRIPTION FROM item WHERE itemDescription LIKE ? AND deleted=0 ORDER BY itemDescription";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString(1, ordSrchText);
+		ResultSet rs = pst.executeQuery();
+		
+		// Check if we have found some matches
+		if(rs.isBeforeFirst()){
+
+			// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+			tblAccountItemDescription.setModel(DbUtils.resultSetToTableModel(rs));
+			matches = true;
+			
+		}
+		
+		pst.close();
+		rs.close();
+
+		return matches;
+	}
+	
+	
+	// Method to check if the rep code entered is valid
+	public static boolean checkRepCodeValid(String repCode) throws Exception{
+		
+		boolean found = false;
+		String query = "SELECT repCode FROM staff WHERE repCode=?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setString(1, repCode);
+		ResultSet rs = pst.executeQuery();
+	
+		if(rs.next()) {
+			found = true;
+		}
+		
+		return found;
+	}
+	
+	
+	// Method to update the rounding and totalPostRounding fields of an orderheader or quoteheader record
+	public static void updateRoundingHeader(String header, float rounding, String postRounding, int receiptNo) throws Exception{
+		
+		String number = "";
+		String query;
+		PreparedStatement pst;
+				
+		if(header.equals("orderheader"))
+			number = "receiptNo";
+		else
+			number = "quotationNo";
+		
+		query = "UPDATE " + header + " SET rounding = ?, totalPostRounding = ? WHERE " + number + " = ?";
+		pst = conn.prepareStatement(query);
+		pst.setFloat( 1, rounding);
+		pst.setFloat( 2, Float.parseFloat(postRounding ));
+		pst.setInt( 3, receiptNo );
+		pst.executeUpdate();
+			
+		pst.close();
+		
+	}
+
+	
+	// Method to update the rounding and totalPostRounding fields of an orderheader record
+	public static void updateRoundingQuoteHeader(float rounding, String postRounding, int receiptNo) throws Exception{
+		
+		String query = "UPDATE orderheader SET rounding = ?, totalPostRounding = ? WHERE receiptNo = ?";
+		PreparedStatement pst = conn.prepareStatement(query);
+		pst.setFloat( 1, rounding);
+		pst.setFloat( 2, Float.parseFloat(postRounding ));
+		pst.setInt( 3, receiptNo );
+		pst.executeUpdate();
+			
+		pst.close();
+		
+	}
+	
+	// Save a payment to the Database
+	public static float processPayment(Payment payment) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		float balance = 0.00f;
+		
+		// Save the payment to the accountpayment table
+		query = "INSERT INTO accountpayment (accountId, payDate, payType, amount, comment) VALUES(?,?,?,?,?)";
+		pst = conn.prepareStatement(query);
+		pst.setInt( 1, payment.getAccountId());
+		pst.setDate( 2, new java.sql.Date(payment.getPayDate().getTime()));
+		pst.setString( 3, payment.getPayType());
+		pst.setFloat( 4, payment.getAmount());
+		pst.setString( 5, payment.getComment());
+		pst.executeUpdate();
+		
+		// Retrieve the current account balance 
+		query = "SELECT balance FROM account WHERE accountId = ?";
+		pst = conn.prepareStatement(query);
+		pst.setInt( 1, payment.getAccountId());
+		rs = pst.executeQuery();
+		while (rs.next())
+			balance = Utilities.floatToNumDec(rs.getFloat("balance"),2);
+		
+		// Reduce the balance by this payment 
+		balance -= payment.getAmount();
+		
+		// Save the new balance back to the account 
+		query = "UPDATE account SET balance = ? WHERE accountId = ?";
+		pst = conn.prepareStatement(query);
+		pst.setFloat( 1, balance);
+		pst.setFloat( 2, payment.getAccountId());
+		pst.executeUpdate();
+
+		pst.close();
+		
+		return balance;
+		
+	}
+	
+	
+	// 
+	public static ArrayList<Transaction> accountStatementGetTrans(int accId) throws Exception{
+		
+		String query = "SELECT orderDate AS DATE, ord.receiptNo AS NUMBER, 'ORDER' AS TYPE, FORMAT(ord.totalPostRounding,2) AS " +
+				"AMOUNT FROM orderheader ord WHERE custId=? " +  
+				"UNION " + 
+				"SELECT payDate AS DATE, payment.paymentId AS NUMBER, 'PAYMENT' AS TYPE, FORMAT(payment.amount,2) AS AMOUNT FROM accountPayment " + 
+				"payment WHERE accountId=? " + 
+				"ORDER BY DATE ASC";
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		float balance = 0.00f;
+		String stringBalance;
+		String transDate;
+		
+		ArrayList<Transaction> transactions = new ArrayList<Transaction>();
+		DateFormat fmt = new SimpleDateFormat("dd-MM-yyyy");
+		
+		pst = conn.prepareStatement(query);
+		pst.setInt(1, accId);
+		pst.setInt(2, accId);
+	
+		rs = pst.executeQuery();
+	
+		// Loop through the resultset and add the transactions to an ArrayList of Transactions, based on the dates selected
+		while(rs.next()){
+			
+			// Calculate the balance as of after this transaction
+			if(rs.getString("TYPE").equals("ORDER")) {
+				balance += Float.parseFloat(Utilities.removeCommas(rs.getString("AMOUNT")));
+				stringBalance = Utilities.floatToString2Dec(balance);
+			
+			}else{
+				balance -= Float.parseFloat(Utilities.removeCommas(rs.getString("AMOUNT")));
+				stringBalance = Utilities.floatToString2Dec(balance);
+			}
+			
+			transDate = fmt.format(rs.getDate("DATE"));
+			Date dayStart = new Date(rs.getDate("DATE").getTime());
+			
+			Transaction transaction = new Transaction(rs.getInt("NUMBER"), transDate, dayStart, rs.getString("TYPE"), rs.getString("AMOUNT"), stringBalance);
+			transactions.add(transaction);
+		}
+		
+		return transactions;
+			
+	}
+	
+	
+	// Method to find this invoice in the orderdetail table and load it's details as a tablemodel and an Object array
+	public static void loadQuoteDetail(int selectedQuoteNo, JTable tblQuoteDetail) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, qty AS QTY, FORMAT(price,2) AS PRICE, FORMAT(discPercent,2) AS DISCOUNT, FORMAT(valueExVat,2) AS 'EX VAT' FROM quotedetail WHERE quotationNo = ?";
+		pst = conn.prepareStatement(query);
+		
+		pst.setInt(1, selectedQuoteNo);
+		rs = pst.executeQuery(); 
+		
+		tblQuoteDetail.setModel(DbUtils.resultSetToTableModel(rs));
+		
+		pst.close();
+		rs.close();
+
+		
+		return;
+	}
+	
+	
+	// Method to find the matching quotations in the quoteheader table and load their details as a tablemodel of a passed in table
+	public static void filterQuotes(JRadioButton rdbtnConvertRetailQuotations, JTextField txtConvertQuotationNo, JTextField txtConvertName, JTextField txtConvertAddress,  
+			JDateChooser txtConvertFromDate, JDateChooser txtConvertToDate, JTextField txtConvertPhone, JTextField txtConvertValue, JTable tblQuotationsFiltered) 
+			throws Exception{
+		
+		// Find the users filters entered and build the sql query string
+		ResultSet rs;
+		PreparedStatement pst;
+		String query = "";
+		String saleTypeFilter;
+	
+		if(rdbtnConvertRetailQuotations.isSelected())
+			saleTypeFilter = "RetailQuote";
+		else
+			saleTypeFilter = "TradeQuote";
+			
+		query = "SELECT quotationNo as QUOTE_NO, name AS NAME, addressLine1 AS ADDRESS, DATE_FORMAT(orderDate,'%d-%m-%Y') AS DATE, phone AS PHONE, "
+				+ "FORMAT(totalPostRounding,2) AS VALUE FROM quoteheader WHERE saleType='" + saleTypeFilter + "'";
+		
+		if(!txtConvertQuotationNo.getText().equals(""))
+			query += " AND quotationNo = " + txtConvertQuotationNo.getText();
+		
+		if(!txtConvertName.getText().equals(""))
+			query += " AND name LIKE '%" + txtConvertName.getText() + "%'";
+
+		if(!txtConvertAddress.getText().equals(""))
+			query += " AND addressLine1 LIKE '%" + txtConvertAddress.getText() + "%'";
+		
+		Date fromDate = txtConvertFromDate.getDateEditor().getDate();
+		if(fromDate != null) {
+			java.sql.Date sqlFromDate = new java.sql.Date(fromDate.getTime());
+			query += " AND orderDate >= '" + sqlFromDate + "'";
+		}
+		
+		Date toDate = txtConvertToDate.getDateEditor().getDate();
+		if(toDate != null) {
+			java.sql.Date sqlToDate = new java.sql.Date(toDate.getTime());
+			query += " AND orderDate <= '" + sqlToDate + "'";
+		}
+					
+		if(!txtConvertPhone.getText().equals(""))
+			query += " AND phone LIKE '%" + txtConvertPhone.getText() + "%'";
+		
+		if(!txtConvertValue.getText().equals(""))
+			query += " AND FORMAT(totalPostRounding,2) = " + Float.parseFloat(txtConvertValue.getText());
+		
+		query += " ORDER BY quotationNo";
+		
+		
+		pst = conn.prepareStatement(query);
+		rs = pst.executeQuery();
+			
+		tblQuotationsFiltered.setModel(DbUtils.resultSetToTableModel(rs));
+		
+		pst.close();
+		rs.close();
+
+	}
+	
+	
+	// Method to find the matching invoices in the orderheader table and load their details as a tablemodel of a passed in table
+	public static void filterQuotesByItem(JTextField txtConvertSrchItemCode, JTextField txtConvertSrchItemDesc, JRadioButton rdbtnConvertRetailQuotations, 
+			JTextField txtConvertQuotationNo, JTextField txtConvertName, JTextField txtConvertAddress, JDateChooser txtConvertFromDate, JDateChooser txtConvertToDate, 
+			JTextField txtConvertPhone, JTextField txtConvertValue, JTable tblQuotationsFiltered) throws Exception{
+		
+		ResultSet rs;
+		PreparedStatement pst;
+		String query = "";
+		String saleTypeFilter;
+	
+		if(rdbtnConvertRetailQuotations.isSelected())
+			saleTypeFilter = "RetailQuote";
+		else
+			saleTypeFilter = "TradeQuote";
+			
+		query = "SELECT DISTINCT header.quotationNo AS QUOTE_NO, header.name AS NAME, header.addressLine1 AS ADDRESS, DATE_FORMAT(header.orderDate,'%d-%m-%Y') AS DATE, "
+				+ "header.phone AS PHONE, + FORMAT(header.totalPostRounding,2) AS VALUE  FROM quotedetail detail JOIN quoteheader header ON "
+				+ "header.quotationNo=detail.quotationNo WHERE saleType='" + saleTypeFilter + "'";
+		
+		if (!txtConvertSrchItemCode.getText().equals(""))
+			query += " AND detail.itemCode LIKE '%" + txtConvertSrchItemCode.getText() + "%'";
+		
+		if (!txtConvertSrchItemDesc.getText().equals(""))
+			query += " AND detail.itemDescription LIKE '%" + txtConvertSrchItemDesc.getText() + "%'";
+		
+		if(!txtConvertQuotationNo.getText().equals(""))
+			query += " AND header.quotationNo = " + txtConvertQuotationNo.getText();
+		
+		if(!txtConvertName.getText().equals(""))
+			query += " AND header.name LIKE '%" + txtConvertName.getText() + "%'";
+
+		if(!txtConvertAddress.getText().equals(""))
+			query += " AND header.addressLine1 LIKE '%" + txtConvertAddress.getText() + "%'";
+		
+		Date fromDate = txtConvertFromDate.getDateEditor().getDate();
+		if(fromDate != null) {
+			java.sql.Date sqlFromDate = new java.sql.Date(fromDate.getTime());
+			query += " AND header.orderDate >= '" + sqlFromDate + "'";
+		}
+		
+		Date toDate = txtConvertToDate.getDateEditor().getDate();
+		if(toDate != null) {
+			java.sql.Date sqlToDate = new java.sql.Date(toDate.getTime());
+			query += " AND header.orderDate <= '" + sqlToDate + "'";
+		}
+					
+		if(!txtConvertPhone.getText().equals(""))
+			query += " AND header.phone LIKE '%" + txtConvertPhone.getText() + "%'";
+		
+		if(!txtConvertValue.getText().equals(""))
+			query += " AND FORMAT(totalPostRounding,2) = " + Float.parseFloat(txtConvertValue.getText());
+		
+		query += " ORDER BY header.quotationNo";
+		
+		
+		pst = conn.prepareStatement(query);
+
+		rs = pst.executeQuery();
+			
+		tblQuotationsFiltered.setModel(DbUtils.resultSetToTableModel(rs));
+
+		pst.close();
+		rs.close();
+		
+	}
+	
+	
+	// Method to find customers based on certain user selected filters and set the results as the model for a table that has been passed in
+	// Find the users filters entered and build the sql query string
+	public static void findFilteredCustomers(Order order, JTextField txtCustDetailsName, JTextField txtCustDetailsAddress1, JTextField txtCustDetailsAddress2, 
+			JTextField txtCustDetailsPhone, JTable tblCustDetails) throws Exception {
+
+		boolean first = true;
+		PreparedStatement pst;
+		String query = "";
+		
+		if(order.getSaleType().equals("Retail") || order.getSaleType().equals("RetailQuote")) {
+			query = "SELECT customerID AS ID, name AS NAME, addressLine1 As ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM customer";
+			
+		} else if(order.getSaleType().equals("Trade") || order.getSaleType().equals("TradeQuote")) {
+			query = "SELECT tradesmanID AS ID, name AS NAME, addressLine1 As ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM tradesman";
+			
+		}else {
+			query = "SELECT accountID AS ID, name AS NAME, addressLine1 As ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM account";
+		}
+		
+		if(!txtCustDetailsName.getText().equals("")) {
+			if(first){
+				query += " WHERE name LIKE '%" + txtCustDetailsName.getText() + "%'";
+				first = false;
+			} else{
+				query += " AND name LIKE '%" + txtCustDetailsName.getText() + "%'";
+			}
+		}
+		
+		if(!txtCustDetailsAddress1.getText().equals("")) {
+			if(first){
+				query += " WHERE addressLine1 LIKE '%" + txtCustDetailsAddress1.getText() + "%'";
+				first = false;
+			} else{
+				query += " AND addressLine1 LIKE '%" + txtCustDetailsAddress1.getText() + "%'";
+			}
+		}
+		
+		if(!txtCustDetailsAddress2.getText().equals("")) {
+			if(first){
+				query += " WHERE addressLine2 LIKE '%" + txtCustDetailsAddress2.getText() + "%'";
+				first = false;
+			} else{
+				query += " AND addressLine2 LIKE '%" + txtCustDetailsAddress2.getText() + "%'";
+			}
+		}
+		
+		if(!txtCustDetailsPhone.getText().equals("")) {
+			if(first){
+				query += " WHERE phone LIKE '%" + txtCustDetailsPhone.getText() + "%'";
+				first = false;
+			} else{
+				query += " AND phone LIKE '%" + txtCustDetailsPhone.getText() + "%'";
+			}
+		}
+		
+		// If no filters
+		if(first) {
+			query += " WHERE deleted=0 ORDER BY name DESC";	
+		}else {
+			query += " AND deleted=0 ORDER BY name DESC";						
+		}
+		
+		pst = conn.prepareStatement(query);
+		ResultSet rs = pst.executeQuery();
+				
+		tblCustDetails.setModel(DbUtils.resultSetToTableModel(rs));
+		
+		pst.close();
+		rs.close();
+		
+	}
+	
+	
+	// Method to select a Customer from the filtered Customers
+	public static void selectFilteredCustomer(Order order, int id, JTextField txtCustDetailsId, JTextField txtCustDetailsName, JTextField txtCustDetailsAddress1, 
+			JTextField txtCustDetailsAddress2, JTextField txtCustDetailsPhone) throws Exception {
+		
+		String query = "SELECT * FROM ";
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		if(order.getSaleType().equals("Retail") || order.getSaleType().equals("RetailQuote")) {
+			query += "customer WHERE customerID = ?";
+		} else if(order.getSaleType().equals("Trade") || order.getSaleType().equals("TradeQuote")) {
+			query += "tradesman WHERE tradesmanID = ? ";
+		}else
+			query += "account WHERE accountID = ? ";
+		
+		pst = conn.prepareStatement(query);
+		pst.setInt( 1, id);
+		rs = pst.executeQuery();
+		
+		while(rs.next()){
+			// Put selected name, address and phone into the appropriate members of the order object
+			if(order.getSaleType().equals("Retail") || order.getSaleType().equals("RetailQuote")) {
+				txtCustDetailsId.setText(rs.getString("customerId"));
+				
+			}else if(order.getSaleType().equals("Trade") || order.getSaleType().equals("TradeQuote")) {
+				txtCustDetailsId.setText(rs.getString("tradesmanId"));
+				
+			}else{
+				txtCustDetailsId.setText(rs.getString("accountId"));
+			}
+			
+			txtCustDetailsName.setText(rs.getString("name"));
+			txtCustDetailsAddress1.setText(rs.getString("addressLine1"));
+			txtCustDetailsAddress2.setText(rs.getString("addressLine2"));
+			txtCustDetailsPhone.setText(rs.getString("phone"));
+		}
+		
+		pst.close();
+		rs.close();
+		
+	}
+	
+	
+	// Method which receives an item object, trys to find it in the item table and if it does and fill=true is passed then it sets its members as per the item table
+	public static boolean findItem(Item item, String itemCode, boolean fill) throws Exception {
+		
+		boolean found = false;
+		String query;
+		PreparedStatement  pst;
+		ResultSet rs;
+		
+		query = "SELECT itemId AS ID, itemCode AS ITEM, itemDescription AS DESCRIPTION, retailPrice AS RETAIL, deleted AS DEL, costPrice AS COST, tradePrice AS TRADE, " + 
+				"stock AS STOCK, stockAlert AS ALERT FROM item WHERE itemCode = ? AND DELETED = 0 ORDER BY itemCode";
+		pst = conn.prepareStatement(query);
+		pst.setString(1, itemCode);
+		rs = pst.executeQuery();
+		
+		if(rs.next()){
+			
+			if(fill) {
+				item.setItemId(rs.getInt("ID"));
+				item.setItemDescription(rs.getString("DESCRIPTION"));
+				item.setRetailPrice(rs.getFloat("RETAIL"));
+				item.setDeleted(rs.getInt("DEL"));
+				item.setCostPrice(rs.getFloat("COST"));
+				item.setTradePrice(rs.getFloat("TRADE"));
+				item.setStock(rs.getInt("STOCK"));
+				item.setStockAlert(rs.getInt("ALERT"));
+			}
+			
+			found = true;
+		}
+		
+		pst.close();
+		rs.close();
+		
+		return found;
+		
+	}
+	
+	
+	// Method to insert an item into the item table
+	public static void insertItem(Item item) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		
+		query = "INSERT INTO item (itemCode, itemDescription, costPrice, tradePrice, retailPrice) VALUES(?,?,?,?,?)";
+		pst = conn.prepareStatement(query);
+		pst.setString( 1, item.getItemCode() );
+		pst.setString( 2, item.getItemDescription() );
+		pst.setFloat( 3, item.getCostPrice() );
+		pst.setFloat( 4, item.getTradePrice() );
+		pst.setFloat( 5, item.getRetailPrice() );
+		pst.executeUpdate();
+		
+		pst.close();
+		
+	}
+	
+	
+	// Method to update an item in the item table
+	public static void updateItem(Item item) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		
+		query = "UPDATE item SET itemDescription = ?, costPrice = ?, tradePrice = ?, retailPrice = ? WHERE itemCode = ?";
+		pst = conn.prepareStatement(query);
+		pst.setString( 1, item.getItemDescription() );
+		pst.setFloat( 2, item.getCostPrice() );
+		pst.setFloat( 3, item.getTradePrice() );
+		pst.setFloat( 4, item.getRetailPrice() );
+		pst.setString( 5, item.getItemCode() );
+		pst.executeUpdate();
+		
+		pst.close();
+		
+	}
+	
+	
+	// Method to delete an item from the item table
+	public static void deleteItem(String itemCode) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		
+		query = "UPDATE ITEM SET deleted=1 WHERE itemCode = ?";
+		pst = conn.prepareStatement(query);
+		pst.setString( 1, itemCode );
+		
+		pst.executeUpdate();
+
+
+		pst.close();
+	
+	}
+	
+	
+	// Method to load an item from the item table into an item object that is passed in
+	public static void loadItem(Item item) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		query = "SELECT * FROM item WHERE itemCode = ?";
+		pst = conn.prepareStatement(query);
+		pst.setString( 1, item.getItemCode());
+		rs = pst.executeQuery();
+		
+		while(rs.next()){
+			item.setItemCode((rs.getString("itemCode")));
+			item.setItemDescription(rs.getString("itemDescription"));
+			item.setCostPrice(rs.getFloat("costPrice"));
+			item.setTradePrice(rs.getFloat("tradePrice"));
+			item.setRetailPrice(rs.getFloat("retailPrice"));
+		}
+		
+		pst.close();
+		rs.close();
+		
+	}
+	
+	
+	// Method to find the items that match the user's selection criteria and to set the model of the passed table to this resultset
+	public static void findFilteredItem(String selection, String filter, JTable tblProductsItem) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+
+		query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, FORMAT(costPrice,2) AS COST, FORMAT(tradePrice,2) As TRADE, FORMAT(retailPrice,2) AS RETAIL " + 
+				"FROM item WHERE " + selection + " LIKE ? AND deleted=0 ORDER BY " + selection;
+		pst = conn.prepareStatement(query);
+		pst.setString(1, filter);
+		rs = pst.executeQuery();
+		
+		// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+		tblProductsItem.setModel(DbUtils.resultSetToTableModel(rs));
+		
+		pst.close();
+		rs.close();
+		
+	}
+	
+	
+	// Method to get the next receipt number the table name and the field name where to get the current max number is passed
+	public static int findNextReceiptNo(String typeNo, String headerTable) throws Exception{
+		
+		int nextReceiptNo = 1;
+		String query;
+		PreparedStatement pst;
+		ResultSet rs;
+		
+		query = "SELECT MAX(" + typeNo + ") AS NUMBER FROM " + headerTable;
+		pst = conn.prepareStatement(query);
+		rs = pst.executeQuery();
+
+		while(rs.next()){
+			nextReceiptNo = rs.getInt("NUMBER") + 1;
+		}
+			
+		pst.close();
+		rs.close();
+		
+		return nextReceiptNo;
+		
+	} 
+	
+	
+	// Method to save header details into the appropriate (passed) header table
+	public static void insertHeaderOrder(String typeNo, String headerTable, Order order) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		
+		query = "INSERT INTO " + headerTable + " (repNo, " + typeNo + ", totalExVat, totalVat, totalPreRounding, rounding, totalPostRounding, orderDate, " + 
+				"payType, saleType, " + "totalCostPrice, CustId, Name, AddressLine1, AddressLine2, Phone) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		
+		pst = conn.prepareStatement(query);
+		pst.setString(1, order.getRepNo());
+		pst.setInt(2, order.getReceiptNo());
+		pst.setFloat( 3, Float.parseFloat(order.getTotalExVat()) );
+		pst.setFloat( 4, Float.parseFloat(order.getTotalVat()) );
+		pst.setFloat( 5, Float.parseFloat(order.getTotalPreRounding()) );
+		pst.setFloat( 6, Float.parseFloat(order.getRounding()) );
+		pst.setFloat( 7, Float.parseFloat(order.getTotalPostRounding()) );
+		pst.setDate( 8, new java.sql.Date(order.getOrderDate().getTime()));
+		pst.setString(9, order.getPayType());
+		pst.setString(10, order.getSaleType());
+		pst.setFloat(11, order.getTotalCost());
+		pst.setInt(12, order.getCustId());
+		pst.setString(13, order.getName());
+		pst.setString(14, order.getAddress1());
+		pst.setString(15, order.getAddress2());
+		pst.setString(16, order.getPhone());
+		pst.executeUpdate();
+	
+		pst.close();
+	}
+
+	
+	// Method to save the retail detail lines of the passed order/quote into the passed table and return the number of lines saved
+	public static int insertDetailOrder(String typeNo, String detailTable, RetailOrder retailOrder) throws Exception{
+		
+		int line = 0;
+		String query;
+		PreparedStatement pst;
+		
+		query = "INSERT INTO " + detailTable + " (" + typeNo + ", lineNo, itemCode, itemDescription, qty, price, tradePrice, valueExDiscount, discPercent, discValue, valueExVat, costPrice) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
+		pst = conn.prepareStatement(query);
+		for(RetailOrderLine o: retailOrder.getOrderList()) {
+			pst.setInt(1, retailOrder.getReceiptNo());
+			pst.setInt(2, ++line);
+			pst.setString(3, o.getItemCode());
+			pst.setString(4, o.getItemDescription());
+			pst.setInt(5, Integer.parseInt(o.getOrderQty()));
+			pst.setFloat( 6, Float.parseFloat(o.getItemPrice()) );
+			pst.setFloat( 7, o.getItemTradePrice() );
+			pst.setFloat( 8, Float.parseFloat(o.getValueExDiscount()) );
+			pst.setFloat( 9, Float.parseFloat(o.getDiscountPercent()) );
+			pst.setFloat( 10, Float.parseFloat(o.getDiscountValue()) );
+			pst.setFloat( 11, Float.parseFloat(o.getValueExVat()) );
+			pst.setFloat( 12, o.getLineCostValue() );
+			pst.executeUpdate();
+			
+		}
+		
+		pst.close();
+		
+		return line;
+	}
+
+	
+	// Method to save the trade detail lines of the passed order/quote into the passed table and return the number of lines saved
+	public static int insertDetailOrder(String typeNo, String detailTable, TradeOrder tradeOrder) throws Exception{
+		
+		int line = 0;
+		String query;
+		PreparedStatement pst;
+		
+		query = "INSERT INTO " + detailTable + " (" + typeNo + ", lineNo, itemCode, itemDescription, qty, price, tradePrice, valueExDiscount, valueExVat, costPrice) VALUES(?,?,?,?,?,?,?,?,?,?)";
+		pst = conn.prepareStatement(query);
+		for(TradeOrderLine o: tradeOrder.getOrderList()) {
+			pst.setInt(1, tradeOrder.getReceiptNo());
+			pst.setInt(2, ++line);
+			pst.setString(3, o.getItemCode());
+			pst.setString(4, o.getItemDescription());
+			pst.setInt(5, Integer.parseInt(o.getOrderQty()));
+			pst.setFloat( 6, Float.parseFloat(o.getItemPrice()) );
+			pst.setFloat( 7, o.getItemTradePrice() );
+			pst.setFloat( 8, Float.parseFloat(o.getValueExDiscount()) );
+			pst.setFloat( 9, Float.parseFloat(o.getValueExVat()) );
+			pst.setFloat( 10, o.getLineCostValue() );
+			pst.executeUpdate();
+			
+		}
+		
+		pst.close();
+		
+		return line;
+	}
+	
+	// Method to Update header details into the appropriate header table
+	public static void updateHeaderOrder(String typeNo, String headerTable, Order order) throws Exception{
+		
+		String query;
+		PreparedStatement pst;
+		
+		query = "UPDATE " + headerTable + " SET totalExVat = ?, totalVat = ?, totalPreRounding = ?, rounding = ?, totalPostRounding = ?, orderDate = ?" + 
+				", payType = ?, totalCostPrice = ?, CustId = ?, Name = ?, AddressLine1 = ?,AddressLine2 = ?, Phone = ?  WHERE " + typeNo + " = ?";
+		pst = conn.prepareStatement(query);
+		pst.setFloat( 1, Float.parseFloat(order.getTotalExVat()) );
+		pst.setFloat( 2, Float.parseFloat(order.getTotalVat()) );
+		pst.setFloat( 3, Float.parseFloat(order.getTotalPreRounding()) );
+		pst.setFloat( 4, Float.parseFloat(order.getRounding()) );
+		pst.setFloat( 5, Float.parseFloat(order.getTotalPostRounding()) );
+		pst.setDate( 6, new java.sql.Date(order.getOrderDate().getTime()));
+		pst.setString(7, order.getPayType());
+		pst.setFloat(8, order.getTotalCost());
+		pst.setInt(9, order.getCustId());
+		pst.setString(10, order.getName());
+		pst.setString(11, order.getAddress1());
+		pst.setString(12, order.getAddress2());
+		pst.setString(13, order.getPhone());
+		pst.setInt(14, order.getReceiptNo());
+		pst.executeUpdate();
+		
+		pst.close();
+		
+	}
+	
+	
+	// Method to detail all of the detail lines for a specific order header
+	public static void deleteDetailOrder(String typeNo, String detailTable, int number) throws Exception {
+		
+		String query;
+		PreparedStatement pst;
+		
+		query = "DELETE FROM "  + detailTable + " WHERE " + typeNo + "=?";
+		pst = conn.prepareStatement(query);
+		pst.setInt(1, number);
+		pst.executeUpdate();
+
+	}
+}

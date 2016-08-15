@@ -1,0 +1,34 @@
+package com.daniel.dao;
+
+import java.util.List;
+
+import com.daniel.model.Customer;
+import com.daniel.model.Order;
+
+public interface CustomerDao {
+
+	// Method to check if a customer already exists
+	public Customer customerExists(Customer customer)throws Exception;
+	
+	// Method to insert a customer into the customer table
+	public void customerInsert(Customer customer) throws Exception;
+	
+	// Method to update a customer in the customer table
+	public int customerUpdate(Customer customer) throws Exception;
+
+	// Method to delete a customer from the customer table
+	public int customerDelete(String id) throws Exception;
+	
+	// Method to retrieve a customer based on its ID 
+	public Customer customerRetrieve(int id) throws Exception ;
+	
+	// Method to return a list of all customers that match the user's selection criteria
+	public List<Customer> customerLoadFiltered(String selection, String filter) throws Exception;
+	
+	// Method to find return a list of customers based on certain user selected filters 
+	public List<Customer> findFilteredCustomer(String name, String address1, String address2, String phone) throws Exception;
+
+	// Method to find the customer details in the appropriate table (based on the order's saletype) with the passed in id and return it
+	public Customer selectFilteredCustomer(Order order, int id) throws Exception;
+	
+}

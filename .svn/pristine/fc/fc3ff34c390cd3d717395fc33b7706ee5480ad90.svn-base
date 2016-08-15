@@ -1,0 +1,59 @@
+package com.daniel.dao;
+
+import java.util.List;
+
+import com.daniel.model.Account;
+import com.daniel.model.AccountDetail;
+import com.daniel.model.Payment;
+import com.daniel.model.QuoteHeader;
+import com.daniel.model.TradeOrder;
+
+
+public interface AccountDao {
+
+	// Method to find a quote and it's detail lines in the quotheader and quotedetail tables and load them into the tradeOrder that is returned
+	public TradeOrder loadTradeQuote(int selectedQuoteNo) throws Exception;
+	
+	// Method to retrieve, from the quoteheader table, a list of quotes for a particular account and return the list
+	public List<QuoteHeader> accountRefreshConvertQuoteTable(int accId) throws Exception;
+	
+	// Method to retrieve, from the orderheader and accountpayment tables, the last 20 transactions for a particular return them as a List of AccountDetail 
+	public List<AccountDetail> accountDetailRefreshLatestTrans(int accId) throws Exception;
+
+	// Method to return an account based on the id passed
+	public Account accountListClickAccount(int id) throws Exception;
+	
+	// Method to insert an account into the account table
+	public int accountInsert(Account account) throws Exception;
+	
+	// Method to check if an account exists
+	public Account accountExists(Account account)throws Exception;
+	
+	// Method to check if an account exists
+	public Account accountIdExists(Account account)throws Exception;
+		
+	// Method to update an accounts name, address and phone
+	public int accountUpdate(Account account) throws Exception;
+
+	// Method to check if an account exists based on an id that's passed in
+	public Account accountExists(int id)throws Exception;
+	
+	// Method to Delete the account whose ID is passed in
+	public int accountDelete(int id) throws Exception;
+	
+	// Method to retrieve accounts based on a selection and a filter. Method returns a list of accounts
+	public List<Account> accountRefreshAccountsTable(String selection, String filter) throws Exception;
+	
+	// Method to save a payment to the accountpayment table and reduce the account balance by the payment amount
+	public float processPayment(Payment payment) throws Exception;
+
+	// Method to return a list of all of the account's (id passed in) orders and payments
+	public List<AccountDetail> accountStatementGetTrans(int accId) throws Exception;
+
+	// Method to retrieve the account's balance based on an accountId that's passed in
+	public float accountRetrieveBalance(int accId) throws Exception;
+	
+	// Method to update the balance (passed in) on an account (id passed in)
+	public void accountUpdateBalance(int accId, float balance);
+	
+}

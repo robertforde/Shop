@@ -1,0 +1,121 @@
+package com.daniel.model;
+
+import java.util.Date;
+import java.util.ArrayList;
+
+public class Order {
+
+	private ArrayList<OrderLine> orderList = new ArrayList<OrderLine>();
+	private int receiptNo;
+	private String repNo = "";
+	private String totalExVat = "0.00";
+	private String totalVat = "0.00";
+	private String totalPreRounding = "0.00";
+	private String rounding = "0.00";
+	private String totalPostRounding = "0.00";
+	private Date orderDate;
+	private String payType = "";
+	private String saleType = "";
+	private float totalCost = 0.00f;
+
+	public ArrayList<OrderLine> getOrderList() {
+		return orderList;
+	}
+
+	public void setOrderList(ArrayList<OrderLine> orderList) {
+		this.orderList = orderList;
+	} 
+
+	public void addOrderLine(OrderLine orderLine) {
+		orderList.add(orderLine);
+	}
+
+	public int getReceiptNo() {
+		return receiptNo;
+	}
+
+	public void setReceiptNo(int receiptNo) {
+		this.receiptNo = receiptNo;
+	}
+
+	public String getRepNo() {
+		return repNo;
+	}
+
+	public void setRepNo(String repNo) {
+		this.repNo = repNo;
+	}
+
+	public String getTotalExVat() {
+		return totalExVat;
+	}
+
+	public void setTotalExVat(String totalExVat) {
+		this.totalExVat = totalExVat;
+	}
+
+	public String getTotalVat() {
+		return totalVat;
+	}
+
+	public void setTotalVat(String totalVat) {
+		this.totalVat = totalVat;
+	}
+
+	public String getTotalPreRounding() {
+		return totalPreRounding;
+	}
+
+	public void setTotalPreRounding(String totalPreRounding) {
+		this.totalPreRounding = totalPreRounding;
+	}
+
+	public String getRounding() {
+		return rounding;
+	}
+
+	public void setRounding(String rounding) {
+		this.rounding = rounding;
+	}
+
+	public String getTotalPostRounding() {
+		return totalPostRounding;
+	}
+
+	public void setTotalPostRounding(String totalPostRounding) {
+		this.totalPostRounding = totalPostRounding;
+	}
+
+	public Date getOrderDate() {
+		return orderDate;
+	}
+
+	public void setOrderDate(Date orderDate) {
+		this.orderDate = orderDate;
+	}
+
+	public String getPayType() {
+		return payType;
+	}
+
+	public void setPayType(String payType) {
+		this.payType = payType;
+	}
+
+	public String getSaleType() {
+		return saleType;
+	}
+
+	public void setSaleType(String saleType) {
+		this.saleType = saleType;
+	}
+
+	public float getTotalCost() {
+		return totalCost;
+	}
+
+	public void setTotalCost(float totalCost) {
+		this.totalCost = totalCost;
+	}
+	
+}

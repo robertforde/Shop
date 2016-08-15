@@ -1,0 +1,284 @@
+package com.daniel;
+
+import javax.swing.JFrame;
+
+import com.daniel.dao.AccountDao;
+import com.daniel.dao.AccountDaoImpl;
+import com.daniel.model.Account;
+import com.daniel.model.AccountDetail;
+import com.daniel.model.InvoiceSettings;
+import com.daniel.utilities.Utilities;
+
+import java.awt.Color;
+
+import javax.swing.JLabel;
+
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.JButton;
+import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import javax.swing.border.BevelBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+public class AccountDetailScreen extends JFrame{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private InvoiceSettings invoiceSettings;
+	private Account acc;
+	private AccountListScreen accountListScreen;
+	
+	private JTable tblAccountDetailTransactions;
+	
+	private JLabel lblAccountDetailBalance;
+	
+	private AccountDao accountDao;
+	
+	
+	public AccountDao getAccountDao() {
+		return accountDao;
+	}
+
+	public void setAccountDao(AccountDao accountDao) {
+		this.accountDao = accountDao;
+	}
+	
+	public InvoiceSettings getInvoiceSettings() {
+		return invoiceSettings;
+	}
+
+	public void setInvoiceSettings(InvoiceSettings invoiceSettings) {
+		this.invoiceSettings = invoiceSettings;
+	}
+
+	public Account getAcc() {
+		return acc;
+	}
+
+	public void setAcc(Account acc) {
+		this.acc = acc;
+	}
+
+	public AccountListScreen getAccountListScreen() {
+		return accountListScreen;
+	}
+
+	public void setAccountListScreen(AccountListScreen accountListScreen) {
+		this.accountListScreen = accountListScreen;
+	}
+
+	public JLabel getLblAccountDetailBalance() {
+		return lblAccountDetailBalance;
+	}
+
+	public void setLblAccountDetailBalance(JLabel lblAccountDetailBalance) {
+		this.lblAccountDetailBalance = lblAccountDetailBalance;
+	}
+
+	
+	public AccountDetailScreen(InvoiceSettings invoiceSettings, AccountListScreen accountListScreen, Account acc){
+		
+		setAccountDao(Dan.ctx.getBean("accountDaoImpl", AccountDaoImpl.class));
+		
+		getContentPane().setBackground(Color.DARK_GRAY);
+
+		setInvoiceSettings(invoiceSettings);
+		setAcc(acc);
+		setAccountListScreen(accountListScreen);
+		
+		setBounds(220, 80, 950, 570);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		getContentPane().setLayout(null);
+		setVisible(true);
+		setTitle("Tradesman Account");
+		
+		JButton btnAccountDetailStatement = new JButton("STATEMENT");
+		btnAccountDetailStatement.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new AccountStatementScreen(getAcc());
+			}
+		});
+		btnAccountDetailStatement.setForeground(Color.BLACK);
+		btnAccountDetailStatement.setFont(new Font("Georgia", Font.BOLD, 18));
+		btnAccountDetailStatement.setBounds(708, 114, 160, 38);
+		btnAccountDetailStatement.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), UIManager.getColor("Button.darkShadow")));
+		getContentPane().add(btnAccountDetailStatement);
+		
+		JButton btnAccountDetailPayment = new JButton("PAYMENT");
+		btnAccountDetailPayment.setForeground(Color.BLACK);
+		btnAccountDetailPayment.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new AccountPaymentScreen(getAcc(), AccountDetailScreen.this, getAccountListScreen());
+			}
+		});
+		btnAccountDetailPayment.setFont(new Font("Georgia", Font.BOLD, 18));
+		btnAccountDetailPayment.setBounds(708, 195, 160, 38);
+		btnAccountDetailPayment.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), UIManager.getColor("Button.darkShadow")));
+		getContentPane().add(btnAccountDetailPayment);
+		
+		JButton btnAccountDetailInvoice = new JButton("INVOICE");
+		btnAccountDetailInvoice.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new AccountOrderScreen(getInvoiceSettings(), getAcc(), AccountDetailScreen.this, getAccountListScreen(), null);
+			}
+		});
+		btnAccountDetailInvoice.setForeground(Color.BLACK);
+		btnAccountDetailInvoice.setFont(new Font("Georgia", Font.BOLD, 18));
+		btnAccountDetailInvoice.setBounds(708, 276, 160, 38);
+		btnAccountDetailInvoice.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), UIManager.getColor("Button.darkShadow")));
+		getContentPane().add(btnAccountDetailInvoice);
+		
+		JButton btnAccountDetailQuote = new JButton("QUOTE");
+		btnAccountDetailQuote.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new AccountQuoteScreen(getInvoiceSettings(), getAcc());
+			}
+		});
+		btnAccountDetailQuote.setForeground(Color.BLACK);
+		btnAccountDetailQuote.setFont(new Font("Georgia", Font.BOLD, 18));
+		btnAccountDetailQuote.setBounds(708, 357, 160, 38);
+		btnAccountDetailQuote.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), UIManager.getColor("Button.darkShadow")));
+		getContentPane().add(btnAccountDetailQuote);
+		
+		JPanel panelAccountDetailTransactions = new JPanel();
+		panelAccountDetailTransactions.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelAccountDetailTransactions.setBorder(BorderFactory.createRaisedBevelBorder());
+		panelAccountDetailTransactions.setBounds(23, 72, 609, 443);
+		getContentPane().add(panelAccountDetailTransactions);
+		panelAccountDetailTransactions.setLayout(null);
+		
+		JScrollPane scrlAccountDetailTransactions = new JScrollPane();
+		scrlAccountDetailTransactions.setBounds(72, 59, 464, 346);
+		scrlAccountDetailTransactions.setBorder(new BevelBorder(BevelBorder.LOWERED, new Color(160, 160, 160), new Color(160, 160, 160), new Color(0, 0, 0), new Color(105, 105, 105)));
+		panelAccountDetailTransactions.add(scrlAccountDetailTransactions);
+		
+		tblAccountDetailTransactions = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+			
+			public TableCellRenderer getCellRenderer( int row, int col ) { 
+				
+				TableCellRenderer renderer = super.getCellRenderer(row,col);
+				
+				// Right justify the last column (Amount)
+				if ( col == dataModel.getColumnCount() - 1 ) 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.RIGHT );
+				
+				// Left justify the other columns
+				else 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.LEFT );
+				
+				return renderer; 
+			}
+			
+		};
+		tblAccountDetailTransactions.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblAccountDetailTransactions.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		// This formats the Headers
+		tblAccountDetailTransactions.getTableHeader().setFont(new Font("Times New Roman", Font.BOLD, 16));
+		scrlAccountDetailTransactions.setViewportView(tblAccountDetailTransactions);
+		
+		JLabel lblAccountDetailTableDesc = new JLabel("Last 20 Transactions");
+		lblAccountDetailTableDesc.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblAccountDetailTableDesc.setBounds(202, 8, 204, 38);
+		panelAccountDetailTransactions.add(lblAccountDetailTableDesc);
+		
+		JLabel lblAccountDetailBalanceText = new JLabel("Balance:");
+		lblAccountDetailBalanceText.setForeground(Color.WHITE);
+		lblAccountDetailBalanceText.setBounds(550, 11, 182, 50);
+		getContentPane().add(lblAccountDetailBalanceText);
+		lblAccountDetailBalanceText.setFont(new Font("Georgia", Font.BOLD, 38));
+		
+		lblAccountDetailBalance = new JLabel("New label");
+		lblAccountDetailBalance.setForeground(Color.WHITE);
+		lblAccountDetailBalance.setBounds(742, 14, 182, 45);
+		getContentPane().add(lblAccountDetailBalance);
+		lblAccountDetailBalance.setFont(new Font("Georgia", Font.BOLD, 38));
+		lblAccountDetailBalance.setText(Utilities.floatToString2Dec(acc.getBalance()));
+		
+		JLabel lblAccountDetailName = new JLabel("Name");
+		lblAccountDetailName.setBounds(23, 11, 430, 50);
+		getContentPane().add(lblAccountDetailName);
+		lblAccountDetailName.setForeground(Color.WHITE);
+		lblAccountDetailName.setBackground(UIManager.getColor("List.dropLineColor"));
+		lblAccountDetailName.setFont(new Font("Monotype Corsiva", Font.BOLD | Font.ITALIC, 44));
+		lblAccountDetailName.setText(acc.getName());
+		
+		JButton btnAccountDetailConvert = new JButton("CONVERT");
+		btnAccountDetailConvert.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new AccountConvertListScreen(getInvoiceSettings(), getAcc(), AccountDetailScreen.this, getAccountListScreen());
+			}
+		});
+		btnAccountDetailConvert.setForeground(Color.BLACK);
+		btnAccountDetailConvert.setFont(new Font("Georgia", Font.BOLD, 18));
+		btnAccountDetailConvert.setBounds(708, 438, 160, 38);
+		btnAccountDetailConvert.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), UIManager.getColor("Button.darkShadow")));
+		getContentPane().add(btnAccountDetailConvert);
+		
+		refreshAccountDetailsTable();
+		
+	}
+	
+	// Method to retrieve the 20 latest transactions for this account and load them into the table
+	public void refreshAccountDetailsTable(){
+		
+		try {
+	
+			List<AccountDetail> accountDetailList = getAccountDao().accountDetailRefreshLatestTrans(getAcc().getId());
+			
+			String columns[] = {"DATE", "NUMBER", "TYPE", "AMOUNT"};
+			DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+			SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+						
+			for(AccountDetail accountDetail : accountDetailList){
+				String tableDate= df.format(accountDetail.getTheDate());
+				String tableNumber = String.valueOf(accountDetail.getNumber());
+				String tableType = accountDetail.getType();
+				String tableAmount = Utilities.floatToString2Dec(accountDetail.getAmount());
+				Object[] line = {tableDate, tableNumber, tableType, tableAmount};
+				tableModel.addRow(line);
+			}
+						
+			tblAccountDetailTransactions.setModel(tableModel);
+			
+						
+			// Set the column widths
+			tblAccountDetailTransactions.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			TableColumnModel columnModel = tblAccountDetailTransactions.getColumnModel();
+			columnModel.getColumn(0).setPreferredWidth(100);
+			columnModel.getColumn(1).setPreferredWidth(100);
+			columnModel.getColumn(2).setPreferredWidth(150);
+			columnModel.getColumn(3).setPreferredWidth(93);
+			
+		}catch(Exception e){
+			JOptionPane.showMessageDialog(null, e);
+		}
+		
+	}
+}

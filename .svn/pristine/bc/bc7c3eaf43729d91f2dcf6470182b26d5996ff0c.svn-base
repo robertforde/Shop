@@ -1,0 +1,339 @@
+package com.daniel.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+
+import com.daniel.model.Account;
+import com.daniel.model.AccountDetail;
+import com.daniel.model.Payment;
+import com.daniel.model.QuoteHeader;
+import com.daniel.model.TradeOrder;
+import com.daniel.model.TradeOrderLine;
+import com.daniel.utilities.Utilities;
+
+public class AccountDaoImpl extends NamedParameterJdbcDaoSupport implements AccountDao{
+
+	// Method to find a quote and it's detail lines in the quotheader and quotedetail tables and load them into the tradeOrder that is returned
+	public TradeOrder loadTradeQuote(int selectedQuoteNo) throws Exception{
+		
+		String sql = "SELECT * FROM quoteheader WHERE quotationNo = ?";
+		
+		TradeOrder tradeOrder = this.getJdbcTemplate().queryForObject(sql, new Object[] {selectedQuoteNo}, new TradeOrderMapper());
+
+		
+		sql = "SELECT * FROM quotedetail WHERE quotationNo = ?";
+
+		ArrayList<TradeOrderLine> tradeOrderLines = (ArrayList<TradeOrderLine>) this.getJdbcTemplate().query(sql, new Object[] {selectedQuoteNo}, new TradeOrderLineMapper());
+		tradeOrder.setOrderList(tradeOrderLines);
+		tradeOrder.setSaleType("Account");
+
+		return tradeOrder;
+	}
+
+	// Method to retrieve, from the quoteheader table, a list of quotes for a particular account and return the list
+	public List<QuoteHeader> accountRefreshConvertQuoteTable(int accId) throws Exception{
+		
+		String sql = "SELECT * FROM quoteheader WHERE saleType = 'AccQuote' AND custId = ?";
+		
+		return this.getJdbcTemplate().query(sql, new Object[]{accId}, new QuoteHeaderMapper());
+			
+	}
+
+	// Method to retrieve, from the orderheader and accountpayment tables, the last 20 transactions for a particular return them as a List of AccountDetail 
+	public List<AccountDetail> accountDetailRefreshLatestTrans(int accId) throws Exception{
+		
+		String sql = "SELECT orderDate AS DATE, receiptNo AS NUMBER, 'ORDER' AS TYPE, totalPostRounding AS AMOUNT FROM orderheader WHERE custId=? " + 
+				"UNION " + 
+				"SELECT payDate AS DATE, paymentId AS NUMBER, 'PAYMENT' AS TYPE, amount AS AMOUNT FROM accountPayment WHERE accountId=? " + 
+				"ORDER BY DATE DESC LIMIT 20 ";
+		
+		return this.getJdbcTemplate().query(sql, new Object[] {accId, accId}, new AccountDetailMapper());
+
+	}
+
+	// Method to return an account based on the id passed
+	public Account accountListClickAccount(int id) throws Exception{
+		
+		String sql = "SELECT * FROM account WHERE accountID= ? ";
+		
+		return this.getJdbcTemplate().queryForObject(sql, new Object[] {id}, new AccountMapper());
+		
+	}
+
+	// Method to check if an account exists
+	public Account accountExists(Account account)throws Exception{
+		
+		try {
+			String sql = "SELECT * FROM account WHERE name = :name AND addressLine1 = :addressLine1 AND addressLine2 = :addressLine2 AND phone = :phone";
+			
+			SqlParameterSource namedParameters = new MapSqlParameterSource("name", account.getName())
+			.addValue("addressLine1", account.getAddressLine1())
+			.addValue("addressLine2", account.getAddressLine2())
+			.addValue("phone", account.getPhone());
+			
+			return this.getNamedParameterJdbcTemplate().queryForObject(sql, namedParameters, new AccountMapper());
+			
+		}catch(EmptyResultDataAccessException e){
+		
+			return new Account();
+		}
+
+	}
+
+	// Method to insert an account into the account table
+	public int accountInsert(Account account) throws Exception{
+		
+		String sql = "INSERT INTO account (name, addressLine1, addressLine2, phone, balance) VALUES(:name, :addressLine1, :addressLine2, :phone, :balance)";
+		
+		SqlParameterSource namedParameters = new MapSqlParameterSource("name", account.getName())
+													.addValue("addressLine1", account.getAddressLine1())
+													.addValue("addressLine2", account.getAddressLine2())
+													.addValue("phone", account.getPhone())
+													.addValue("balance", account.getBalance());
+		
+		return this.getNamedParameterJdbcTemplate().update(sql, namedParameters);
+
+	}
+	
+	// Method to check if an account exists
+	public Account accountIdExists(Account account)throws Exception{
+			
+		try {
+			String sql = "SELECT * FROM account WHERE accountId = ?";
+				
+			return this.getJdbcTemplate().queryForObject(sql, new Object[]{account.getId()}, new AccountMapper());
+				
+		}catch(EmptyResultDataAccessException e){
+			
+			return new Account();
+		}
+
+	}
+
+	// Method to update an accounts name, address and phone
+	public int accountUpdate(Account account) throws Exception{
+		
+		String sql = "UPDATE account SET name = :name, addressLine1 = :addressLine1, addressLine2 = :addressLine2, phone = :phone WHERE accountID = :accountId";
+
+		SqlParameterSource namedParameters = new MapSqlParameterSource("name", account.getName())
+		.addValue("addressLine1", account.getAddressLine1())
+		.addValue("addressLine2", account.getAddressLine2())
+		.addValue("phone", account.getPhone())
+		.addValue("accountId", account.getId());
+
+		return this.getNamedParameterJdbcTemplate().update(sql, namedParameters);
+
+	}
+	
+	// Method to check if an account exists based on an id that's passed in
+	public Account accountExists(int id)throws Exception{
+			
+		try {
+			String sql = "SELECT * FROM account WHERE accountId = ?";
+			
+			return this.getJdbcTemplate().queryForObject(sql, new Object[]{id}, new AccountMapper());
+				
+		}catch(EmptyResultDataAccessException e){
+			
+			return new Account();
+		}
+
+	}
+
+	// Method to Delete the account whose ID is passed in
+	public int accountDelete(int id) throws Exception{
+		
+		String sql = "UPDATE account SET deleted=1 WHERE accountId = ? AND deleted = 0";
+
+		return this.getJdbcTemplate().update(sql, new Object[] {id});
+		
+	}
+
+	// Method to retrieve accounts based on a selection and a filter. Method returns a list of accounts
+	public List<Account> accountRefreshAccountsTable(String selection, String filter) throws Exception{
+			
+		String sql = "SELECT * FROM account WHERE " + selection + " LIKE '" + filter + "' AND deleted=0 ORDER BY " + selection;
+
+		return this.getJdbcTemplate().query(sql, new AccountMapper());
+
+	}
+
+	// Method to save a payment to the accountpayment table and reduce the account balance by the payment amount
+	public float processPayment(Payment payment) throws Exception{
+		
+		// Save the payment to the accountpayment table
+		String sql = "INSERT INTO accountpayment (accountId, payDate, payType, amount, comment) VALUES(:accountId, :payDate, :payType, :amount, :comment)";
+		
+		SqlParameterSource namedParameters = new MapSqlParameterSource("accountId", payment.getAccountId())
+		.addValue("payDate", payment.getPayDate())
+		.addValue("payType", payment.getPayType())
+		.addValue("amount", payment.getAmount())
+		.addValue("comment", payment.getComment());
+		
+		this.getNamedParameterJdbcTemplate().update(sql, namedParameters);
+		
+		sql = "UPDATE account SET balance = balance - ? WHERE accountId = ?";
+		this.getJdbcTemplate().update(sql, new Object[]{payment.getAmount(), payment.getAccountId()});
+		
+		sql = "SELECT balance FROM account WHERE accountId = :accountId";
+		namedParameters = new MapSqlParameterSource("accountId", payment.getAccountId());
+		return this.getNamedParameterJdbcTemplate().queryForObject(sql, namedParameters, Float.class);
+	}
+	
+	// Method to return a list of all of the account's (id passed in) orders and payments
+	public List<AccountDetail> accountStatementGetTrans(int accId) throws Exception{
+		
+		String sql = "SELECT orderDate AS DATE, receiptNo AS NUMBER, 'ORDER' AS TYPE, totalPostRounding AS AMOUNT FROM orderheader WHERE custId=? " + 
+				"UNION " + 
+				"SELECT payDate AS DATE, paymentId AS NUMBER, 'PAYMENT' AS TYPE, amount AS AMOUNT FROM accountPayment WHERE accountId=? " + 
+				"ORDER BY DATE ASC ";
+		
+		return this.getJdbcTemplate().query(sql, new Object[] {accId, accId}, new AccountDetailMapper());
+	
+	}
+	
+	// Method to retrieve the account's balance based on an accountId that's passed in
+	public float accountRetrieveBalance(int accId) throws Exception{
+		
+		String sql = "SELECT balance FROM account WHERE accountId = ?";
+		
+		return this.getJdbcTemplate().queryForObject(sql, new Object[]{accId}, Float.class);
+		
+	}
+	
+	// Method to update the balance (passed in) on an account (id passed in)
+	public void accountUpdateBalance(int accId, float balance){
+
+		String sql = "UPDATE account SET balance = :balance WHERE accountId = :accountId";
+
+		SqlParameterSource namedParameters = new MapSqlParameterSource("balance", balance)
+		.addValue("accountId", accId);
+		
+		this.getNamedParameterJdbcTemplate().update(sql, namedParameters);
+		
+	}
+	
+	// Static Inner RowMapper Class that maps TradeOrder members to the columns of the quoteheader table
+	private static final class TradeOrderMapper implements RowMapper<TradeOrder>{
+
+		@Override
+		public TradeOrder mapRow(ResultSet resultSet, int rownum) throws SQLException {
+
+			TradeOrder tradeOrder = new TradeOrder();
+			tradeOrder.setRepNo(resultSet.getString("repNo"));
+			tradeOrder.setTotalExVat(resultSet.getString("totalExVat"));
+			tradeOrder.setTotalVat(Utilities.floatToString2Dec(resultSet.getFloat("totalVat")));
+			tradeOrder.setTotalPreRounding(Utilities.floatToString2Dec(resultSet.getFloat("totalPreRounding")));
+			tradeOrder.setRounding(Utilities.floatToString2Dec(resultSet.getFloat("rounding")));
+			tradeOrder.setTotalPostRounding(Utilities.floatToString2Dec(resultSet.getFloat("totalPostRounding")));
+			tradeOrder.setOrderDate(resultSet.getDate("orderDate"));
+			tradeOrder.setPayType(resultSet.getString("payType"));
+			tradeOrder.setSaleType(resultSet.getString("saleType"));
+			tradeOrder.setTotalCost(resultSet.getFloat("totalCostPrice"));
+			tradeOrder.setCustId(resultSet.getInt("custId"));
+			tradeOrder.setName(resultSet.getString("name"));
+			tradeOrder.setAddress1(resultSet.getString("addressLine1"));
+			tradeOrder.setAddress2(resultSet.getString("addressLine2"));
+			tradeOrder.setPhone(resultSet.getString("phone"));
+			
+			return tradeOrder;
+		}
+		
+	}
+
+	// Static Inner RowMapper Class that maps TradeOrderLine members to the columns of the  table
+	private static final class TradeOrderLineMapper implements RowMapper<TradeOrderLine>{
+
+		@Override
+		public TradeOrderLine mapRow(ResultSet resultSet, int rownum) throws SQLException {
+
+			TradeOrderLine tradeOrderLine = new TradeOrderLine();
+			tradeOrderLine.setItemCode(resultSet.getString("itemCode"));
+			tradeOrderLine.setItemDescription(resultSet.getString("itemDescription"));
+			tradeOrderLine.setOrderQty(String.valueOf(resultSet.getInt("qty")));
+			tradeOrderLine.setItemPrice(Utilities.floatToString2Dec(resultSet.getFloat("price")));
+			tradeOrderLine.setItemTradePrice(resultSet.getFloat("tradePrice"));
+			tradeOrderLine.setValueExDiscount(Utilities.floatToString2Dec(resultSet.getFloat("valueExDiscount")));
+			tradeOrderLine.setValueExVat(String.valueOf(resultSet.getFloat("valueExVat")));
+			tradeOrderLine.setLineCostValue(resultSet.getFloat("costPrice"));
+			
+			return tradeOrderLine;
+		}
+		
+	}
+	
+	// Static Inner RowMapper Class that maps QuoteHeader members to the columns of the quoteheader table
+	private static final class QuoteHeaderMapper implements RowMapper<QuoteHeader>{
+
+		@Override
+		public QuoteHeader mapRow(ResultSet resultSet, int rownum) throws SQLException {
+
+			QuoteHeader quoteHeader = new QuoteHeader();
+			quoteHeader.setQuotationNo(resultSet.getInt("quotationNo"));
+			quoteHeader.setRepNo(resultSet.getString("repNo"));
+			quoteHeader.setTotalExVat(Utilities.floatToString2Dec(resultSet.getFloat("totalExVat")));
+			quoteHeader.setTotalVat(Utilities.floatToString2Dec(resultSet.getFloat("totalVat")));
+			quoteHeader.setTotalPreRounding(Utilities.floatToString2Dec(resultSet.getFloat("totalPreRounding")));
+			quoteHeader.setRounding(Utilities.floatToString2Dec(resultSet.getFloat("rounding")));
+			quoteHeader.setTotalPostRounding(Utilities.floatToString2Dec(resultSet.getFloat("totalPostRounding")));
+			quoteHeader.setOrderDate(resultSet.getDate("orderDate"));
+			quoteHeader.setPayType(resultSet.getString("payType"));
+			quoteHeader.setSaleType(resultSet.getString("saleType"));
+			quoteHeader.setTotalCost(resultSet.getFloat("totalCostPrice"));
+			quoteHeader.setCustId(resultSet.getInt("custId"));
+			quoteHeader.setName(resultSet.getString("name"));
+			quoteHeader.setAddress1(resultSet.getString("addressLine1"));
+			quoteHeader.setAddress2(resultSet.getString("addressLine2"));
+			quoteHeader.setPhone(resultSet.getString("phone"));
+			
+			return quoteHeader;
+		}
+		
+	}
+	
+	// Static Inner RowMapper Class that maps AccountDetail members to query results from columns of the accountpayment and orderheader tables
+	private static final class AccountDetailMapper implements RowMapper<AccountDetail>{
+
+		@Override
+		public AccountDetail mapRow(ResultSet resultSet, int rownum) throws SQLException {
+
+			AccountDetail accountDetail = new AccountDetail();
+			accountDetail.setTheDate(resultSet.getDate("DATE"));
+			accountDetail.setNumber(resultSet.getInt("NUMBER"));
+			accountDetail.setType(resultSet.getString("TYPE"));
+			accountDetail.setAmount(resultSet.getFloat("AMOUNT"));
+			
+		
+			return accountDetail;
+		}
+	
+	}
+	
+	// Static Inner RowMapper Class that maps Account members to the columns of the account table
+	private static final class AccountMapper implements RowMapper<Account>{
+
+		@Override
+		public Account mapRow(ResultSet resultSet, int rownum) throws SQLException {
+
+			Account account = new Account();
+			account.setId(resultSet.getInt("accountId"));
+			account.setName(resultSet.getString("name"));
+			account.setAddressLine1(resultSet.getString("addressLine1"));
+			account.setAddressLine2(resultSet.getString("addressLine2"));
+			account.setPhone(resultSet.getString("phone"));
+			account.setBalance(resultSet.getFloat("balance"));
+			
+		
+			return account;
+		}
+	
+	}
+}

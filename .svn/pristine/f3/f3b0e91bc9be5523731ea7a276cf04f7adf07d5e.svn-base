@@ -1,0 +1,241 @@
+package com.daniel;
+
+import java.awt.Color;
+
+import javax.swing.JFrame;
+import javax.swing.JTable;
+
+import com.daniel.dao.DAO;
+import com.daniel.model.Account;
+import com.daniel.utilities.Utilities;
+
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.JRadioButton;
+
+import java.awt.Font;
+
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Date;
+
+import javax.swing.border.BevelBorder;
+
+public class AccountPaymentScreen extends JFrame{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private DAO dao;
+	private Account acc;
+	private JTextField txtPaymentAmount;
+	private JTextField txtPaymentComment;
+	private AccountDetailScreen accountDetailScreen;
+	private AccountListScreen accountListScreen;
+	
+	
+	public DAO getDao() {
+		return dao;
+	}
+
+	public void setDao(DAO dao) {
+		this.dao = dao;
+	}
+
+	public Account getAcc() {
+		return acc;
+	}
+
+	public void setAcc(Account acc) {
+		this.acc = acc;
+	}
+
+	public AccountDetailScreen getAccountDetailScreen() {
+		return accountDetailScreen;
+	}
+
+	public void setAccountDetailScreen(AccountDetailScreen accountDetailScreen) {
+		this.accountDetailScreen = accountDetailScreen;
+	}
+
+	
+	public AccountListScreen getAccountListScreen() {
+		return accountListScreen;
+	}
+
+	public void setAccountListScreen(AccountListScreen accountListScreen) {
+		this.accountListScreen = accountListScreen;
+	}
+
+	public AccountPaymentScreen(DAO dao, Account acc, AccountDetailScreen accountDetailScreen, AccountListScreen accountListScreen){
+		getContentPane().setBackground(Color.DARK_GRAY);
+
+		setDao(dao);
+		setAcc(acc);
+		setAccountDetailScreen(accountDetailScreen);
+		setAccountListScreen(accountListScreen);
+		
+		setBounds(410, 250, 500, 302);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		getContentPane().setLayout(null);
+		setVisible(true);
+		setTitle("PAYMENT");
+		
+		JPanel panelPaymentType = new JPanel();
+		//panelPaymentType.setBorder(new BevelBorder(BevelBorder.LOWERED, UIManager.getColor("CheckBox.darkShadow"), null, null, UIManager.getColor("Button.shadow")));
+		panelPaymentType.setBorder(BorderFactory.createRaisedBevelBorder());
+		panelPaymentType.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelPaymentType.setBounds(38, 21, 163, 118);
+		getContentPane().add(panelPaymentType);
+		panelPaymentType.setLayout(null);
+		
+		JRadioButton rdbtnPaymentCash = new JRadioButton("Cash");
+		rdbtnPaymentCash.setSelected(true);
+		rdbtnPaymentCash.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnPaymentCash.setForeground(Color.BLACK);
+		rdbtnPaymentCash.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnPaymentCash.setBounds(25, 7, 109, 23);
+		panelPaymentType.add(rdbtnPaymentCash);
+				
+		JRadioButton rdbtnPaymentCreditCard = new JRadioButton("Credit Card");
+		rdbtnPaymentCreditCard.setForeground(Color.BLACK);
+		rdbtnPaymentCreditCard.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnPaymentCreditCard.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnPaymentCreditCard.setBounds(25, 33, 132, 23);
+		panelPaymentType.add(rdbtnPaymentCreditCard);
+		
+		JRadioButton rdbtnPaymentCheque = new JRadioButton("Cheque");
+		rdbtnPaymentCheque.setForeground(Color.BLACK);
+		rdbtnPaymentCheque.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnPaymentCheque.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnPaymentCheque.setBounds(25, 59, 109, 23);
+		panelPaymentType.add(rdbtnPaymentCheque);
+		
+		JRadioButton rdbtnPaymentBankTransfer = new JRadioButton("Transfer");
+		rdbtnPaymentBankTransfer.setForeground(Color.BLACK);
+		rdbtnPaymentBankTransfer.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnPaymentBankTransfer.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnPaymentBankTransfer.setBounds(25, 85, 109, 23);
+		panelPaymentType.add(rdbtnPaymentBankTransfer);
+		
+		JLabel lblPaymentAmount = new JLabel("Amount");
+		lblPaymentAmount.setForeground(Color.BLACK);
+		lblPaymentAmount.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblPaymentAmount.setBounds(241, 21, 97, 29);
+		getContentPane().add(lblPaymentAmount);
+		
+		txtPaymentAmount = new JTextField();
+		txtPaymentAmount.setForeground(Color.BLACK);
+		txtPaymentAmount.setFont(new Font("Georgia", Font.BOLD, 16));
+		txtPaymentAmount.setBounds(241, 50, 100, 28);
+		getContentPane().add(txtPaymentAmount);
+		txtPaymentAmount.setColumns(10);
+		
+		txtPaymentComment = new JTextField();
+		txtPaymentComment.setForeground(Color.BLACK);
+		txtPaymentComment.setBounds(241, 136, 200, 28);
+		getContentPane().add(txtPaymentComment);
+		txtPaymentComment.setColumns(10);
+		
+		JButton btnPaymentSave = new JButton("SAVE");
+		btnPaymentSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				float balance = 0.00f;
+				String query = "";
+				PreparedStatement pst;
+				ResultSet rs;
+				
+				if(!txtPaymentAmount.getText().isEmpty()){
+					try {
+						
+						if(Float.parseFloat(txtPaymentAmount.getText()) != 0.0){
+							
+							// Save the payment to the database
+							query = "INSERT INTO accountpayment (accountId, payDate, amount, comment) VALUES(?,?,?,?)";
+							pst = getDao().conn.prepareStatement(query);
+							pst.setInt( 1, getAcc().getId());
+							pst.setDate( 2, new java.sql.Date(new Date().getTime()));
+							pst.setFloat( 3, Float.parseFloat(txtPaymentAmount.getText()));
+							pst.setString( 4, txtPaymentComment.getText());
+							pst.execute();
+							
+							// Retrieve the current account balance 
+							query = "SELECT balance FROM account WHERE accountId = ?";
+							pst = getDao().conn.prepareStatement(query);
+							pst.setInt( 1, getAcc().getId());
+							rs = pst.executeQuery();
+							while (rs.next())
+								balance = rs.getFloat(1);
+							
+							// Reduce the balance by this payment 
+							balance -= Float.parseFloat(txtPaymentAmount.getText());
+							
+							// Save it back to the Database 
+							query = "UPDATE account SET balance = ? WHERE accountId = ?";
+							pst = getDao().conn.prepareStatement(query);
+							pst.setFloat( 1, balance);
+							pst.setFloat( 2, getAcc().getId());
+							pst.executeUpdate();
+							
+							// Update the acc object
+							getAcc().setBalance(balance);
+							
+							pst.close();
+							
+						}else{
+							JOptionPane.showMessageDialog(null, "You cannot enter a payment of 0.00 !");	
+						}
+					}catch(Exception e){
+						JOptionPane.showMessageDialog(null, e);//"You must enter a number for the amount !");
+					}
+				}
+
+				// Refresh the accounts on the previous screens to reflect the new balance
+				getAccountListScreen().refreshAccountsTable();
+				getAccountDetailScreen().refreshAccountDetailsTable();
+				getAccountDetailScreen().getLblAccountDetailBalance().setText(String.valueOf(Utilities.floatToNumDec(getAcc().getBalance(),2)));
+				AccountPaymentScreen.this.dispose();
+			}
+		});
+		btnPaymentSave.setForeground(Color.BLACK);
+		btnPaymentSave.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnPaymentSave.setBounds(65, 198, 120, 38);
+		getContentPane().add(btnPaymentSave);
+		
+		JLabel lblPaymentComment = new JLabel("Comment");
+		lblPaymentComment.setForeground(Color.BLACK);
+		lblPaymentComment.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblPaymentComment.setBounds(241, 107, 97, 29);
+		getContentPane().add(lblPaymentComment);
+		
+		JButton btnPaymentCancel = new JButton("CANCEL");
+		btnPaymentCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				AccountPaymentScreen.this.dispose();
+			}
+		});
+		btnPaymentCancel.setForeground(Color.BLACK);
+		btnPaymentCancel.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnPaymentCancel.setBounds(281, 198, 120, 38);
+		getContentPane().add(btnPaymentCancel);
+		
+		// Group the radio buttons.
+		ButtonGroup paymentPayTypegroup = new ButtonGroup();
+		paymentPayTypegroup.add(rdbtnPaymentCash);
+		paymentPayTypegroup.add(rdbtnPaymentCreditCard);
+		paymentPayTypegroup.add(rdbtnPaymentCheque);
+		paymentPayTypegroup.add(rdbtnPaymentBankTransfer);
+
+	}
+}

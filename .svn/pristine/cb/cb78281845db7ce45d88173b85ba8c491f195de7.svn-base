@@ -1,0 +1,3570 @@
+package com.daniel;
+
+import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.Calendar;
+
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JPanel;
+
+import com.daniel.dao.DAO;
+import com.daniel.model.InvoiceSettings;
+import com.daniel.model.Order;
+import com.daniel.model.OrderLine;
+import com.daniel.model.RetailOrder;
+import com.daniel.model.RetailOrderLine;
+import com.daniel.model.TradeOrder;
+import com.daniel.model.TradeOrderLine;
+import com.daniel.utilities.Utilities;
+
+import javax.swing.JComboBox;
+import javax.swing.JTextField;
+import javax.swing.JTable;
+
+import net.proteanit.sql.DbUtils;
+
+import javax.swing.JScrollPane;
+import javax.swing.DefaultComboBoxModel;
+
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+import javax.swing.JButton;
+
+import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+import javax.swing.border.BevelBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
+
+import java.awt.Color;
+
+import javax.swing.UIManager;
+import javax.swing.JLabel;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+
+import javax.swing.SwingConstants;
+
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+
+import javax.swing.ListSelectionModel;
+
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+
+import javax.swing.JToggleButton;
+import javax.swing.JRadioButton;
+
+import java.awt.SystemColor;
+
+public class Dan{
+
+	DAO dao = new DAO();
+	private InvoiceSettings invoiceSettings = new InvoiceSettings();
+	private JFrame frame;
+	private JPanel panelCustOrder;
+	private JPanel panelCustOrderLine;
+	private JTextField txtProductsSrch;
+	private JTable tblProductsItem;
+	private JTextField txtProductsCode;
+	private JTextField txtProductsDescription;
+	private JTextField txtProductsRetail;
+	private JTextField txtCustLineCode;
+	private JTextField txtCustLineDesc;
+	private JTextField txtCustLinePrice;
+	private JTextField txtCustLineQty;
+	private JButton btnCustNewOrderLine;
+	private JTable tblCustOrder;
+	private JTable tblCustItemDescription;
+	private JPanel panelCustCurrentOrder;
+	private JLabel lblCustTotalPrice;
+	private JLabel lblCustTotalExVat;
+	private JPanel panelCustItemDescriptionChoice;
+	private JTabbedPane tabbedPane;
+	private JPanel panelCustPrintOrder;
+	private TableColumnModel columnModelOrder;
+	private JComboBox<String> comboBoxProductsSrch;
+	private JToggleButton btnPrintTopIcon;
+	private JToggleButton btnPrintBodyImage;
+	private JToggleButton btnPrintVerticalGrid;
+	private JButton btnSaveChanges;
+	private JButton btnCancelChanges;
+	private JPanel panelCustDiscount;
+	private JPanel panelCustGrossProfit;
+	private JPanel panelCustRounding;
+	private JPanel panelTradeCurrentOrder;
+	private JPanel panelTradePaymentMethod;
+	private JPanel panelTradeRounding; 
+	private JPanel panelTradeGrossProfit; 
+	private JPanel panelTradeNewOrder; 
+	private JPanel panelTradePrintOrder; 
+	private JPanel panelTradeDetails;
+	private JLabel lblTradeTotalPrice;
+	private JLabel lblTradeTotalExVat;
+	private JPanel panelTradeItemDescriptionChoice;
+	private JTable tblTradeItemDescription;
+	private JButton btnTradeNewOrderLine;
+	private JPanel panelCustDetails;
+	private JPanel panelCustNewOrder;
+	private JComboBox<String> comboBoxCustomersSrch;
+	private JComboBox<String> comboBoxTradesmenSrch;
+
+	private RetailOrder retailOrder;
+	private RetailOrderLine retailOrderLine;
+	private TradeOrder tradeOrder;
+	private TradeOrderLine tradeOrderLine;
+	private JRadioButton rdbtnCustCash;
+	private JRadioButton rdbtnCustCreditCard;
+	private JRadioButton rdbtnCustCheque;
+	private JRadioButton rdbtnTradeCash;
+	private JRadioButton rdbtnTradeCreditCard;
+	private JRadioButton rdbtnTradeCheque;
+	private JPanel panelCustPaymentMethod;
+	private JLabel lblCustGrossProfitValue;
+	private JLabel lblCustGrossProfitPercent;
+	private JLabel lblTradeGrossProfitValue;
+	private JLabel lblTradeGrossProfitPercent;
+	
+	private JTextField txtTopIconXPosition;
+	private JTextField txtTopIconYPosition;
+	private JTextField txtBodyImageXPosition;
+	private JTextField txtBodyImageYPosition;
+	private JTextField txtFooterTextLine1;
+	private JTextField txtFooterTextLine2;
+	private JTextField txtFooterTextLine3;
+	private JTextField txtVatRate;
+	private Image yesImgPrintIcon;
+	private Image noImgPrintIcon;
+	private JTextField textField;
+	private JTable tblItemStock;
+	private JTextField txtCustDiscount;
+	private JTextField txtCustLineDisc;
+	private float txtCustLineCost;
+	private float CustTradeLinePrice;
+	private JTextField txtCustLineRep;
+	private String oldOverallDiscount;
+	private JTextField txtTradeLineRep;
+	private JTextField txtTradeLineCode;
+	private JTextField txtTradeLineDesc;
+	private JTextField txtTradeLinePrice;
+	private JTextField txtTradeLineQty;
+	private float txtTradeLineCost;
+	private JTable tblTradeOrder;
+	private JTextField txtProductsTrade;
+	private JTextField txtProductsCost;
+	private JTextField txtCustomersName;
+	private JTextField txtCustomersAddressLine1;
+	private JTextField txtCustomersAddressLine2;
+	private JTextField txtCustomersPhone;
+	private JTable tblCustomersList;
+	private JTextField txtCustomersSrch;
+	private JTextField txtCustomersID;
+	private JTextField txtTradesmenSrch;
+	private JTable tblTradesmenList;
+	private JTextField txtTradesmenID;
+	private JTextField txtTradesmenName;
+	private JTextField txtTradesmenAddressLine1;
+	private JTextField txtTradesmenAddressLine2;
+	private JTextField txtTradesmenPhone;
+
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Dan window = new Dan();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	
+	// Method to reload the items into the item maintenance table
+	public void refreshProductsTable(){
+		String selection = comboBoxProductsSrch.getSelectedItem().toString();
+		String filter = "%" + txtProductsSrch.getText() + "%";
+		
+		if(selection=="ITEM"){
+			selection = "itemCode";
+		} else if(selection=="DESCRIPTION"){
+			selection = "itemDescription";
+		} else {
+			selection = "retailPrice";
+		}
+
+		try {
+			String query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, costPrice AS COST, tradePrice As TRADE, retailPrice AS RETAIL FROM item WHERE " + selection + " LIKE ?" +
+					" AND deleted=0 ORDER BY " + selection;
+			PreparedStatement  pst = dao.conn.prepareStatement(query);
+			pst.setString(1, filter);
+			ResultSet rs = pst.executeQuery();
+			// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+			tblProductsItem.setModel(DbUtils.resultSetToTableModel(rs));
+			
+			// Set the column widths
+			tblProductsItem.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			TableColumnModel columnModel = tblProductsItem.getColumnModel();
+			columnModel.getColumn(0).setPreferredWidth(100);
+			columnModel.getColumn(1).setPreferredWidth(479);
+			columnModel.getColumn(2).setPreferredWidth(99);
+			columnModel.getColumn(3).setPreferredWidth(99);
+			columnModel.getColumn(4).setPreferredWidth(99);
+			
+			pst.close();
+			rs.close();
+			
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+		}
+	}
+	
+	public void refreshCustomersTable() {
+		String selection = comboBoxCustomersSrch.getSelectedItem().toString();
+		String filter = "%" + txtCustomersSrch.getText() + "%";
+		
+		if(selection=="NAME"){
+			selection = "name";
+		} else if(selection=="ADDRESS LINE 1"){
+			selection = "addressLine1";
+		} else if(selection=="ADDRESS LINE 2") {
+			selection = "addressLine2";
+		} else {
+			selection = "phone";
+		}
+
+		try {
+			String query = "SELECT customerID AS ID, name AS NAME, addressLine1 AS ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM customer WHERE " + selection + " LIKE ?" +
+					" AND deleted=0 ORDER BY " + selection;
+			PreparedStatement  pst = dao.conn.prepareStatement(query);
+			pst.setString(1, filter);
+			ResultSet rs = pst.executeQuery();
+			// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+			tblCustomersList.setModel(DbUtils.resultSetToTableModel(rs));
+			
+			// Set the column widths
+			tblCustomersList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			TableColumnModel columnModel = tblCustomersList.getColumnModel();
+			columnModel.getColumn(0).setPreferredWidth(25);
+			columnModel.getColumn(1).setPreferredWidth(180);
+			columnModel.getColumn(2).setPreferredWidth(295);
+			columnModel.getColumn(3).setPreferredWidth(295);
+			columnModel.getColumn(4).setPreferredWidth(135);
+			
+			pst.close();
+			rs.close();
+			
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+		}		
+	}
+	
+	public void refreshTradesmenTable() {
+		String selection = comboBoxTradesmenSrch.getSelectedItem().toString();
+		String filter = "%" + txtTradesmenSrch.getText() + "%";
+		
+		if(selection=="NAME"){
+			selection = "name";
+		} else if(selection=="ADDRESS LINE 1"){
+			selection = "addressLine1";
+		} else if(selection=="ADDRESS LINE 2") {
+			selection = "addressLine2";
+		} else {
+			selection = "phone";
+		}
+
+		try {
+			String query = "SELECT tradesmanID AS ID, name AS NAME, addressLine1 AS ADDRESS1, addressLine2 AS ADDRESS2, phone AS PHONE FROM tradesman WHERE " + selection + " LIKE ?" +
+					" AND deleted=0 ORDER BY " + selection;
+			PreparedStatement  pst = dao.conn.prepareStatement(query);
+			pst.setString(1, filter);
+			ResultSet rs = pst.executeQuery();
+			// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+			tblTradesmenList.setModel(DbUtils.resultSetToTableModel(rs));
+			
+			// Set the column widths
+			tblTradesmenList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			TableColumnModel columnModel = tblTradesmenList.getColumnModel();
+			columnModel.getColumn(0).setPreferredWidth(25);
+			columnModel.getColumn(1).setPreferredWidth(180);
+			columnModel.getColumn(2).setPreferredWidth(295);
+			columnModel.getColumn(3).setPreferredWidth(295);
+			columnModel.getColumn(4).setPreferredWidth(135);
+			
+			pst.close();
+			rs.close();
+			
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+		}		
+	}
+	
+	public void ordLineItemSelected() {
+		try {
+		
+			// We use the table's getSelectedRow() method to find the row that the User selected. 
+			int row = tblCustItemDescription.getSelectedRow();
+	
+			// Then we can get the description of the selected row by getting the model of the table and then using the getValueAt() method we can get the specific
+			// row and column that we require.
+			// This returns an Object so we get the toString of it.
+			String descString = tblCustItemDescription.getModel().getValueAt(row, 0).toString();
+			
+			String query = "SELECT * FROM item WHERE itemDescription = ?";
+			PreparedStatement pst = dao.conn.prepareStatement(query);
+			pst.setString( 1, descString);
+			ResultSet rs = pst.executeQuery();
+			
+			while(rs.next()){
+				// Put selected item's code, description and price into the oderline entry fields and Enable the quantity+discount fields and make the enter button visible. 
+				//txtLineCode.setText(rs.getString(1));
+				txtCustLineCode.setText(rs.getString("itemCode"));
+				txtCustLineDesc.setText(rs.getString("itemDescription"));
+				txtCustLinePrice.setText(Utilities.stringToDec( String.valueOf(rs.getFloat("retailPrice")) ));
+				CustTradeLinePrice = rs.getFloat("tradePrice");
+				txtCustLineCost = rs.getFloat("costPrice");
+				txtCustLineQty.setEnabled(true);
+				txtCustLineDisc.setEnabled(true);
+			}
+			
+			txtCustLineQty.requestFocus();
+			panelCustItemDescriptionChoice.setVisible(false);
+			
+			pst.close();
+			rs.close();
+			
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+		}
+	}
+
+	public void ordLineTradeItemSelected() {
+		try {
+		
+			// We use the table's getSelectedRow() method to find the row that the User selected. 
+			int row = tblTradeItemDescription.getSelectedRow();
+	
+			// Then we can get the description of the selected row by getting the model of the table and then using the getValueAt() method we can get the specific
+			// row and column that we require.
+			// This returns an Object so we get the toString of it.
+			String descString = tblTradeItemDescription.getModel().getValueAt(row, 0).toString();
+			
+			String query = "SELECT * FROM item WHERE itemDescription = ?";
+			PreparedStatement pst = dao.conn.prepareStatement(query);
+			pst.setString( 1, descString);
+			ResultSet rs = pst.executeQuery();
+			
+			while(rs.next()){
+				// Put selected item's code, description and price into the oderline entry fields and Enable the quantity+discount fields and make the enter button visible. 
+				//txtLineCode.setText(rs.getString(1));
+				txtTradeLineCode.setText(rs.getString("itemCode"));
+				txtTradeLineDesc.setText(rs.getString("itemDescription"));
+				txtTradeLinePrice.setText(Utilities.stringToDec( String.valueOf(rs.getFloat("tradePrice")) ));
+				txtTradeLineCost = rs.getFloat("costPrice");
+				txtTradeLineQty.setEnabled(true);
+			}
+			
+			txtTradeLineQty.requestFocus();
+			panelTradeItemDescriptionChoice.setVisible(false);
+			
+			pst.close();
+			rs.close();
+			
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+		}
+	}
+	
+	// Method to save the ReceiptPrinting changes made 
+	public boolean saveReceiptPrintingChanges(){
+		
+		try {
+
+			// Save the settings to our invoiceSettings object and make it update the database
+			invoiceSettings.setReceiptTopBanner(btnPrintTopIcon.getText().compareTo("Print")==0?1:0);
+			invoiceSettings.setReceiptTopBannerX(Integer.parseInt(txtTopIconXPosition.getText())); 
+			invoiceSettings.setReceiptTopBannerY(Integer.parseInt(txtTopIconYPosition.getText())); 
+			invoiceSettings.setReceiptVerticalGridLines(btnPrintVerticalGrid.getText().compareTo("Print")==0?1:0); 
+			invoiceSettings.setReceiptBodyImage(btnPrintBodyImage.getText().compareTo("Print")==0?1:0);
+			invoiceSettings.setReceiptBodyImageX(Integer.parseInt(txtBodyImageXPosition.getText())); 
+			invoiceSettings.setReceiptBodyImageY(Integer.parseInt(txtBodyImageYPosition.getText())); 
+			invoiceSettings.setReceiptVatRate(Float.parseFloat(txtVatRate.getText()));
+			invoiceSettings.setReceiptFooterLine1(txtFooterTextLine1.getText()); 
+			invoiceSettings.setReceiptFooterLine2(txtFooterTextLine2.getText()); 
+			invoiceSettings.setReceiptFooterLine3(txtFooterTextLine3.getText()); 
+			
+			invoiceSettings.savePrintSettingsToDatabase(dao);
+			
+			return true;
+		
+		}catch (NumberFormatException ex){
+			JOptionPane.showMessageDialog(null, "X and Y Positions and Vat Rate must be numbers ");
+			return false;
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, ex);
+			return false;
+		}
+	}
+	
+/*	public void enterOrderLine(String saleType, String repCode, String itemCode, String itemDesc, String itemQty, String itemPrice, String lineDisc, String overallDisc) {
+		
+		try {
+
+			// Check if an item is entered
+			if(!itemDesc.isEmpty()) {
+				// Check that the Quantity entered is an Integer and > 0.
+				if(Integer.parseInt(itemQty) > 0) {
+											
+					// Create a RetailOrderLine and call the assignRetailOrderLine() method to calculate it's values and save it to the  
+					retailOrderLine = new RetailOrderLine();
+
+					retailOrderLine.addRetailOrderLine(panelCustOrderLine, panelCustDiscount, panelCustGrossProfit, retailOrder, CustTradeLinePrice, 
+															orderLineCost, invoiceSettings);
+					
+					if(saleType.equals("Retail")) {
+						// Clear the order textfield boxes and disable the quantity+discount textfields and make the ENTER button invisible
+						txtCustLineCode.setText("");
+						txtCustLineDesc.setText("");
+						txtCustLinePrice.setText("");
+						txtCustLineQty.setText("");
+						txtCustLineQty.setEnabled(false);
+						txtCustLineDisc.setText("");
+						txtCustLineDisc.setEnabled(false);
+						btnCustNewOrderLine.setVisible(false);
+						
+						// Make the Current Order, Print Order, CustomerPaymentMethod, DiscountPanelvisible, CustomerGrossProfit, Rounding panels visible
+						panelCustCurrentOrder.setVisible(true);
+						panelCustPrintOrder.setVisible(true);
+						panelCustPaymentMethod.setVisible(true);
+						panelCustDiscount.setVisible(true);
+						panelCustGrossProfit.setVisible(true);
+						panelCustRounding.setVisible(true);
+						
+					} else if(saleType.equals("Trade")) {
+						txtTradeLineCode.setText("");
+						txtTradeLineDesc.setText("");
+						txtTradeLinePrice.setText("");
+						txtTradeLineQty.setText("");
+						txtTradeLineQty.setEnabled(false);
+						btnTradeNewOrderLine.setVisible(false);
+						
+						// Make the Current Order, Print Order, CustomerPaymentMethod, DiscountPanelvisible, CustomerGrossProfit, Rounding panels visible
+						panelTradeCurrentOrder.setVisible(true);
+//						panelTradePrintOrder.setVisible(true);
+//						panelTradePaymentMethod.setVisible(true);
+//						panelTradeGrossProfit.setVisible(true);
+//						panelTradeRounding.setVisible(true);
+					}
+						
+
+
+					
+					// Load the current Order table with the Order Lines
+					String columns[] = {"ITEM", "DESCRIPTION", "QTY", "PRICE", "DISC", "TOTAL"};
+					DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+					
+					for(RetailOrderLine o : retailOrder.getOrderList()){
+						String tableCode= o.getItemCode();
+						String tableDesc = o.getItemDescription();
+						String tableQty = o.getOrderQty();
+						String tableItemPrice = o.getItemPrice();
+						String tableItemDiscount = o.getDiscountPercent() + " %";
+						String tableOrderPrice = o.getValueExVat();
+						Object[] line = {tableCode, tableDesc, tableQty, tableItemPrice, tableItemDiscount, tableOrderPrice};
+						tableModel.addRow(line);
+					}
+					tblCustOrder.setModel(tableModel);
+					lblCustTotalPrice.setText("\u20AC " + String.valueOf(retailOrder.getTotalPreRounding()));
+					lblCustTotalExVat.setText("\u20AC " + retailOrder.getTotalExVat());
+
+
+					// Set the column widths for the table
+					tblCustOrder.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+					columnModelOrder = tblCustOrder.getColumnModel();
+					columnModelOrder.getColumn(0).setPreferredWidth(90);
+					columnModelOrder.getColumn(1).setPreferredWidth(409);
+					columnModelOrder.getColumn(2).setPreferredWidth(40);
+					columnModelOrder.getColumn(3).setPreferredWidth(70);
+					columnModelOrder.getColumn(4).setPreferredWidth(70);
+					columnModelOrder.getColumn(5).setPreferredWidth(83);
+					
+					// Set the focus back to the item description
+					txtCustLineDesc.requestFocus();
+
+				} else {
+					JOptionPane.showMessageDialog(null, "You must enter a Quantity greater than 0 !");
+				}
+			}else {
+				JOptionPane.showMessageDialog(null, "You must enter an Item !");	
+			}
+		}catch(Exception ex){
+			JOptionPane.showMessageDialog(null, "You must enter a number for the Quantity and the Discount % !");
+		}
+
+	}
+	
+	public void calcPriceValues(RetailOrder retailOrder, RetailOrderLine retailOrderLine, String calcPrice, String calcQty, String calcLineDisc, String overallDisc, Boolean addLine){
+		
+		float valExDisc;
+		String strvalExDisc;
+		float discPercent;
+		String strDiscPercent;
+		float discValue;
+		String strDiscValue;
+		float valExVat;
+		String strValExVat;
+		float orderTotExVat;
+		String strorderTotExVat;
+		float vatRate;
+		float totalVat;
+		float totalPreRounding;
+		
+		// Get Order Line Price exclusive of discount and covert it to a 2 decimal string
+		valExDisc = Float.parseFloat(calcPrice) * Integer.parseInt(calcQty);
+		strvalExDisc = String.format("%.2f", valExDisc);
+		strvalExDisc = Utilities.stringToDec(strvalExDisc);
+		retailOrderLine.setValueExDiscount(strvalExDisc);
+		
+		if(overallDisc.equals("")){
+			// Get Order Line Discount Percentage and covert it to a 2 decimal string
+			if(!calcLineDisc.trim().equals("")) {
+				discPercent = Float.parseFloat(calcLineDisc);
+				strDiscPercent = String.format("%.2f", discPercent);
+				strDiscPercent = Utilities.stringToDec(strDiscPercent);
+			}else{
+				discPercent = 0.0f;
+				strDiscPercent = "0.00";
+			}
+			
+		}else{
+			discPercent = Float.parseFloat(overallDisc);
+			strDiscPercent = String.format("%.2f", discPercent);
+			strDiscPercent = Utilities.stringToDec(strDiscPercent);
+		}
+		retailOrderLine.setDiscountPercent(strDiscPercent);
+		
+		// Get Order Line Discount Value and convert it to a 2 decimal string
+		discValue = (valExDisc/100) * discPercent;
+		discValue = Utilities.floatToNumDec(discValue,2);
+		strDiscValue = String.format("%.2f", discValue);
+		strDiscValue = Utilities.stringToDec(strDiscValue);
+		retailOrderLine.setDiscountValue(strDiscValue);
+		
+		// Get Order Line Price - Discount exclusive of vat and covert it to a 2 decimal string
+		valExVat = valExDisc - discValue;
+		strValExVat = String.format("%.2f", valExVat);
+		strValExVat = Utilities.stringToDec(strValExVat);
+		retailOrderLine.setValueExVat(strValExVat);
+		
+		// If addLine = true is passed to this method Add the OrderLine to the Order ArrayList  
+		if(addLine){
+			retailOrder.addOrderLine(retailOrderLine);
+		}
+		
+		// Add the Order Line total to the Order's total ex-vat value and round to 2 Decimals
+		orderTotExVat = Utilities.floatToNumDec(Float.parseFloat(retailOrder.getTotalExVat()) + valExVat,2);
+		strorderTotExVat = String.format("%.2f",orderTotExVat);
+		strorderTotExVat = Utilities.stringToDec(strorderTotExVat);
+		retailOrder.setTotalExVat(strorderTotExVat);
+		
+		// Calculate the vat and add it to the order
+		vatRate = Float.parseFloat(txtVatRate.getText());
+		totalVat = Utilities.floatToNumDec(orderTotExVat/100*vatRate,2);
+		totalPreRounding = Utilities.floatToNumDec(orderTotExVat + totalVat,2);
+		retailOrder.setTotalVat(Utilities.stringToDec(String.valueOf(totalVat)));
+		retailOrder.setTotalPreRounding(Utilities.stringToDec(String.valueOf(totalPreRounding)));
+		
+		// Set the Post Rounding price to the same as the Pre Rounding price as there is no rounding with new order lines and clear the order's rounding value
+		retailOrder.setTotalPostRounding(Utilities.stringToDec(retailOrder.getTotalPreRounding()));
+		retailOrder.setRounding("0.00");
+				
+		// Add the Line Cost Value to the order's total cost
+		retailOrder.setTotalCost(retailOrder.getTotalCost() + retailOrderLine.getLineCostValue());
+	}
+	
+	public void calcGrossProfit() {
+		
+		float sellingPrice = Float.valueOf(retailOrder.getTotalExVat());
+		float costPrice = retailOrder.getTotalCost();
+		float grossProfit = Utilities.floatToNumDec(sellingPrice - costPrice,2);
+		float grossProfitPercent = Utilities.floatToNumDec(grossProfit / costPrice * 100,2);
+		lblCustGrossProfitValue.setText("\u20AC " + Utilities.stringToDec(String.valueOf(grossProfit)));
+		lblCustGrossProfitPercent.setText(Utilities.stringToDec(String.valueOf(grossProfitPercent)) + " %");
+	}
+
+	// Method to set and update the overall discount
+	public void recalculateDiscount(){
+		
+		float valExDisc = 0.00f;
+		String strvalExDisc = "";
+		float discPercent = 0.00f;
+		String strDiscPercent = "";
+		float discValue = 0.00f;
+		String strDiscValue = "";
+		float valExVat = 0.00f;
+		String strValExVat = "";
+		float orderTotExVat = 0.00f;
+		String strOrderTotExVat = "";
+		float vatRate = 0.00f;
+		float totalVat = 0.00f;
+		float totalPreRounding = 0.00f;
+		float lineTradeExVat = 0.00f;
+		float totalTradeExVat = 0.00f;
+		
+		// Zeroise the total orderline and order values so they can be re-calculated
+		retailOrder.setTotalExVat("0.00");
+		retailOrder.setTotalVat("0.00");
+		retailOrder.setTotalPreRounding("0.00");
+		retailOrder.setTotalPostRounding("0.00");
+		
+		try {
+			// Loop through the order lines and recalculate the relevant line and header values
+			for(RetailOrderLine retailOrderLine : retailOrder.getOrderList()){
+							
+				// Get Order Line Price exclusive of discount and covert it to a 2 decimal string
+				valExDisc = Float.parseFloat(retailOrderLine.getItemPrice()) * Integer.parseInt(retailOrderLine.getOrderQty());
+				strvalExDisc = String.format("%.2f", valExDisc);
+				strvalExDisc = Utilities.stringToDec(strvalExDisc);
+				
+				if(txtCustDiscount.getText().trim().equals("")){
+					discPercent = 0.00f;
+				}
+				else{
+					discPercent = Float.parseFloat(txtCustDiscount.getText());
+				}
+				strDiscPercent = String.format("%.2f", discPercent);
+				strDiscPercent = Utilities.stringToDec(strDiscPercent);
+				
+				// Get Order Line Discount Value and convert it to a 2 decimal string
+				discValue = (valExDisc/100) * discPercent;
+				discValue = Utilities.floatToNumDec(discValue,2);
+				strDiscValue = String.format("%.2f", discValue);
+				strDiscValue = Utilities.stringToDec(strDiscValue);
+				
+				// Get Order Line Price - Discount exclusive of vat and covert it to a 2 decimal string
+				valExVat = valExDisc - discValue;
+				strValExVat = String.format("%.2f", valExVat);
+				strValExVat = Utilities.stringToDec(strValExVat);
+				
+				// Add the Order Line total to the Order's total ex-vat value and round to 2 Decimals
+				orderTotExVat += Utilities.floatToNumDec(valExVat,2);
+				strOrderTotExVat = String.format("%.2f",orderTotExVat);
+				strOrderTotExVat = Utilities.stringToDec(strOrderTotExVat);
+				
+				// Calculate the vat and add it to the order
+				vatRate = Float.parseFloat(txtVatRate.getText());
+				totalVat = Utilities.floatToNumDec(orderTotExVat/100*vatRate,2);
+				totalPreRounding = Utilities.floatToNumDec(orderTotExVat + totalVat,2);
+				
+				// Calculate what the ex-vat value of this order would be at the trade price so we can see that this is not cheaper.
+				lineTradeExVat = retailOrderLine.getItemTradePrice() * Integer.parseInt(retailOrderLine.getOrderQty());
+				totalTradeExVat += lineTradeExVat; 
+			}
+			
+			// Remove any rounding that exists because the price is being re-calculated
+			retailOrder.setTotalPreRounding(Utilities.stringToDec(String.valueOf(totalPreRounding)));
+			retailOrder.setTotalPostRounding(Utilities.stringToDec(retailOrder.getTotalPreRounding()));
+			retailOrder.setRounding("0.00");
+
+			// Check that the customer ex vat price after discount is more than the trade value
+			if(orderTotExVat > totalTradeExVat) {
+			
+				// If the ex-vat price is okay then make the discount changes
+				valExDisc = discPercent = discValue = valExVat = orderTotExVat = vatRate = totalVat = totalPreRounding = 0.00f;
+				strvalExDisc = strDiscPercent = strDiscValue = strValExVat = strOrderTotExVat = "";
+
+				for(OrderLine orderLine : retailOrder.getOrderList()){
+
+					// Get Order Line Price exclusive of discount and covert it to a 2 decimal string
+					valExDisc = Float.parseFloat(orderLine.getItemPrice()) * Integer.parseInt(orderLine.getOrderQty());
+					strvalExDisc = String.format("%.2f", valExDisc);
+					strvalExDisc = Utilities.stringToDec(strvalExDisc);
+					
+					if(txtCustDiscount.getText().trim().equals("")){
+						discPercent = 0.00f;
+					}
+					else{
+						discPercent = Float.parseFloat(txtCustDiscount.getText());
+					}
+					strDiscPercent = String.format("%.2f", discPercent);
+					strDiscPercent = Utilities.stringToDec(strDiscPercent);
+					
+					// Get Order Line Discount Value and convert it to a 2 decimal string
+					discValue = (valExDisc/100) * discPercent;
+					discValue = Utilities.floatToNumDec(discValue,2);
+					strDiscValue = String.format("%.2f", discValue);
+					strDiscValue = Utilities.stringToDec(strDiscValue);
+					
+					// Get Order Line Price - Discount exclusive of vat and covert it to a 2 decimal string
+					valExVat = valExDisc - discValue;
+					strValExVat = String.format("%.2f", valExVat);
+					strValExVat = Utilities.stringToDec(strValExVat);
+					
+					// Add the Order Line total to the Order's total ex-vat value and round to 2 Decimals
+					orderTotExVat += Utilities.floatToNumDec(valExVat,2);
+					strOrderTotExVat = String.format("%.2f",orderTotExVat);
+					strOrderTotExVat = Utilities.stringToDec(strOrderTotExVat);
+					
+					// Calculate the vat and add it to the order
+					vatRate = Float.parseFloat(txtVatRate.getText());
+					totalVat = Utilities.floatToNumDec(orderTotExVat/100*vatRate,2);
+					totalPreRounding = Utilities.floatToNumDec(orderTotExVat + totalVat,2);
+					
+					retailOrderLine.setValueExDiscount(strvalExDisc);
+					retailOrderLine.setDiscountPercent(strDiscPercent);
+					retailOrderLine.setDiscountValue(strDiscValue);
+					retailOrderLine.setValueExVat(strValExVat);
+				}
+				retailOrder.setTotalExVat(strOrderTotExVat);
+				retailOrder.setTotalVat(Utilities.stringToDec(String.valueOf(totalVat)));
+			
+				// Re-calculate the Gross Profit
+				calcGrossProfit();
+				
+				// Load the current Order table with the Order Lines
+				String columns[] = {"ITEM", "DESCRIPTION", "QTY", "PRICE", "DISC", "TOTAL"};
+				DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+				
+				for(RetailOrderLine o : retailOrder.getOrderList()){
+					String tableCode= o.getItemCode();
+					String tableDesc = o.getItemDescription();
+					String tableQty = o.getOrderQty();
+					String tableItemPrice = o.getItemPrice();
+					String tableItemDiscount = o.getDiscountPercent() + " %";
+					String tableOrderPrice = o.getValueExVat();
+					Object[] line = {tableCode, tableDesc, tableQty, tableItemPrice, tableItemDiscount, tableOrderPrice};
+					tableModel.addRow(line);
+				}
+				tblCustOrder.setModel(tableModel);
+				lblCustTotalPrice.setText("\u20AC " + String.valueOf(retailOrder.getTotalPreRounding()));
+				lblCustTotalExVat.setText("\u20AC " + retailOrder.getTotalExVat());
+		
+		
+				// Set the column widths for the table
+				tblCustOrder.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+				columnModelOrder = tblCustOrder.getColumnModel();
+				columnModelOrder.getColumn(0).setPreferredWidth(90);
+				columnModelOrder.getColumn(1).setPreferredWidth(409);
+				columnModelOrder.getColumn(2).setPreferredWidth(40);
+				columnModelOrder.getColumn(3).setPreferredWidth(70);
+				columnModelOrder.getColumn(4).setPreferredWidth(70);
+				columnModelOrder.getColumn(5).setPreferredWidth(83);
+								
+				// Remove any rounding that exists because the price is being re-calculated
+				retailOrder.setTotalPreRounding(Utilities.stringToDec(String.valueOf(totalPreRounding)));
+				retailOrder.setTotalPostRounding(Utilities.stringToDec(retailOrder.getTotalPreRounding()));
+				retailOrder.setRounding("0.00");
+				
+			} else {
+				JOptionPane.showMessageDialog(null, txtCustDiscount.getText() + "% is too much discount !");
+				txtCustDiscount.setText(oldOverallDiscount);
+			}
+		
+		}catch(NumberFormatException ex) {
+			txtCustDiscount.setText("0.00");
+			recalculateDiscount();
+			JOptionPane.showMessageDialog(null, "You must enter a number for the Overall Discount!");
+			
+		}catch(Exception ex) {
+			JOptionPane.showMessageDialog(null, "Exception: " + ex);
+		}
+	}
+*/
+	public void updatePrintSettingsTab() {
+		if(invoiceSettings.getReceiptTopBanner()==1){
+			btnPrintTopIcon.setIcon(new ImageIcon(yesImgPrintIcon));
+			btnPrintTopIcon.setText("Print");
+		}else{
+			btnPrintTopIcon.setIcon(new ImageIcon(noImgPrintIcon));
+			btnPrintTopIcon.setText("NoPrint");
+		}
+		
+		txtTopIconXPosition.setText(Integer.toString(invoiceSettings.getReceiptTopBannerX()));
+		txtTopIconYPosition.setText(Integer.toString(invoiceSettings.getReceiptTopBannerY()));
+		
+		if(invoiceSettings.getReceiptBodyImage()==1){
+			btnPrintBodyImage.setIcon(new ImageIcon(yesImgPrintIcon));
+			btnPrintBodyImage.setText("Print");
+		}else{
+			btnPrintBodyImage.setIcon(new ImageIcon(noImgPrintIcon));
+			btnPrintBodyImage.setText("NoPrint");
+		}
+		
+		txtBodyImageXPosition.setText(Integer.toString(invoiceSettings.getReceiptBodyImageX()));
+		txtBodyImageYPosition.setText(Integer.toString(invoiceSettings.getReceiptBodyImageY()));
+		
+		if(invoiceSettings.getReceiptVerticalGridLines()==1){
+			btnPrintVerticalGrid.setIcon(new ImageIcon(yesImgPrintIcon));
+			btnPrintVerticalGrid.setText("Print");
+		}else{
+			btnPrintVerticalGrid.setIcon(new ImageIcon(noImgPrintIcon));
+			btnPrintVerticalGrid.setText("NoPrint");
+		}
+
+		txtFooterTextLine1.setText(invoiceSettings.getReceiptFooterLine1());
+		txtFooterTextLine2.setText(invoiceSettings.getReceiptFooterLine2());
+		txtFooterTextLine3.setText(invoiceSettings.getReceiptFooterLine3());
+		txtVatRate.setText(Float.toString(invoiceSettings.getReceiptVatRate()));
+	}
+	
+	/**
+	 * Create the application.
+	 */
+	public Dan() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		dao.connect();
+		
+		frame = new JFrame();
+		frame.setBounds(30, 50, 1310, 660);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		frame.setTitle("D & S Plumbing & Fixings - Version 2.10");
+		
+		// Create the logo images for the application
+		Image logo = new ImageIcon(this.getClass().getResource("/D S Logo199X198.jpg")).getImage();
+		ImageIcon imageIcon = new ImageIcon(logo);
+		
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBounds(0, 0, 1294, 624);
+		frame.getContentPane().add(tabbedPane);
+		
+		panelCustOrder = new JPanel();
+		panelCustOrder.setBackground(Color.DARK_GRAY);
+		tabbedPane.addTab("Cust Order", null, panelCustOrder, null);
+		panelCustOrder.setLayout(null);
+		
+		panelCustNewOrder = new JPanel();
+		panelCustNewOrder.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustNewOrder.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(227, 227, 227), new Color(160, 160, 160), UIManager.getColor("Button.foreground"), new Color(105, 105, 105)));
+		panelCustNewOrder.setBounds(1046, 113, 199, 71);
+		panelCustOrder.add(panelCustNewOrder);
+		panelCustNewOrder.setLayout(null);
+		panelCustNewOrder.setVisible(false);
+		
+		JButton btnCustNewOrder = new JButton("NEW ORDER");
+		btnCustNewOrder.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				// Make the current Current Order panel, Print Order panel, CustomerPaymentMethod panel, DiscountPanel visible and the CustomerGrossProfit panel invisible
+				panelCustCurrentOrder.setVisible(false);
+				panelCustPrintOrder.setVisible(false);
+				panelCustPaymentMethod.setVisible(false);
+				panelCustDiscount.setVisible(false);
+				panelCustGrossProfit.setVisible(false);
+				
+				// Remove the current order from the order object
+				retailOrder = null;
+				
+				// Blank the current order line entry fields
+				txtCustLineCode.setText(null);
+				txtCustLineDesc.setText(null);
+				txtCustLinePrice.setText(null);
+				txtCustLineQty.setText(null);
+				txtCustLineDisc.setText(null);
+				
+				// Disable quantity+discount fields and make ENTER button invisible - because they may be accessible when NEW ORDER button pressed 
+				txtCustLineQty.setEnabled(false);
+				txtCustLineDisc.setEnabled(false);
+				btnCustNewOrderLine.setVisible(false);
+				
+				// Make the Current Order, Print Order, CustomerPaymentMethod, DiscountPanelvisible, CustomerGrossProfit, Rounding, CustDetails and NewOrder panels 
+				// invisible
+				panelCustCurrentOrder.setVisible(false);
+				panelCustPrintOrder.setVisible(false);
+				panelCustPaymentMethod.setVisible(false);
+				panelCustDiscount.setVisible(false);
+				panelCustGrossProfit.setVisible(false);
+				panelCustRounding.setVisible(false);
+				panelCustDetails.setVisible(false);
+				panelCustNewOrder.setVisible(false);
+				
+				// Blank the Overall Discount field and set the Payment Type back to Cash
+				txtCustDiscount.setText("");
+				rdbtnCustCash.setSelected(true);
+				
+				// Blank the Rep Code field, enable it and make it editable
+				txtCustLineRep.setEditable(true);
+				txtCustLineRep.setEnabled(true);
+				txtCustLineRep.setText("");
+				
+			}
+		});
+		btnCustNewOrder.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustNewOrder.setBounds(17, 17, 167, 38);
+		panelCustNewOrder.add(btnCustNewOrder);
+		
+		panelCustOrderLine = new JPanel();
+		panelCustOrderLine.setForeground(Color.BLACK);
+		panelCustOrderLine.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustOrderLine.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(227, 227, 227), new Color(227, 227, 227), UIManager.getColor("Button.foreground"), new Color(105, 105, 105)));
+		panelCustOrderLine.setBounds(28, 21, 1217, 71);
+		panelCustOrder.add(panelCustOrderLine);
+		panelCustOrderLine.setLayout(null);
+		
+		JLabel lblCustItemCodeText = new JLabel("Item Code");
+		lblCustItemCodeText.setBounds(152, 9, 132, 18);
+		lblCustItemCodeText.setForeground(Color.BLACK);
+		lblCustItemCodeText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		panelCustOrderLine.add(lblCustItemCodeText);
+		
+		txtCustLineCode = new JTextField();
+		txtCustLineCode.setBounds(152, 31, 132, 28);
+		txtCustLineCode.setEditable(false);
+		txtCustLineCode.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustLineCode.setColumns(10);
+		panelCustOrderLine.add(txtCustLineCode);
+		
+		JLabel lblCustItemDescText = new JLabel("Item Description");
+		lblCustItemDescText.setBounds(318, 9, 175, 18);
+		lblCustItemDescText.setForeground(Color.BLACK);
+		lblCustItemDescText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		panelCustOrderLine.add(lblCustItemDescText);
+		
+		txtCustLineDesc = new JTextField();
+		txtCustLineDesc.setBounds(318, 31, 341, 28);
+		txtCustLineDesc.addKeyListener (new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0){
+				
+				// Disable the normal tab key focus on the Item Description textbox
+				txtCustLineDesc.setFocusTraversalKeysEnabled(false);
+				
+				// Uppercase the entered description
+				txtCustLineDesc.setText(txtCustLineDesc.getText().toUpperCase());
+				
+				// Make ENTER button and the list of descriptions invisible
+				panelCustItemDescriptionChoice.setVisible(false);
+				btnCustNewOrderLine.setVisible(false);
+				
+				if (txtCustLineDesc.getText().equals("") == false) {  
+					// Search in database for items that have this exact description in database and if found enable qty textfield and fill in code and price
+					try {
+						String query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, retailPrice AS PRICE FROM item WHERE itemDescription = ?";
+						PreparedStatement pst = dao.conn.prepareStatement(query);
+						pst.setString(1, txtCustLineDesc.getText());
+						ResultSet rs = pst.executeQuery();
+						// Check if we found any matches to the description entered 
+						if(rs.next()){
+							txtCustLineCode.setText(rs.getString(1));
+							txtCustLinePrice.setText(Utilities.stringToDec(rs.getString(3)));
+							txtCustLineQty.setEnabled(true);
+							txtCustLineDisc.setEnabled(true);
+						} else {
+							txtCustLineCode.setText("");
+							txtCustLinePrice.setText("");
+							txtCustLineQty.setText("");
+							txtCustLineQty.setEnabled(false);
+							txtCustLineDisc.setText("");
+							txtCustLineDisc.setEnabled(false);
+							
+							// Exact match not found so bring up list of descriptions that contain this description and are not set as deleted
+							String ordSrchText = "%" + txtCustLineDesc.getText().toUpperCase() + "%";
+							query = "SELECT itemDescription AS DESCRIPTION FROM item WHERE itemDescription LIKE ? AND deleted=0 ORDER BY itemDescription";
+							pst = dao.conn.prepareStatement(query);
+							pst.setString(1, ordSrchText);
+							rs = pst.executeQuery();
+							// Check if we have found some matches
+							if(rs.isBeforeFirst()){
+								
+								// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+								tblCustItemDescription.setModel(DbUtils.resultSetToTableModel(rs));
+								
+								tblCustItemDescription.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+								TableColumnModel columnModel = tblCustItemDescription.getColumnModel();
+								columnModel.getColumn(0).setPreferredWidth(340);
+								panelCustItemDescriptionChoice.setVisible(true);
+								
+								// Set the tab key to the item description possible matches table
+								if(arg0.getKeyCode() == KeyEvent.VK_TAB){
+									tblCustItemDescription.requestFocus();
+								} 
+								
+							} else {
+								txtCustLineCode.setText("");
+								txtCustLinePrice.setText("");
+								txtCustLineQty.setText("");
+								txtCustLineQty.setEnabled(false);
+								txtCustLineDisc.setText("");
+								txtCustLineDisc.setEnabled(false);
+							}
+							pst.close();
+							rs.close();
+								
+						}
+						pst.close();
+						rs.close();
+						
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null, ex);
+					}
+				}else {
+					// Make ENTER button and the list of descriptions invisible
+					panelCustItemDescriptionChoice.setVisible(false);
+					btnCustNewOrderLine.setVisible(false);
+				}
+			}
+		});
+		txtCustLineDesc.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustLineDesc.setColumns(10);
+		panelCustOrderLine.add(txtCustLineDesc);
+		
+		JLabel lblCustItemPriceText = new JLabel("Item Price");
+		lblCustItemPriceText.setBounds(678, 9, 86, 18);
+		lblCustItemPriceText.setForeground(Color.BLACK);
+		lblCustItemPriceText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		panelCustOrderLine.add(lblCustItemPriceText);
+		
+		txtCustLinePrice = new JTextField();
+		txtCustLinePrice.setBounds(678, 31, 132, 28);
+		txtCustLinePrice.setEditable(false);
+		txtCustLinePrice.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustLinePrice.setColumns(10);
+		panelCustOrderLine.add(txtCustLinePrice);
+		
+		JLabel lblCustItemQtyText = new JLabel("Quantity");
+		lblCustItemQtyText.setBounds(828, 9, 75, 18);
+		lblCustItemQtyText.setForeground(Color.BLACK);
+		lblCustItemQtyText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		panelCustOrderLine.add(lblCustItemQtyText);
+		
+		txtCustLineQty = new JTextField();
+		txtCustLineQty.setBounds(828, 31, 57, 28);
+		txtCustLineQty.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				panelCustItemDescriptionChoice.setVisible(false);
+				btnCustNewOrderLine.setVisible(true);
+			}
+		});
+		txtCustLineQty.setEnabled(false);
+		txtCustLineQty.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustLineQty.setColumns(10);
+		panelCustOrderLine.add(txtCustLineQty);
+		
+		btnCustNewOrderLine = new JButton("ENTER");
+		btnCustNewOrderLine.setBounds(1025, 17, 167, 38);
+		btnCustNewOrderLine.addActionListener (new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				// First check that the Rep is valid
+				try {
+					String query = "SELECT repCode FROM staff WHERE repCode=?";
+					PreparedStatement pst = dao.conn.prepareStatement(query);
+					pst.setString(1, txtCustLineRep.getText());
+					ResultSet rs = pst.executeQuery();
+				
+					if(rs.next()) {
+						txtCustLineRep.setEditable(false);
+						txtCustLineRep.setEnabled(false);
+						// Check if Order exists and if not create one
+						if(retailOrder == null){
+							retailOrder = new RetailOrder();
+							retailOrder.setOrderDate(new Date());
+							retailOrder.setSaleType("Retail");
+							retailOrder.setRepNo(txtCustLineRep.getText());
+						}
+
+						try {
+
+							// Check if an item is entered
+							if(!txtCustLineDesc.getText().isEmpty()) {
+								// Check that the Quantity entered is an Integer and > 0.
+								if(Integer.parseInt(txtCustLineQty.getText()) > 0) {
+															
+									// Create a RetailOrderLine and call the addRetailOrderLine() method to calculate it's values and save it to the arraylist  
+									retailOrderLine = new RetailOrderLine();
+
+									retailOrderLine.addRetailOrderLine(txtCustLineCode, txtCustLineDesc, txtCustLineQty, txtCustLinePrice, txtCustLineDisc, txtCustDiscount, 
+																		lblCustGrossProfitValue, lblCustGrossProfitPercent, retailOrder, CustTradeLinePrice,
+																		txtCustLineCost, invoiceSettings);
+									
+									// Clear the order textfield boxes and disable the quantity+discount textfields and make the ENTER button invisible
+									txtCustLineCode.setText("");
+									txtCustLineDesc.setText("");
+									txtCustLinePrice.setText("");
+									txtCustLineQty.setText("");
+									txtCustLineQty.setEnabled(false);
+									txtCustLineDisc.setText("");
+									txtCustLineDisc.setEnabled(false);
+									btnCustNewOrderLine.setVisible(false);
+										
+									// Make the Cust: CurrentOrder, PrintOrder, PaymentMethod, DiscountPanel, GrossProfit, Rounding, CustDetails and NewOrder panels visible
+									panelCustCurrentOrder.setVisible(true);
+									panelCustPrintOrder.setVisible(true);
+									panelCustPaymentMethod.setVisible(true);
+									panelCustDiscount.setVisible(true);
+									panelCustGrossProfit.setVisible(true);
+									panelCustRounding.setVisible(true);
+									panelCustDetails.setVisible(true);
+									panelCustNewOrder.setVisible(true);
+										
+									// Load the current Order table with the Order Lines
+									String columns[] = {"ITEM", "DESCRIPTION", "QTY", "PRICE", "DISC", "TOTAL"};
+									DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+									
+									for(RetailOrderLine o : retailOrder.getOrderList()){
+										String tableCode= o.getItemCode();
+										String tableDesc = o.getItemDescription();
+										String tableQty = o.getOrderQty();
+										String tableItemPrice = o.getItemPrice();
+										String tableItemDiscount = o.getDiscountPercent() + " %";
+										String tableOrderPrice = o.getValueExVat();
+										Object[] line = {tableCode, tableDesc, tableQty, tableItemPrice, tableItemDiscount, tableOrderPrice};
+										tableModel.addRow(line);
+									}
+									tblCustOrder.setModel(tableModel);
+									lblCustTotalPrice.setText("\u20AC " + String.valueOf(retailOrder.getTotalPreRounding()));
+									lblCustTotalExVat.setText("\u20AC " + retailOrder.getTotalExVat());
+
+
+									// Set the column widths for the table
+									tblCustOrder.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+									columnModelOrder = tblCustOrder.getColumnModel();
+									columnModelOrder.getColumn(0).setPreferredWidth(90);
+									columnModelOrder.getColumn(1).setPreferredWidth(409);
+									columnModelOrder.getColumn(2).setPreferredWidth(40);
+									columnModelOrder.getColumn(3).setPreferredWidth(70);	
+									columnModelOrder.getColumn(4).setPreferredWidth(70);
+									columnModelOrder.getColumn(5).setPreferredWidth(83);
+									
+									// Set the focus back to the item description
+									txtCustLineDesc.requestFocus();
+
+								} else {
+									JOptionPane.showMessageDialog(null, "You must enter a Quantity greater than 0 !");
+								}
+							}else {
+								JOptionPane.showMessageDialog(null, "You must enter an Item !");	
+							}
+						}catch(Exception ex){
+							JOptionPane.showMessageDialog(null, "You must enter a number for the Quantity and the Discount % !");
+						}
+					}else{
+						JOptionPane.showMessageDialog(null, "That Rep Code doesn't exist, please try again !");
+					}
+					
+				}catch(Exception ex) {
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnCustNewOrderLine.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustNewOrderLine.setVisible(false);
+		panelCustOrderLine.add(btnCustNewOrderLine);
+		
+		JLabel lblCustItemDiscText = new JLabel("Discount %");
+		lblCustItemDiscText.setForeground(Color.BLACK);
+		lblCustItemDiscText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblCustItemDiscText.setBounds(911, 9, 86, 18);
+		panelCustOrderLine.add(lblCustItemDiscText);
+		
+		txtCustLineDisc = new JTextField();
+		txtCustLineDisc.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustLineDisc.setEnabled(false);
+		txtCustLineDisc.setColumns(10);
+		txtCustLineDisc.setBounds(911, 31, 57, 28);
+		panelCustOrderLine.add(txtCustLineDisc);
+		
+		JLabel lblCustRepCodeText = new JLabel("Rep Code");
+		lblCustRepCodeText.setForeground(Color.BLACK);
+		lblCustRepCodeText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblCustRepCodeText.setBounds(34, 9, 96, 18);
+		panelCustOrderLine.add(lblCustRepCodeText);
+		
+		txtCustLineRep = new JTextField();
+		txtCustLineRep.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustLineRep.setBounds(34, 31, 86, 28);
+		panelCustOrderLine.add(txtCustLineRep);
+		txtCustLineRep.setColumns(10);
+		
+		txtCustLineDisc.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				panelCustItemDescriptionChoice.setVisible(false);
+				btnCustNewOrderLine.setVisible(true);
+			}
+		});
+		
+		panelCustItemDescriptionChoice = new JPanel();
+		panelCustItemDescriptionChoice.setBounds(350, 91, 338, 398);
+		panelCustOrder.add(panelCustItemDescriptionChoice);
+		panelCustItemDescriptionChoice.setLayout(null);
+		
+		JScrollPane scrlPanetblCustItemDescription = new JScrollPane();
+		scrlPanetblCustItemDescription.setBounds(0, 0, 337, 397);
+		panelCustItemDescriptionChoice.add(scrlPanetblCustItemDescription);
+		
+		// When creating the JTable for the description dropdown I over-ride the isCellEditable method to make the table un-editable
+		tblCustItemDescription = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+		};
+		scrlPanetblCustItemDescription.setViewportView(tblCustItemDescription);
+		
+		tblCustItemDescription.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// If enter pressed call a method to fill the orderline fields with this item, hide the panel with this table, set focus to qty and make ENTER visible 
+				if(arg0.getKeyCode() == 10) {
+					ordLineItemSelected();					
+				}
+			}
+		});
+		tblCustItemDescription.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+								
+				// Call a method to fill the orderline fields with this item, hide the panel with this table, set focus to qty and make the enter button visible
+				ordLineItemSelected();
+			}
+		});
+		tblCustItemDescription.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblCustItemDescription.setCellSelectionEnabled(true);
+		tblCustItemDescription.setColumnSelectionAllowed(true);
+		
+		// Initially make the description dropdown invisible
+		panelCustItemDescriptionChoice.setVisible(false);
+		
+		panelCustCurrentOrder = new JPanel();
+		panelCustCurrentOrder.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustCurrentOrder.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(160, 160, 160), new Color(160, 160, 160), UIManager.getColor("Button.foreground"), new Color(105, 105, 105)));
+		panelCustCurrentOrder.setBounds(28, 138, 800, 447);
+		panelCustOrder.add(panelCustCurrentOrder);
+		panelCustCurrentOrder.setLayout(null);
+		panelCustCurrentOrder.setVisible(false);
+		
+		JLabel lblCustCurrentOrder = new JLabel("RETAIL ORDER");
+		lblCustCurrentOrder.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblCustCurrentOrder.setBounds(10, 11, 179, 31);
+		panelCustCurrentOrder.add(lblCustCurrentOrder);
+		
+		JLabel lblCustTotalPriceText = new JLabel("TOTAL INC-VAT");
+		lblCustTotalPriceText.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblCustTotalPriceText.setBounds(634, 11, 156, 31);
+		panelCustCurrentOrder.add(lblCustTotalPriceText);
+		
+		lblCustTotalPrice = new JLabel("0.00", SwingConstants.RIGHT);
+		lblCustTotalPrice.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblCustTotalPrice.setBounds(634, 37, 156, 31);
+		panelCustCurrentOrder.add(lblCustTotalPrice);
+		
+		JScrollPane scrlCustOrder = new JScrollPane();
+		scrlCustOrder.setBounds(10, 68, 780, 368);
+		panelCustCurrentOrder.add(scrlCustOrder);
+		
+		tblCustOrder = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public TableCellRenderer getCellRenderer( int row, int col ) { 
+				TableCellRenderer renderer = super.getCellRenderer(row,col);
+				if ( col == dataModel.getColumnCount() - 1  || col == dataModel.getColumnCount() - 2 || col == dataModel.getColumnCount() - 3) 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.RIGHT );
+				
+				// Left justify the other columns
+				else 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.LEFT );
+				
+				return renderer; 
+			}
+			
+			public void HeaderRenderer(JTable table) {
+				DefaultTableCellRenderer renderer = (DefaultTableCellRenderer)
+		            table.getTableHeader().getDefaultRenderer();
+		        renderer.setHorizontalAlignment(JLabel.CENTER);
+		    }
+
+			// Override method so that table is not editable
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+		};
+		tblCustOrder.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		tblCustOrder.setShowGrid(false);
+		tblCustOrder.setShowHorizontalLines(false);
+		tblCustOrder.setShowVerticalLines(false);
+		tblCustOrder.getTableHeader().setFont(new Font("Times New Roman", Font.BOLD, 16));
+		
+		scrlCustOrder.setViewportView(tblCustOrder);
+		
+		JLabel lblCustTotalExVatText = new JLabel("TOTAL EX-VAT");
+		lblCustTotalExVatText.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblCustTotalExVatText.setBounds(297, 11, 148, 31);
+		panelCustCurrentOrder.add(lblCustTotalExVatText);
+		
+		lblCustTotalExVat = new JLabel("0.00", SwingConstants.RIGHT);
+		lblCustTotalExVat.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblCustTotalExVat.setBounds(297, 37, 144, 31);
+		panelCustCurrentOrder.add(lblCustTotalExVat);
+		
+		panelCustPrintOrder = new JPanel();
+		panelCustPrintOrder.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), UIManager.getColor("Button.darkShadow")));
+		panelCustPrintOrder.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustPrintOrder.setBounds(1046, 204, 199, 71);
+		panelCustPrintOrder.setVisible(false);
+		panelCustOrder.add(panelCustPrintOrder);
+		panelCustPrintOrder.setLayout(null);
+		
+		JButton btnCustPrintOrder = new JButton("PRINT ORDER");
+		btnCustPrintOrder.setBounds(17, 17, 167, 38);
+		panelCustPrintOrder.add(btnCustPrintOrder);
+		btnCustPrintOrder.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				retailOrder.setOrderLinesToPrint(0);
+				// Set the PayType as per the user's selection
+				String paytype = "";
+				if(rdbtnCustCash.isSelected())
+					paytype = "Cash";
+				else if(rdbtnCustCreditCard.isSelected())
+					paytype = "Credit Card";
+				else
+					paytype = "Cheque";
+					
+				retailOrder.setPayType(paytype);
+				
+				try {
+					retailOrder.printOrder(dao, invoiceSettings);
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnCustPrintOrder.setFont(new Font("Georgia", Font.BOLD, 16));
+		
+		JLabel lblCustLogo = new JLabel();
+		// Put Logo image on order tab by adding an image to the Logo Label
+		lblCustLogo.setIcon(imageIcon);
+		
+		lblCustLogo.setBounds(1046, 385, 199, 200);
+		panelCustOrder.add(lblCustLogo);
+		
+		panelCustPaymentMethod = new JPanel();
+		panelCustPaymentMethod.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), new Color(105, 105, 105)));
+		panelCustPaymentMethod.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustPaymentMethod.setBounds(855, 113, 163, 91);
+		panelCustOrder.add(panelCustPaymentMethod);
+		panelCustPaymentMethod.setLayout(null);
+		panelCustPaymentMethod.setVisible(false);
+				
+		rdbtnCustCash = new JRadioButton("Cash");
+		rdbtnCustCash.setSelected(true);
+		rdbtnCustCash.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnCustCash.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnCustCash.setBounds(25, 7, 109, 23);
+		panelCustPaymentMethod.add(rdbtnCustCash);
+		
+		rdbtnCustCreditCard = new JRadioButton("Credit Card");
+		rdbtnCustCreditCard.setSelected(false);
+		rdbtnCustCreditCard.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnCustCreditCard.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnCustCreditCard.setBounds(25, 33, 132, 23);
+		panelCustPaymentMethod.add(rdbtnCustCreditCard);
+		
+		rdbtnCustCheque = new JRadioButton("Cheque");
+		rdbtnCustCheque.setSelected(false);
+		rdbtnCustCheque.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnCustCheque.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnCustCheque.setBounds(25, 59, 109, 23);
+		panelCustPaymentMethod.add(rdbtnCustCheque);
+
+		// Group the radio buttons.
+		ButtonGroup retailPayTypegroup = new ButtonGroup();
+		retailPayTypegroup.add(rdbtnCustCash);
+		retailPayTypegroup.add(rdbtnCustCreditCard);
+		retailPayTypegroup.add(rdbtnCustCheque);
+		
+		panelCustDiscount = new JPanel();
+		panelCustDiscount.setBorder(new BevelBorder(BevelBorder.RAISED, null, UIManager.getColor("Button.shadow"), UIManager.getColor("Button.foreground"), UIManager.getColor("Button.darkShadow")));
+		panelCustDiscount.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustDiscount.setBounds(880, 226, 114, 91);
+		panelCustOrder.add(panelCustDiscount);
+		panelCustDiscount.setLayout(null);
+		panelCustDiscount.setVisible(false);
+		
+		txtCustDiscount = new JTextField();
+		txtCustDiscount.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				try {
+
+					retailOrder.recalculateDiscount(txtCustDiscount, txtVatRate, oldOverallDiscount, lblCustGrossProfitValue, lblCustGrossProfitPercent);
+					
+					// Load the current Order table with the Order Lines
+					String columns[] = {"ITEM", "DESCRIPTION", "QTY", "PRICE", "DISC", "TOTAL"};
+					DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+					
+					for(RetailOrderLine o : retailOrder.getOrderList()){
+						String tableCode= o.getItemCode();
+						String tableDesc = o.getItemDescription();
+						String tableQty = o.getOrderQty();
+						String tableItemPrice = o.getItemPrice();
+						String tableItemDiscount = o.getDiscountPercent() + " %";
+						String tableOrderPrice = o.getValueExVat();
+						Object[] line = {tableCode, tableDesc, tableQty, tableItemPrice, tableItemDiscount, tableOrderPrice};
+						tableModel.addRow(line);
+					}
+					tblCustOrder.setModel(tableModel);
+					lblCustTotalPrice.setText("\u20AC " + String.valueOf(retailOrder.getTotalPreRounding()));
+					lblCustTotalExVat.setText("\u20AC " + retailOrder.getTotalExVat());
+			
+			
+					// Set the column widths for the table
+					tblCustOrder.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+					columnModelOrder = tblCustOrder.getColumnModel();
+					columnModelOrder.getColumn(0).setPreferredWidth(90);
+					columnModelOrder.getColumn(1).setPreferredWidth(409);
+					columnModelOrder.getColumn(2).setPreferredWidth(40);
+					columnModelOrder.getColumn(3).setPreferredWidth(70);
+					columnModelOrder.getColumn(4).setPreferredWidth(70);
+					columnModelOrder.getColumn(5).setPreferredWidth(83);
+
+					
+				}catch(NumberFormatException ex) {
+					txtCustDiscount.setText("0.00");
+					retailOrder.recalculateDiscount(txtCustDiscount, txtVatRate, oldOverallDiscount, lblCustGrossProfitValue, lblCustGrossProfitPercent);
+					JOptionPane.showMessageDialog(null, "You must enter a number for the Overall Discount!");
+					
+				}catch(Exception ex) {
+					JOptionPane.showMessageDialog(null, "Exception: " + ex);
+				}
+			}
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				oldOverallDiscount = txtCustDiscount.getText();
+			}
+		});
+
+		txtCustDiscount.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustDiscount.setBounds(33, 47, 44, 28);
+		panelCustDiscount.add(txtCustDiscount);
+		txtCustDiscount.setColumns(10);
+		
+		JLabel lblCustDiscountPercentage = new JLabel("Discount %");
+		lblCustDiscountPercentage.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblCustDiscountPercentage.setBounds(10, 11, 104, 25);
+		panelCustDiscount.add(lblCustDiscountPercentage);
+		
+		panelCustGrossProfit = new JPanel();
+		panelCustGrossProfit.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), new Color(105, 105, 105)));
+		panelCustGrossProfit.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustGrossProfit.setBounds(855, 443, 163, 142);
+		panelCustOrder.add(panelCustGrossProfit);
+		panelCustGrossProfit.setLayout(null);
+		panelCustGrossProfit.setVisible(false);
+		
+		lblCustGrossProfitValue = new JLabel("\u20AC 0.00", SwingConstants.RIGHT);
+		lblCustGrossProfitValue.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblCustGrossProfitValue.setForeground(Color.BLACK);
+		lblCustGrossProfitValue.setBounds(25, 58, 102, 24);
+		panelCustGrossProfit.add(lblCustGrossProfitValue);
+		
+		JLabel lblCustGrossProfitText = new JLabel("Gross Profit");
+		lblCustGrossProfitText.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblCustGrossProfitText.setBounds(27, 23, 111, 24);
+		panelCustGrossProfit.add(lblCustGrossProfitText);
+		
+		lblCustGrossProfitPercent = new JLabel("0.00 %", SwingConstants.RIGHT);
+		lblCustGrossProfitPercent.setForeground(Color.BLACK);
+		lblCustGrossProfitPercent.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblCustGrossProfitPercent.setBounds(25, 92, 102, 24);
+		panelCustGrossProfit.add(lblCustGrossProfitPercent);
+		
+		panelCustRounding = new JPanel();
+		panelCustRounding.setBackground(UIManager.getColor("List.dropLineColor"));
+		// Put Logo image on order tab by adding an image to the Logo Label
+		lblCustLogo.setIcon(imageIcon);
+		panelCustRounding.setBounds(855, 343, 164, 81);
+		panelCustOrder.add(panelCustRounding);
+		panelCustRounding.setLayout(null);
+		panelCustRounding.setVisible(false);
+		
+		
+		// Create the up arrow ImageIcon
+		Image upArrow = new ImageIcon(this.getClass().getResource("/Up.jpg")).getImage();
+		ImageIcon imageIconUpArrow = new ImageIcon(upArrow);
+
+		// Create the up arrow ImageIcon
+		Image downArrow = new ImageIcon(this.getClass().getResource("/Down.jpg")).getImage();
+		ImageIcon imageIconDownArrow = new ImageIcon(downArrow);
+		
+		JLabel lblCustRoundText = new JLabel("Round");
+		lblCustRoundText.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblCustRoundText.setBounds(55, 11, 55, 17);
+		panelCustRounding.add(lblCustRoundText);
+				
+		JLabel lblCustRoundUp = new JLabel("Round Up");
+		lblCustRoundUp.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+						
+				String beforeRound = retailOrder.getTotalPreRounding();
+				int theDot = beforeRound.indexOf(".");
+				String afterRound = Utilities.stringToDec(String.valueOf(Float.parseFloat(beforeRound.substring(0, theDot)) + 1));
+				retailOrder.setTotalPostRounding(afterRound);
+				float rounding = Utilities.floatToNumDec(Float.parseFloat(afterRound) - Float.parseFloat(beforeRound),2);
+				retailOrder.setRounding(String.valueOf(rounding));
+
+				// Save the rounding and post Rounding values if the invoice has been printed
+				if(retailOrder.getReceiptNo() != 0) {
+					try {
+						String query = "UPDATE orderheader SET rounding = ?, totalPostRounding = ? WHERE receiptNo = ?";
+						PreparedStatement pst = dao.conn.prepareStatement(query);
+						pst.setFloat( 1, rounding);
+						pst.setFloat( 2, Float.parseFloat(retailOrder.getTotalPostRounding() ));
+						pst.setInt( 3, retailOrder.getReceiptNo() );
+						pst.execute();
+							
+						pst.close();
+	
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null, ex);					
+					}
+				}
+						
+				// Update the screen
+				lblCustTotalPrice.setText("\u20AC " + retailOrder.getTotalPostRounding());
+			}
+		});
+		
+		lblCustRoundUp.setBounds(36, 39, 35, 31);
+		panelCustRounding.add(lblCustRoundUp);
+		lblCustRoundUp.setIcon(imageIconUpArrow);
+				
+		JLabel lblCustRoundDown = new JLabel("Round Down");
+		lblCustRoundDown.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+						
+				String beforeRound = retailOrder.getTotalPreRounding();
+				int theDot = beforeRound.indexOf(".");
+				String afterRound = Utilities.stringToDec(beforeRound.substring(0, theDot));
+				retailOrder.setTotalPostRounding(afterRound);
+				float rounding = Utilities.floatToNumDec(Float.parseFloat(afterRound) - Float.parseFloat(beforeRound),2);
+				retailOrder.setRounding(String.valueOf(rounding));
+
+				// Save the rounding and post Rounding values if the invoice has been printed
+				if(retailOrder.getReceiptNo() != 0) {
+					try {
+						String query = "UPDATE orderheader SET rounding = ?, totalPostRounding = ? WHERE receiptNo = ?";
+						PreparedStatement pst = dao.conn.prepareStatement(query);
+						pst.setFloat( 1, rounding);
+						pst.setFloat( 2, Float.parseFloat(retailOrder.getTotalPostRounding() ));
+						pst.setInt( 3, retailOrder.getReceiptNo() );
+						pst.execute();
+							
+						pst.close();
+	
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null, ex);					
+					}
+				}
+						
+				// Update the screen
+				lblCustTotalPrice.setText("\u20AC " + retailOrder.getTotalPostRounding());
+			}
+		});
+				
+		lblCustRoundDown.setBounds(92, 39, 35, 31);
+		panelCustRounding.add(lblCustRoundDown);
+		lblCustRoundDown.setIcon(imageIconDownArrow);
+		
+		JPanel panelTradeOrder = new JPanel();
+		panelTradeOrder.setBackground(Color.DARK_GRAY);
+		tabbedPane.addTab("Trade Order", null, panelTradeOrder, null);
+		panelTradeOrder.setLayout(null);
+		
+		JPanel panelTradeOrderLine = new JPanel();
+		panelTradeOrderLine.setForeground(Color.BLACK);
+		panelTradeOrderLine.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradeOrderLine.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(227, 227, 227), new Color(227, 227, 227), UIManager.getColor("Button.foreground"), new Color(105, 105, 105)));
+		panelTradeOrderLine.setBounds(28, 21, 1217, 71);
+		panelTradeOrder.add(panelTradeOrderLine);
+		panelTradeOrderLine.setLayout(null);
+		
+		JLabel lblTradeRepCodeText = new JLabel("Rep Code");
+		lblTradeRepCodeText.setForeground(Color.BLACK);
+		lblTradeRepCodeText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTradeRepCodeText.setBounds(34, 9, 96, 18);
+		panelTradeOrderLine.add(lblTradeRepCodeText);
+		
+		txtTradeLineRep = new JTextField();
+		txtTradeLineRep.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradeLineRep.setBounds(34, 31, 86, 28);
+		panelTradeOrderLine.add(txtTradeLineRep);
+		txtTradeLineRep.setColumns(10);
+		
+		JLabel lblTradeItemCodeText = new JLabel("Item Code");
+		lblTradeItemCodeText.setForeground(Color.BLACK);
+		lblTradeItemCodeText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTradeItemCodeText.setBounds(152, 9, 132, 18);
+		panelTradeOrderLine.add(lblTradeItemCodeText);
+		
+		txtTradeLineCode = new JTextField();
+		txtTradeLineCode.setEditable(false);
+		txtTradeLineCode.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradeLineCode.setBounds(152, 31, 132, 28);
+		panelTradeOrderLine.add(txtTradeLineCode);
+		txtTradeLineCode.setColumns(10);
+		
+		JLabel lblTradeItemDescText = new JLabel("Item Description");
+		lblTradeItemDescText.setForeground(Color.BLACK);
+		lblTradeItemDescText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTradeItemDescText.setBounds(318, 9, 175, 18);
+		panelTradeOrderLine.add(lblTradeItemDescText);
+		
+		txtTradeLineDesc = new JTextField();
+		txtTradeLineDesc.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0){
+				
+				// Disable the normal tab key focus on the Item Description textbox
+				txtTradeLineDesc.setFocusTraversalKeysEnabled(false);
+				
+				// Uppercase the entered description
+				txtTradeLineDesc.setText(txtTradeLineDesc.getText().toUpperCase());
+				
+				// Make ENTER button and the list of descriptions invisible
+				panelTradeItemDescriptionChoice.setVisible(false);
+				btnTradeNewOrderLine.setVisible(false);
+				
+				if (txtTradeLineDesc.getText().equals("") == false) {  
+					// Search in database for items that have this exact description in database and if found enable qty textfield and fill in code and price
+					try {
+						String query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, retailPrice AS PRICE FROM item WHERE itemDescription = ?";
+						PreparedStatement pst = dao.conn.prepareStatement(query);
+						pst.setString(1, txtTradeLineDesc.getText());
+						ResultSet rs = pst.executeQuery();
+						// Check if we found any matches to the description entered 
+						if(rs.next()){
+							txtTradeLineCode.setText(rs.getString(1));
+							txtTradeLinePrice.setText(Utilities.stringToDec(rs.getString(3)));
+							txtTradeLineQty.setEnabled(true);
+						} else {
+							txtTradeLineCode.setText("");
+							txtTradeLinePrice.setText("");
+							txtTradeLineQty.setText("");
+							txtTradeLineQty.setEnabled(false);
+
+							
+							// Exact match not found so bring up list of descriptions that contain this description and are not set as deleted
+							String ordSrchText = "%" + txtTradeLineDesc.getText().toUpperCase() + "%";
+							query = "SELECT itemDescription AS DESCRIPTION FROM item WHERE itemDescription LIKE ? AND deleted=0 ORDER BY itemDescription";
+							pst = dao.conn.prepareStatement(query);
+							pst.setString(1, ordSrchText);
+							rs = pst.executeQuery();
+							// Check if we have found some matches
+							if(rs.isBeforeFirst()){
+									
+								// Downloaded and included rs2xml.jar in project, this jar creates a table model based on a result set
+								tblTradeItemDescription.setModel(DbUtils.resultSetToTableModel(rs));
+									
+								tblTradeItemDescription.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+								TableColumnModel columnModel = tblTradeItemDescription.getColumnModel();
+								columnModel.getColumn(0).setPreferredWidth(340);
+								panelTradeItemDescriptionChoice.setVisible(true);
+								
+								// Set the tab key to the item description possible matches table
+								if(arg0.getKeyCode() == KeyEvent.VK_TAB){
+									tblTradeItemDescription.requestFocus();
+								} 
+									
+							} else {
+								txtTradeLineCode.setText("");
+								txtTradeLinePrice.setText("");
+								txtTradeLineQty.setText("");
+								txtTradeLineQty.setEnabled(false);
+							}
+							pst.close();
+							rs.close();
+								
+						}
+						pst.close();
+						rs.close();
+						
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null, ex);
+					}
+				}else {
+					// Make ENTER button and the list of descriptions invisible
+					panelTradeItemDescriptionChoice.setVisible(false);
+					btnTradeNewOrderLine.setVisible(false);
+				}
+			}
+		});
+		txtTradeLineDesc.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradeLineDesc.setBounds(318, 31, 341, 28);
+		panelTradeOrderLine.add(txtTradeLineDesc);
+		txtTradeLineDesc.setColumns(10);
+		
+		JLabel lblTradeItemPriceText = new JLabel("Item Price");
+		lblTradeItemPriceText.setForeground(Color.BLACK);
+		lblTradeItemPriceText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTradeItemPriceText.setBounds(678, 9, 86, 18);
+		panelTradeOrderLine.add(lblTradeItemPriceText);
+		
+		txtTradeLinePrice = new JTextField();
+		txtTradeLinePrice.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				btnTradeNewOrderLine.setVisible(true);
+			}
+		});
+		txtTradeLinePrice.setEditable(false);
+		txtTradeLinePrice.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradeLinePrice.setBounds(678, 31, 132, 28);
+		panelTradeOrderLine.add(txtTradeLinePrice);
+		txtTradeLinePrice.setColumns(10);
+		
+		txtTradeLineQty = new JTextField();
+		txtTradeLineQty.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				btnTradeNewOrderLine.setVisible(true);
+			}
+		});
+		txtTradeLineQty.setEnabled(false);
+		txtTradeLineQty.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradeLineQty.setBounds(828, 31, 57, 28);
+		panelTradeOrderLine.add(txtTradeLineQty);
+		txtTradeLineQty.setColumns(10);
+		
+		JLabel lblTradeItemQtyText = new JLabel("Quantity");
+		lblTradeItemQtyText.setForeground(Color.BLACK);
+		lblTradeItemQtyText.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTradeItemQtyText.setBounds(828, 9, 75, 18);
+		panelTradeOrderLine.add(lblTradeItemQtyText);
+		
+		btnTradeNewOrderLine = new JButton("ENTER");
+		btnTradeNewOrderLine.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				// First check that the Rep is valid
+				try {
+					String query = "SELECT repCode FROM staff WHERE repCode=?";
+					PreparedStatement pst = dao.conn.prepareStatement(query);
+					pst.setString(1, txtTradeLineRep.getText());
+					ResultSet rs = pst.executeQuery();
+				
+					if(rs.next()) {
+						txtTradeLineRep.setEditable(false);
+						txtTradeLineRep.setEnabled(false);
+						
+						if(tradeOrder == null){
+							tradeOrder = new TradeOrder();
+							tradeOrder.setOrderDate(new Date());
+							tradeOrder.setSaleType("Trade");
+							tradeOrder.setRepNo(txtTradeLineRep.getText());
+						}
+
+						try {
+
+							// Check if an item is entered
+							if(!txtTradeLineDesc.getText().isEmpty()) {
+								// Check that the Quantity entered is an Integer and > 0.
+								if(Integer.parseInt(txtTradeLineQty.getText()) > 0) {
+															
+									// Create a TradeOrderLine and call the addTradeOrderLine() method to calculate it's values and save it to the arraylist  
+									tradeOrderLine = new TradeOrderLine();
+
+									tradeOrderLine.addTradeOrderLine(txtTradeLineCode, txtTradeLineDesc, txtTradeLineQty, txtTradeLinePrice, lblTradeGrossProfitValue, 
+										lblTradeGrossProfitPercent, tradeOrder, txtTradeLineCost, invoiceSettings);
+									
+									// Clear the order textfield boxes and disable the quantity textfield and make the ENTER button invisible
+									txtTradeLineCode.setText("");
+									txtTradeLineDesc.setText("");
+									txtTradeLinePrice.setText("");
+									txtTradeLineQty.setText("");
+									txtTradeLineQty.setEnabled(false);
+									btnTradeNewOrderLine.setVisible(false);
+										
+									// Make the Trade: Current Order, Print Order, PaymentMethod, GrossProfit, Rounding, TradeDetails and NewOrder panels visible
+									panelTradeCurrentOrder.setVisible(true);
+									panelTradePrintOrder.setVisible(true);
+									panelTradePaymentMethod.setVisible(true);
+									panelTradeGrossProfit.setVisible(true);
+									panelTradeRounding.setVisible(true);
+									panelTradeDetails.setVisible(true);
+									panelTradeNewOrder.setVisible(true);
+										
+									// Load the current Order table with the Order Lines
+									String columns[] = {"ITEM", "DESCRIPTION", "QTY", "PRICE", "TOTAL"};
+									DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+									
+									for(TradeOrderLine o : tradeOrder.getOrderList()){
+										String tableCode= o.getItemCode();
+										String tableDesc = o.getItemDescription();
+										String tableQty = o.getOrderQty();
+										String tableItemPrice = o.getItemPrice();
+										String tableOrderPrice = o.getValueExVat();
+										Object[] line = {tableCode, tableDesc, tableQty, tableItemPrice, tableOrderPrice};
+										tableModel.addRow(line);
+									}
+									tblTradeOrder.setModel(tableModel);
+									lblTradeTotalPrice.setText("\u20AC " + String.valueOf(tradeOrder.getTotalPreRounding()));
+									lblTradeTotalExVat.setText("\u20AC " + tradeOrder.getTotalExVat());
+
+
+									// Set the column widths for the table
+									tblTradeOrder.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+									columnModelOrder = tblTradeOrder.getColumnModel();
+									columnModelOrder.getColumn(0).setPreferredWidth(90);
+									columnModelOrder.getColumn(1).setPreferredWidth(479);
+									columnModelOrder.getColumn(2).setPreferredWidth(40);
+									columnModelOrder.getColumn(3).setPreferredWidth(70);	
+									columnModelOrder.getColumn(4).setPreferredWidth(83);
+									
+									// Set the focus back to the item description
+									txtTradeLineDesc.requestFocus();
+
+								} else {
+									JOptionPane.showMessageDialog(null, "You must enter a Quantity greater than 0 !");
+								}
+							}else {
+								JOptionPane.showMessageDialog(null, "You must enter an Item !");	
+							}
+						}catch(Exception ex){
+							JOptionPane.showMessageDialog(null, "You must enter a number for the Quantity !");
+						}
+					}else{
+						JOptionPane.showMessageDialog(null, "That Rep Code doesn't exist, please try again !");
+					}
+					
+				}catch(Exception ex) {
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnTradeNewOrderLine.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradeNewOrderLine.setBounds(964, 17, 167, 38);
+		btnTradeNewOrderLine.setVisible(false);
+		panelTradeOrderLine.add(btnTradeNewOrderLine);
+		
+		panelTradeItemDescriptionChoice = new JPanel();
+		panelTradeItemDescriptionChoice.setBounds(350, 91, 338, 398);
+		panelTradeOrder.add(panelTradeItemDescriptionChoice);
+		panelTradeItemDescriptionChoice.setLayout(null);
+		panelTradeItemDescriptionChoice.setVisible(false);
+		
+		JScrollPane scrlPanetblTradeItemDescription = new JScrollPane();
+		scrlPanetblTradeItemDescription.setBounds(10, 11, 337, 397);
+		panelTradeItemDescriptionChoice.add(scrlPanetblTradeItemDescription);
+		
+		// When creating the JTable for the description dropdown I over-ride the isCellEditable method to make the table un-editable
+		tblTradeItemDescription = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+		};
+		scrlPanetblTradeItemDescription.setViewportView(tblTradeItemDescription);
+		
+		tblTradeItemDescription.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// If enter pressed call a method to fill the orderline fields with this item, hide the panel with this table, set focus to qty and make ENTER visible 
+				if(arg0.getKeyCode() == 10) {
+					ordLineTradeItemSelected();					
+				}
+			}
+		});
+		tblTradeItemDescription.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+								
+				// Call a method to fill the orderline fields with this item, hide the panel with this table, set focus to qty and make the enter button visible
+				ordLineTradeItemSelected();
+			}
+		});
+		tblCustItemDescription.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblCustItemDescription.setCellSelectionEnabled(true);
+		tblCustItemDescription.setColumnSelectionAllowed(true);
+		
+		panelCustDetails = new JPanel();
+		panelCustDetails.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustDetails.setBounds(1046, 295, 199, 71);
+		panelCustOrder.add(panelCustDetails);
+		panelCustDetails.setLayout(null);
+		panelCustDetails.setVisible(false);
+		
+		JButton btnCustDetails = new JButton("CUST DETAILS");
+		btnCustDetails.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				CustomerDetails customerDetails = new CustomerDetails(retailOrder, dao); 
+			}
+		});
+		btnCustDetails.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustDetails.setBounds(17, 17, 167, 38);
+		panelCustDetails.add(btnCustDetails);
+		
+		// Initially make the description dropdown invisible
+		panelCustItemDescriptionChoice.setVisible(false);
+		
+		panelTradeCurrentOrder = new JPanel();
+		panelTradeCurrentOrder.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradeCurrentOrder.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(160, 160, 160), new Color(160, 160, 160), UIManager.getColor("Button.foreground"), new Color(105, 105, 105)));
+		panelTradeCurrentOrder.setBounds(28, 138, 800, 447);
+		panelTradeOrder.add(panelTradeCurrentOrder);
+		panelTradeCurrentOrder.setLayout(null);
+		panelTradeCurrentOrder.setVisible(false);
+		
+		JLabel lblTradeCurrentOrder = new JLabel("TRADE ORDER");
+		lblTradeCurrentOrder.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblTradeCurrentOrder.setBounds(10, 11, 179, 31);
+		panelTradeCurrentOrder.add(lblTradeCurrentOrder);
+		
+		JLabel lblTradeTotalPriceText = new JLabel("TOTAL INC-VAT");
+		lblTradeTotalPriceText.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblTradeTotalPriceText.setBounds(634, 11, 156, 31);
+		panelTradeCurrentOrder.add(lblTradeTotalPriceText);
+		
+		lblTradeTotalPrice = new JLabel("0.00", SwingConstants.RIGHT);
+		lblTradeTotalPrice.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblTradeTotalPrice.setBounds(634, 37, 156, 31);
+		panelTradeCurrentOrder.add(lblTradeTotalPrice);
+		
+		JLabel lblTradeTotalExVatText = new JLabel("TOTAL EX-VAT");
+		lblTradeTotalExVatText.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblTradeTotalExVatText.setBounds(297, 11, 148, 31);
+		panelTradeCurrentOrder.add(lblTradeTotalExVatText);
+		
+		lblTradeTotalExVat = new JLabel("0.00", SwingConstants.RIGHT);
+		lblTradeTotalExVat.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblTradeTotalExVat.setBounds(297, 37, 144, 31);
+		panelTradeCurrentOrder.add(lblTradeTotalExVat);
+		
+		JScrollPane scrlTradeOrder = new JScrollPane();
+		scrlTradeOrder.setBounds(10, 68, 780, 368);
+		panelTradeCurrentOrder.add(scrlTradeOrder);
+		
+		tblTradeOrder = new JTable() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public TableCellRenderer getCellRenderer( int row, int col ) { 
+				TableCellRenderer renderer = super.getCellRenderer(row,col);
+				if ( col == dataModel.getColumnCount() - 1  || col == dataModel.getColumnCount() - 2 || col == dataModel.getColumnCount() - 3) 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.RIGHT );
+				
+				// Left justify the other columns
+				else 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.LEFT );
+				
+				return renderer; 
+			}
+			
+			public void HeaderRenderer(JTable table) {
+				DefaultTableCellRenderer renderer = (DefaultTableCellRenderer)
+		            table.getTableHeader().getDefaultRenderer();
+		        renderer.setHorizontalAlignment(JLabel.CENTER);
+		    }
+	
+			// Override method so that table is not editable
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+		};
+		tblTradeOrder.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		tblTradeOrder.setShowGrid(false);
+		tblTradeOrder.setShowHorizontalLines(false);
+		tblTradeOrder.setShowVerticalLines(false);
+		tblTradeOrder.getTableHeader().setFont(new Font("Times New Roman", Font.BOLD, 16));
+
+		scrlTradeOrder.setViewportView(tblTradeOrder);
+		
+		panelTradePaymentMethod = new JPanel();
+		panelTradePaymentMethod.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradePaymentMethod.setBounds(855, 113, 163, 91);
+		panelTradeOrder.add(panelTradePaymentMethod);
+		panelTradePaymentMethod.setLayout(null);
+		panelTradePaymentMethod.setVisible(false);
+		
+		rdbtnTradeCash = new JRadioButton("Cash");
+		rdbtnTradeCash.setSelected(true);
+		rdbtnTradeCash.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnTradeCash.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnTradeCash.setBounds(25, 7, 109, 23);
+		panelTradePaymentMethod.add(rdbtnTradeCash);
+		
+		rdbtnTradeCreditCard = new JRadioButton("Credit Card");
+		rdbtnTradeCreditCard.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnTradeCreditCard.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnTradeCreditCard.setBounds(25, 33, 132, 23);
+		panelTradePaymentMethod.add(rdbtnTradeCreditCard);
+		
+		rdbtnTradeCheque = new JRadioButton("Cheque");
+		rdbtnTradeCheque.setFont(new Font("Georgia", Font.BOLD, 16));
+		rdbtnTradeCheque.setBackground(UIManager.getColor("List.dropLineColor"));
+		rdbtnTradeCheque.setBounds(25, 59, 109, 23);
+		panelTradePaymentMethod.add(rdbtnTradeCheque);
+
+		// Group the radio buttons.
+		ButtonGroup tradePayTypegroup = new ButtonGroup();
+		tradePayTypegroup.add(rdbtnTradeCash);
+		tradePayTypegroup.add(rdbtnTradeCreditCard);
+		tradePayTypegroup.add(rdbtnTradeCheque);
+		
+		panelTradeRounding = new JPanel();
+		panelTradeRounding.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradeRounding.setBounds(854, 282, 164, 81);
+		panelTradeOrder.add(panelTradeRounding);
+		panelTradeRounding.setLayout(null);
+		panelTradeRounding.setVisible(false);
+		
+		JLabel lblTradeRoundText = new JLabel("Round");
+		lblTradeRoundText.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblTradeRoundText.setBounds(50, 11, 55, 17);
+		panelTradeRounding.add(lblTradeRoundText);
+		
+		JLabel lblTradeRoundUp = new JLabel("New label");
+		lblTradeRoundUp.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				String beforeRound = tradeOrder.getTotalPreRounding();
+				int theDot = beforeRound.indexOf(".");
+				String afterRound = Utilities.stringToDec(String.valueOf(Float.parseFloat(beforeRound.substring(0, theDot)) + 1));
+				tradeOrder.setTotalPostRounding(afterRound);
+				float rounding = Utilities.floatToNumDec(Float.parseFloat(afterRound) - Float.parseFloat(beforeRound),2);
+				tradeOrder.setRounding(String.valueOf(rounding));
+
+				// Save the rounding and post Rounding values if the invoice has been printed
+				if(tradeOrder.getReceiptNo() != 0) {
+					try {
+						String query = "UPDATE orderheader SET rounding = ?, totalPostRounding = ? WHERE receiptNo = ?";
+						PreparedStatement pst = dao.conn.prepareStatement(query);
+						pst.setFloat( 1, rounding);
+						pst.setFloat( 2, Float.parseFloat(tradeOrder.getTotalPostRounding() ));
+						pst.setInt( 3, tradeOrder.getReceiptNo() );
+						pst.execute();
+							
+						pst.close();
+	
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null, ex);					
+					}
+				}
+						
+				// Update the screen
+				lblTradeTotalPrice.setText("\u20AC " + tradeOrder.getTotalPostRounding());
+			}
+		});
+		lblTradeRoundUp.setBounds(36, 39, 35, 31);
+		lblTradeRoundUp.setIcon(imageIconUpArrow);
+		panelTradeRounding.add(lblTradeRoundUp);
+		
+		JLabel lblTradeRoundDown = new JLabel("New label");
+		lblTradeRoundDown.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String beforeRound = tradeOrder.getTotalPreRounding();
+				int theDot = beforeRound.indexOf(".");
+				String afterRound = Utilities.stringToDec(beforeRound.substring(0, theDot));
+				tradeOrder.setTotalPostRounding(afterRound);
+				float rounding = Utilities.floatToNumDec(Float.parseFloat(afterRound) - Float.parseFloat(beforeRound),2);
+				tradeOrder.setRounding(String.valueOf(rounding));
+
+				// Save the rounding and post Rounding values if the invoice has been printed
+				if(tradeOrder.getReceiptNo() != 0) {
+					try {
+						String query = "UPDATE orderheader SET rounding = ?, totalPostRounding = ? WHERE receiptNo = ?";
+						PreparedStatement pst = dao.conn.prepareStatement(query);
+						pst.setFloat( 1, rounding);
+						pst.setFloat( 2, Float.parseFloat(tradeOrder.getTotalPostRounding() ));
+						pst.setInt( 3, tradeOrder.getReceiptNo() );
+						pst.execute();
+							
+						pst.close();
+	
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null, ex);					
+					}
+				}
+						
+				// Update the screen
+				lblTradeTotalPrice.setText("\u20AC " + tradeOrder.getTotalPostRounding());
+			}
+		});
+		lblTradeRoundDown.setBounds(92, 39, 35, 31);
+		lblTradeRoundDown.setIcon(imageIconDownArrow);
+		panelTradeRounding.add(lblTradeRoundDown);
+		
+		panelTradeGrossProfit = new JPanel();
+		panelTradeGrossProfit.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradeGrossProfit.setBounds(855, 443, 163, 142);
+		panelTradeOrder.add(panelTradeGrossProfit);
+		panelTradeGrossProfit.setLayout(null);
+		panelTradeGrossProfit.setVisible(false);
+		
+		JLabel lblTradeGrossProfitText = new JLabel("Gross Profit");
+		lblTradeGrossProfitText.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblTradeGrossProfitText.setBounds(27, 23, 111, 24);
+		panelTradeGrossProfit.add(lblTradeGrossProfitText);
+		
+		lblTradeGrossProfitValue = new JLabel("\u20AC 0.00");
+		lblTradeGrossProfitValue.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTradeGrossProfitValue.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblTradeGrossProfitValue.setBounds(25, 58, 102, 24);
+		panelTradeGrossProfit.add(lblTradeGrossProfitValue);
+		
+		lblTradeGrossProfitPercent = new JLabel("0.00 %");
+		lblTradeGrossProfitPercent.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTradeGrossProfitPercent.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblTradeGrossProfitPercent.setBounds(25, 92, 102, 24);
+		panelTradeGrossProfit.add(lblTradeGrossProfitPercent);
+		
+		panelTradeNewOrder = new JPanel();
+		panelTradeNewOrder.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradeNewOrder.setBounds(1046, 113, 199, 71);
+		panelTradeOrder.add(panelTradeNewOrder);
+		panelTradeNewOrder.setLayout(null);
+		panelTradeNewOrder.setVisible(false);
+		
+		JButton btnTradeNewOrder = new JButton("NEW ORDER");
+		btnTradeNewOrder.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			
+				// Make the current TradeCurrentOrder, TradePrintOrder, TradePaymentMethod and the TradeGrossProfit panel invisible
+				panelTradeCurrentOrder.setVisible(false);
+				panelTradePrintOrder.setVisible(false);
+				panelTradePaymentMethod.setVisible(false);
+				panelTradeGrossProfit.setVisible(false);
+				
+				// Remove the current order from the trade order object
+				tradeOrder = null;
+				
+				// Blank the current order line entry fields
+				txtTradeLineCode.setText(null);
+				txtTradeLineDesc.setText(null);
+				txtTradeLinePrice.setText(null);
+				txtTradeLineQty.setText(null);
+				
+				// Disable quantity field and make ENTER button invisible - because they may be accessible when NEW ORDER button pressed 
+				txtTradeLineQty.setEnabled(false);
+				btnTradeNewOrderLine.setVisible(false);
+				
+				// Make the TradeCurrentOrder, TradePrintOrder, TradePaymentMethod, TradeGrossProfit, TradeRounding, TradeDetails and TradeNewOrder panels invisible
+				panelTradeCurrentOrder.setVisible(false);
+				panelTradePrintOrder.setVisible(false);
+				panelTradePaymentMethod.setVisible(false);
+				panelTradeGrossProfit.setVisible(false);
+				panelTradeRounding.setVisible(false);
+				panelTradeDetails.setVisible(false);
+				panelTradeNewOrder.setVisible(false);
+				
+				// Set the Payment Type back to Cash
+				rdbtnTradeCash.setSelected(true);
+				
+				// Blank the Trade Rep Code field, enable it and make it editable
+				txtTradeLineRep.setEditable(true);
+				txtTradeLineRep.setEnabled(true);
+				txtTradeLineRep.setText("");
+				
+			}
+		});
+		btnTradeNewOrder.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradeNewOrder.setBounds(17, 17, 167, 38);
+		panelTradeNewOrder.add(btnTradeNewOrder);
+		
+		panelTradePrintOrder = new JPanel();
+		panelTradePrintOrder.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradePrintOrder.setBounds(1046, 204, 199, 71);
+		panelTradeOrder.add(panelTradePrintOrder);
+		panelTradePrintOrder.setLayout(null);
+		panelTradePrintOrder.setVisible(false);
+		
+		JButton btnTradePrintOrder = new JButton("PRINT ORDER");
+		btnTradePrintOrder.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				tradeOrder.setOrderLinesToPrint(0);
+				// Set the PayType as per the user's selection
+				String paytype = "";
+				if(rdbtnTradeCash.isSelected())
+					paytype = "Cash";
+				else if(rdbtnTradeCreditCard.isSelected())
+					paytype = "Credit Card";
+				else
+					paytype = "Cheque";
+					
+				tradeOrder.setPayType(paytype);
+				
+				try {
+					tradeOrder.printOrder(dao, invoiceSettings);
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnTradePrintOrder.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradePrintOrder.setBounds(17, 17, 167, 38);
+		panelTradePrintOrder.add(btnTradePrintOrder);
+		
+		panelTradeDetails = new JPanel();
+		panelTradeDetails.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradeDetails.setBounds(1046, 295, 199, 71);
+		panelTradeOrder.add(panelTradeDetails);
+		panelTradeDetails.setLayout(null);
+		panelTradeDetails.setVisible(false);
+		
+		JButton btnTradeCustDetails = new JButton("CUST DETAILS");
+		btnTradeCustDetails.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new CustomerDetails(tradeOrder, dao);
+			}
+		});
+		btnTradeCustDetails.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradeCustDetails.setBounds(17, 17, 167, 38);
+		panelTradeDetails.add(btnTradeCustDetails);
+		
+		JLabel lblTradeLogo = new JLabel("New label");
+		lblTradeLogo.setBounds(1046, 385, 199, 200);
+		// Put Logo image on order tab by adding an image to the Logo Label
+		lblTradeLogo.setIcon(imageIcon);
+		panelTradeOrder.add(lblTradeLogo);
+		
+		JPanel panelProducts = new JPanel();
+		panelProducts.setBackground(Color.DARK_GRAY);
+		tabbedPane.addTab("Products", null, panelProducts, null);
+		panelProducts.setLayout(null);
+		
+		JPanel panelItemMaintenance = new JPanel();
+		panelItemMaintenance.setBounds(64, 413, 1166, 161);
+		panelItemMaintenance.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelItemMaintenance.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(227, 227, 227), new Color(227, 227, 227), UIManager.getColor("Button.foreground"), new Color(105, 105, 105)));
+		panelProducts.add(panelItemMaintenance);
+		panelItemMaintenance.setLayout(null);
+		
+		txtProductsCode = new JTextField();
+		txtProductsCode.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				
+				// Search for item in database and if found fill in description and price
+				try {
+					String query = "SELECT itemCode AS ITEM, itemDescription AS DESCRIPTION, retailPrice AS RETAIL FROM item WHERE itemCode = ?" +
+							" ORDER BY itemCode";
+					PreparedStatement  pst = dao.conn.prepareStatement(query);
+					pst.setString(1, txtProductsCode.getText());
+					ResultSet rs = pst.executeQuery();
+					if(rs.next()){
+						txtProductsDescription.setText(rs.getString(2));
+						txtProductsRetail.setText(rs.getString(3));
+					}
+					
+					pst.close();
+					rs.close();
+					
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		txtProductsCode.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtProductsCode.setBounds(56, 49, 132, 32);
+		panelItemMaintenance.add(txtProductsCode);
+		txtProductsCode.setColumns(10);
+		
+		txtProductsDescription = new JTextField();
+		txtProductsDescription.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				txtProductsDescription.setText(txtProductsDescription.getText().toUpperCase());
+			}
+		});
+		txtProductsDescription.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtProductsDescription.setBounds(253, 49, 302, 32);
+		panelItemMaintenance.add(txtProductsDescription);
+		txtProductsDescription.setColumns(10);
+		
+		txtProductsRetail = new JTextField();
+		txtProductsRetail.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtProductsRetail.setBounds(972, 49, 132, 32);
+		panelItemMaintenance.add(txtProductsRetail);
+		txtProductsRetail.setColumns(10);
+		
+		JLabel lblItemCode = new JLabel("Item Code");
+		lblItemCode.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblItemCode.setBounds(56, 24, 132, 14);
+		panelItemMaintenance.add(lblItemCode);
+		
+		JLabel lblItemDescription = new JLabel("Item Description");
+		lblItemDescription.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblItemDescription.setBounds(253, 24, 175, 14);
+		panelItemMaintenance.add(lblItemDescription);
+		
+		JLabel lblRetailPrice = new JLabel("Retail Price");
+		lblRetailPrice.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblRetailPrice.setBounds(972, 24, 86, 14);
+		panelItemMaintenance.add(lblRetailPrice);
+		
+		JButton btnProductInsert = new JButton("INSERT");
+		btnProductInsert.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					// First check that something was entered in the Item fields
+					if(!txtProductsCode.getText().isEmpty() && !txtProductsDescription.getText().isEmpty() && !txtProductsCost.getText().isEmpty() && 
+							!txtProductsTrade.getText().isEmpty() && !txtProductsRetail.getText().isEmpty()) {
+						
+						try{
+						
+							// Check if this item already exists
+							String query = "SELECT itemCode FROM item WHERE itemCode = ?";
+							PreparedStatement pst = dao.conn.prepareStatement(query);
+							pst.setString( 1, txtProductsCode.getText() );
+							ResultSet rs = pst.executeQuery();
+							if(!rs.next()){
+								pst.close();
+								query = "INSERT INTO item (itemCode, itemDescription, costPrice, tradePrice, retailPrice) VALUES(?,?,?,?,?)";
+								pst = dao.conn.prepareStatement(query);
+								pst.setString( 1, txtProductsCode.getText() );
+								pst.setString( 2, txtProductsDescription.getText() );
+								pst.setFloat( 3, Float.parseFloat(txtProductsCost.getText()) );
+								pst.setFloat( 4, Float.parseFloat(txtProductsTrade.getText()) );
+								pst.setFloat( 5, Float.parseFloat(txtProductsRetail.getText()) );
+								pst.execute();
+								txtProductsSrch.setText("");
+								refreshProductsTable();
+								String msg = "Item " + txtProductsCode.getText() + " has been inserted !"; 
+								txtProductsCode.setText("");
+								txtProductsDescription.setText("");
+								txtProductsCost.setText("");
+								txtProductsTrade.setText("");
+								txtProductsRetail.setText("");
+								JOptionPane.showMessageDialog(null, msg);
+							} else {
+								JOptionPane.showMessageDialog(null, "Item " + txtProductsCode.getText() + " is already in the Database !");
+							}
+							pst.close();
+							rs.close();
+						}catch(Exception ex) {
+							JOptionPane.showMessageDialog(null, "Not a Valid Price !");
+						}
+					} else {
+						JOptionPane.showMessageDialog(null, "You must enter an Item Code, Description, Cost Price, Trade Price and a Retail Price !");
+					}
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnProductInsert.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnProductInsert.setBounds(358, 102, 115, 38);
+		panelItemMaintenance.add(btnProductInsert);
+		
+		JButton btnProductUpdate = new JButton("UPDATE");
+		btnProductUpdate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					// Firstly Check if the record exists
+					String query = "SELECT itemCode FROM item WHERE itemCode = ?";
+					PreparedStatement pst = dao.conn.prepareStatement(query);
+					pst.setString( 1, txtProductsCode.getText() );
+					ResultSet rs = pst.executeQuery();
+					if(rs.next()){
+						pst.close();
+						query = "UPDATE item SET itemDescription = ?, costPrice = ?, tradePrice = ?, retailPrice = ? WHERE itemCode = ?";
+						pst = dao.conn.prepareStatement(query);
+						pst.setString( 1, txtProductsDescription.getText() );
+						pst.setFloat( 2, Float.parseFloat(txtProductsCost.getText()) );
+						pst.setFloat( 3, Float.parseFloat(txtProductsTrade.getText()) );
+						pst.setFloat( 4, Float.parseFloat(txtProductsRetail.getText()) );
+						pst.setString( 5, txtProductsCode.getText() );
+						pst.execute();
+						refreshProductsTable();
+						String msg = "Item " + txtProductsCode.getText() + " has been updated !"; 
+						txtProductsCode.setText("");
+						txtProductsDescription.setText("");
+						txtProductsCost.setText("");
+						txtProductsTrade.setText("");
+						txtProductsRetail.setText("");
+						JOptionPane.showMessageDialog(null, msg);
+					}else {
+						JOptionPane.showMessageDialog(null, "Item " + txtProductsCode.getText() + " is not in the Database !");
+					}
+					pst.close();
+					rs.close();
+					
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnProductUpdate.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnProductUpdate.setBounds(526, 102, 115, 38);
+		panelItemMaintenance.add(btnProductUpdate);
+		
+		JButton btnProductDelete = new JButton("DELETE");
+		btnProductDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					// Firstly Check if the record exists
+					String query = "SELECT itemCode FROM item WHERE itemCode = ?";
+					PreparedStatement pst = dao.conn.prepareStatement(query);
+					pst.setString( 1, txtProductsCode.getText() );
+					ResultSet rs = pst.executeQuery();
+					if(rs.next()){
+						// We use the showConfirmDialog method of the JOptionPane object to show a confirmation dialog.
+						// This method's parameters: parent object, the message, the title, type of JOptionPane (yes=0,no=1)
+						int action = JOptionPane.showConfirmDialog(null, "Do you really want to delete this record","Delete",JOptionPane.YES_NO_OPTION);
+						
+						if (action==0) {
+							query = "UPDATE ITEM SET deleted=1 WHERE itemCode = ?";
+							pst = dao.conn.prepareStatement(query);
+							pst.setString( 1, txtProductsCode.getText() );
+							
+							pst.execute();
+							refreshProductsTable();
+							String msg = "Item " + txtProductsCode.getText() + " has been deleted !"; 
+							txtProductsCode.setText("");
+							txtProductsDescription.setText("");
+							txtProductsCost.setText("");
+							txtProductsTrade.setText("");
+							txtProductsRetail.setText("");
+							JOptionPane.showMessageDialog(null, msg);
+							
+						}
+					}else{
+						JOptionPane.showMessageDialog(null, "Item " + txtProductsCode.getText() + " is not in the Database !");
+					}
+					pst.close();
+					rs.close();
+					
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+					
+				
+			}
+		});
+		btnProductDelete.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnProductDelete.setBounds(697, 102, 115, 38);
+		panelItemMaintenance.add(btnProductDelete);
+		
+		txtProductsTrade = new JTextField();
+		txtProductsTrade.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtProductsTrade.setColumns(10);
+		txtProductsTrade.setBounds(792, 49, 132, 32);
+		panelItemMaintenance.add(txtProductsTrade);
+		
+		JLabel lblTradePrice = new JLabel("Trade Price");
+		lblTradePrice.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTradePrice.setBounds(792, 24, 86, 14);
+		panelItemMaintenance.add(lblTradePrice);
+		
+		txtProductsCost = new JTextField();
+		txtProductsCost.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtProductsCost.setColumns(10);
+		txtProductsCost.setBounds(610, 49, 132, 32);
+		panelItemMaintenance.add(txtProductsCost);
+		
+		JLabel lblCostprice = new JLabel("Cost Price");
+		lblCostprice.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblCostprice.setBounds(610, 24, 86, 14);
+		panelItemMaintenance.add(lblCostprice);
+		
+		JPanel panelItemList = new JPanel();
+		panelItemList.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelItemList.setBorder(new BevelBorder(BevelBorder.RAISED, new Color(227, 227, 227), new Color(227, 227, 227), UIManager.getColor("Button.foreground"), new Color(105, 105, 105)));
+		panelItemList.setBounds(64, 11, 1166, 379);
+		panelProducts.add(panelItemList);
+		panelItemList.setLayout(null);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(28, 83, 894, 281);
+		panelItemList.add(scrollPane);
+		
+		tblProductsItem = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+			
+			public TableCellRenderer getCellRenderer( int row, int col ) { 
+				
+				TableCellRenderer renderer = super.getCellRenderer(row,col);
+				
+				// Right justify the last column (Price)
+				if ( col == dataModel.getColumnCount() - 1 ) 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.RIGHT );
+				
+				// Left justify the other columns
+				else 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.LEFT );
+				
+				return renderer; 
+			}
+			
+			// CENTER Align the headers
+			public void HeaderRenderer(JTable table) {
+				DefaultTableCellRenderer renderer = (DefaultTableCellRenderer)
+		            table.getTableHeader().getDefaultRenderer();
+		        renderer.setHorizontalAlignment(JLabel.CENTER);
+		    }
+			
+		};
+		tblProductsItem.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		// This formats the Headers
+		tblProductsItem.getTableHeader().setFont(new Font("Times New Roman", Font.BOLD, 16));
+		tblProductsItem.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				try {
+					
+					// We use the table's getSelectedRow() method to find the row that the User selected. 
+					int row = tblProductsItem.getSelectedRow();
+					
+					// Then we can get the itemID of the selected row by getting the model of the table and then using the getValueAt() method we can get the specific
+					// row and column that we require.
+					// This returns an Object so we get the toString of it.
+					String idString = tblProductsItem.getModel().getValueAt(row, 0).toString();
+					
+					String query = "SELECT * FROM item WHERE itemCode = ?";
+					PreparedStatement pst = dao.conn.prepareStatement(query);
+					pst.setString( 1, idString);
+					ResultSet rs = pst.executeQuery();
+					
+					while(rs.next()){
+						txtProductsCode.setText(rs.getString("itemCode"));
+						txtProductsDescription.setText(rs.getString("itemDescription"));
+						txtProductsCost.setText(Utilities.stringToDec( String.valueOf(rs.getFloat("costPrice"))) );
+						txtProductsTrade.setText(Utilities.stringToDec( String.valueOf(rs.getFloat("tradePrice"))) );
+						txtProductsRetail.setText(Utilities.stringToDec( String.valueOf(rs.getFloat("retailPrice"))) );
+					}
+					
+					pst.close();
+					rs.close();
+					
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(null, e);
+				}
+			}
+		});
+		scrollPane.setViewportView(tblProductsItem);
+		
+		comboBoxProductsSrch = new JComboBox<String>();
+		comboBoxProductsSrch.setBounds(28, 26, 162, 38);
+		panelItemList.add(comboBoxProductsSrch);
+		comboBoxProductsSrch.setFont(new Font("Georgia", Font.BOLD, 16));
+		comboBoxProductsSrch.setModel(new DefaultComboBoxModel<String>(new String[] {"ITEM", "DESCRIPTION"}));
+		comboBoxProductsSrch.setSelectedItem("DESCRIPTION");
+		comboBoxProductsSrch.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				refreshProductsTable();
+			}
+		});
+
+		txtProductsSrch = new JTextField();
+		txtProductsSrch.setBounds(402, 28, 242, 32);
+		panelItemList.add(txtProductsSrch);
+		txtProductsSrch.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtProductsSrch.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				
+				txtProductsSrch.setText(txtProductsSrch.getText().toUpperCase());
+				refreshProductsTable();
+			}
+		});
+		txtProductsSrch.setColumns(10);
+		
+		JButton btnLoadAll = new JButton("LOAD ALL PRODUCTS");
+		btnLoadAll.setBounds(858, 26, 242, 38);
+		panelItemList.add(btnLoadAll);
+		btnLoadAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				txtProductsSrch.setText("");
+				refreshProductsTable();
+			}
+		});
+		btnLoadAll.setFont(new Font("Georgia", Font.BOLD, 16));
+		
+		JLabel lblProductsLogo = new JLabel();
+		// Put Logo image on products tab
+		lblProductsLogo.setIcon(imageIcon);
+
+		lblProductsLogo.setBounds(935, 114, 199, 210);
+		panelItemList.add(lblProductsLogo);
+		yesImgPrintIcon = new ImageIcon(this.getClass().getResource("/yesPrintImage.jpg")).getImage();
+		noImgPrintIcon = new ImageIcon(this.getClass().getResource("/noPrintImage.jpg")).getImage();
+		
+		JPanel panelCustomers = new JPanel();
+		panelCustomers.setBackground(Color.DARK_GRAY);
+		tabbedPane.addTab("Customers", null, panelCustomers, null);
+		panelCustomers.setLayout(null);
+		
+		JPanel panelCustomerMaintenance = new JPanel();
+		panelCustomerMaintenance.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustomerMaintenance.setBounds(23, 424, 1237, 161);
+		panelCustomers.add(panelCustomerMaintenance);
+		panelCustomerMaintenance.setLayout(null);
+		
+		txtCustomersName = new JTextField();
+		txtCustomersName.setBounds(38, 49, 144, 28);
+		panelCustomerMaintenance.add(txtCustomersName);
+		txtCustomersName.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustomersName.setColumns(10);
+		
+		txtCustomersAddressLine1 = new JTextField();
+		txtCustomersAddressLine1.setBounds(217, 49, 400, 28);
+		panelCustomerMaintenance.add(txtCustomersAddressLine1);
+		txtCustomersAddressLine1.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustomersAddressLine1.setColumns(10);
+		
+		txtCustomersAddressLine2 = new JTextField();
+		txtCustomersAddressLine2.setBounds(627, 49, 400, 28);
+		panelCustomerMaintenance.add(txtCustomersAddressLine2);
+		txtCustomersAddressLine2.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustomersAddressLine2.setColumns(10);
+		
+		txtCustomersPhone = new JTextField();
+		txtCustomersPhone.setBounds(1055, 49, 144, 28);
+		panelCustomerMaintenance.add(txtCustomersPhone);
+		txtCustomersPhone.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustomersPhone.setColumns(10);
+		
+		JLabel lblCustomersName = new JLabel("Name");
+		lblCustomersName.setBounds(38, 19, 72, 19);
+		panelCustomerMaintenance.add(lblCustomersName);
+		lblCustomersName.setFont(new Font("Georgia", Font.BOLD, 16));
+		
+		JLabel lblCustomersAddressLine1 = new JLabel("Address Line 1");
+		lblCustomersAddressLine1.setBounds(217, 19, 135, 19);
+		panelCustomerMaintenance.add(lblCustomersAddressLine1);
+		lblCustomersAddressLine1.setFont(new Font("Georgia", Font.BOLD, 16));
+		
+		JLabel lblCustomersAddressLine2 = new JLabel("Address Line 2");
+		lblCustomersAddressLine2.setBounds(627, 19, 135, 19);
+		panelCustomerMaintenance.add(lblCustomersAddressLine2);
+		lblCustomersAddressLine2.setFont(new Font("Georgia", Font.BOLD, 16));
+		
+		JLabel lblCustomersPhone = new JLabel("Phone");
+		lblCustomersPhone.setBounds(1055, 19, 72, 19);
+		panelCustomerMaintenance.add(lblCustomersPhone);
+		lblCustomersPhone.setFont(new Font("Georgia", Font.BOLD, 16));
+		
+		JButton btnCustomersInsert = new JButton("INSERT");
+		btnCustomersInsert.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					// First check that something was entered in the Customer fields
+					if(!txtCustomersName.getText().isEmpty()) {
+						
+						boolean result = dao.customersInsert(txtCustomersName.getText(), txtCustomersAddressLine1.getText(), txtCustomersAddressLine2.getText(), txtCustomersPhone.getText());
+						if(result) {
+							refreshCustomersTable();
+							txtCustomersSrch.setText("");
+							txtCustomersID.setText("");
+							txtCustomersName.setText("");
+							txtCustomersAddressLine1.setText("");
+							txtCustomersAddressLine2.setText("");
+							txtCustomersPhone.setText("");
+						}
+							
+					} else {
+						JOptionPane.showMessageDialog(null, "You must enter a Customer Name !");
+					}
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnCustomersInsert.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustomersInsert.setBounds(310, 104, 128, 38);
+		panelCustomerMaintenance.add(btnCustomersInsert);
+		
+		JButton btnCustomersUpdate = new JButton("UPDATE");
+		btnCustomersUpdate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					
+					// First check that something was entered in the Customer fields
+					if( !(txtCustomersName.getText().isEmpty() && txtCustomersPhone.getText().isEmpty()) ) {
+					
+						boolean result = dao.customersUpdate(txtCustomersID.getText(), txtCustomersName.getText(), txtCustomersAddressLine1.getText(), txtCustomersAddressLine2.getText(), txtCustomersPhone.getText());
+						if (result) {
+							refreshCustomersTable();
+							txtCustomersID.setText("");
+							txtCustomersName.setText("");
+							txtCustomersAddressLine1.setText("");
+							txtCustomersAddressLine2.setText("");
+							txtCustomersPhone.setText("");
+						}
+						
+					} else {
+						JOptionPane.showMessageDialog(null, "You must select a customer before you update !");	
+					}
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnCustomersUpdate.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustomersUpdate.setBounds(552, 104, 128, 38);
+		panelCustomerMaintenance.add(btnCustomersUpdate);
+		
+		JButton btnCustomersDelete = new JButton("DELETE");
+		btnCustomersDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					
+					boolean result = dao.customersDelete(txtCustomersID.getText(), txtCustomersName.getText());
+					
+					if(result){
+						refreshCustomersTable();
+						txtCustomersID.setText("");
+						txtCustomersName.setText("");
+						txtCustomersAddressLine1.setText("");
+						txtCustomersAddressLine2.setText("");
+						txtCustomersPhone.setText("");
+					}
+					
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnCustomersDelete.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustomersDelete.setBounds(790, 104, 128, 38);
+		panelCustomerMaintenance.add(btnCustomersDelete);
+		
+		txtCustomersID = new JTextField();
+		txtCustomersID.setEnabled(false);
+		txtCustomersID.setEditable(false);
+		txtCustomersID.setBounds(10, 49, 4, 20);
+		panelCustomerMaintenance.add(txtCustomersID);
+		txtCustomersID.setColumns(10);
+		txtCustomersID.setVisible(false);
+		
+		JPanel panelCustomerList = new JPanel();
+		panelCustomerList.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelCustomerList.setBounds(23, 11, 1237, 375);
+		panelCustomers.add(panelCustomerList);
+		panelCustomerList.setLayout(null);
+		
+		comboBoxCustomersSrch = new JComboBox<String>();
+		comboBoxCustomersSrch.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				refreshCustomersTable();
+			}
+		});
+		comboBoxCustomersSrch.setModel(new DefaultComboBoxModel<String>(new String[] {"NAME", "ADDRESS LINE 1", "ADDRESS LINE 2", "PHONE"}));
+		comboBoxCustomersSrch.setFont(new Font("Georgia", Font.BOLD, 16));
+		comboBoxCustomersSrch.setBounds(32, 26, 175, 38);
+		panelCustomerList.add(comboBoxCustomersSrch);
+		
+		comboBoxProductsSrch.setSelectedItem("NAME");
+		comboBoxProductsSrch.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				refreshProductsTable();
+			}
+		});
+		
+		
+		JLabel lblCustomersLogo = new JLabel("New label");
+		lblCustomersLogo.setBounds(1006, 114, 199, 210);
+		// Put Logo image on customers tab
+		lblCustomersLogo.setIcon(imageIcon);
+		panelCustomerList.add(lblCustomersLogo);
+		
+		txtCustomersSrch = new JTextField();
+		txtCustomersSrch.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				refreshCustomersTable();
+			}
+		});
+		txtCustomersSrch.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtCustomersSrch.setBounds(356, 30, 313, 32);
+		panelCustomerList.add(txtCustomersSrch);
+		txtCustomersSrch.setColumns(10);
+		
+		JButton btnCustomersLoadAll = new JButton("LOAD ALL CUSTOMERS");
+		btnCustomersLoadAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				txtCustomersSrch.setText("");
+				refreshCustomersTable();
+			}
+		});
+		btnCustomersLoadAll.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCustomersLoadAll.setBounds(854, 26, 266, 38);
+		panelCustomerList.add(btnCustomersLoadAll);
+		
+		JScrollPane scrlCustomersList = new JScrollPane();
+		scrlCustomersList.setBounds(32, 80, 949, 284);
+		panelCustomerList.add(scrlCustomersList);
+		
+		tblCustomersList = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+			
+			public TableCellRenderer getCellRenderer( int row, int col ) { 
+				
+				TableCellRenderer renderer = super.getCellRenderer(row,col);
+				
+				// Right justify the last column (Price)
+				if ( col == dataModel.getColumnCount() - 1 ) 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.RIGHT );
+				
+				// Left justify the other columns
+				else 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.LEFT );
+				
+				return renderer; 
+			}
+			
+			// CENTER Align the headers
+			public void HeaderRenderer(JTable table) {
+				DefaultTableCellRenderer renderer = (DefaultTableCellRenderer)
+		            table.getTableHeader().getDefaultRenderer();
+		        renderer.setHorizontalAlignment(JLabel.CENTER);
+		    }
+			
+		};
+		tblCustomersList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				try {
+					
+					// We use the table's getSelectedRow() method to find the row that the User selected. 
+					int row = tblCustomersList.getSelectedRow();
+					
+					// Then we can get the id of the row that we require.
+					// We then get the value of column 0 for that row in the model of our table, which returns an Object so we get the String of it and convert to integer
+					String idString = tblCustomersList.getModel().getValueAt(row, 0).toString();
+					int idRow = Integer.valueOf(idString);
+					
+					String query = "SELECT * FROM customer WHERE customerID= ? ";
+					PreparedStatement pst = dao.conn.prepareStatement(query);
+					pst.setInt( 1, idRow);
+
+					ResultSet rs = pst.executeQuery();
+					
+					while(rs.next()){
+						txtCustomersID.setText(idString);
+						txtCustomersName.setText(rs.getString("name"));
+						txtCustomersAddressLine1.setText(rs.getString("addressLine1") );
+						txtCustomersAddressLine2.setText(rs.getString("addressLine2") );
+						txtCustomersPhone.setText(rs.getString("phone") );
+					}
+					
+					pst.close();
+					rs.close();
+					
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(null, e);
+				}
+			}
+		});
+		tblCustomersList.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+		// This formats the Headers
+		tblCustomersList.getTableHeader().setFont(new Font("Times New Roman", Font.BOLD, 16));
+
+		scrlCustomersList.setViewportView(tblCustomersList);
+		
+		JPanel panel_4 = new JPanel();
+		panel_4.setBackground(Color.DARK_GRAY);
+		tabbedPane.addTab("Tradesmen", null, panel_4, null);
+		panel_4.setLayout(null);
+		
+		JPanel panelTradesmenList = new JPanel();
+		panelTradesmenList.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradesmenList.setBounds(23, 11, 1237, 375);
+		panel_4.add(panelTradesmenList);
+		panelTradesmenList.setLayout(null);
+		
+		comboBoxTradesmenSrch = new JComboBox<String>();
+		comboBoxTradesmenSrch.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				refreshTradesmenTable();
+			}
+		});
+		comboBoxTradesmenSrch.setFont(new Font("Georgia", Font.BOLD, 16));
+		comboBoxTradesmenSrch.setModel(new DefaultComboBoxModel(new String[] {"NAME", "ADDRESS LINE 1", "ADDRESS LINE 2", "PHONE"}));
+		comboBoxProductsSrch.setSelectedItem("NAME");
+		comboBoxTradesmenSrch.setBounds(32, 26, 175, 38);
+		panelTradesmenList.add(comboBoxTradesmenSrch);
+		
+		txtTradesmenSrch = new JTextField();
+		txtTradesmenSrch.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				refreshTradesmenTable();
+			}
+		});
+		txtTradesmenSrch.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradesmenSrch.setBounds(356, 30, 313, 32);
+		panelTradesmenList.add(txtTradesmenSrch);
+		txtTradesmenSrch.setColumns(10);
+		
+		JButton btnTradesmenLoadAll = new JButton("LOAD ALL TRADESMEN");
+		btnTradesmenLoadAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				txtTradesmenSrch.setText("");
+				refreshTradesmenTable();
+			}
+		});
+		btnTradesmenLoadAll.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradesmenLoadAll.setBounds(854, 26, 266, 38);
+		panelTradesmenList.add(btnTradesmenLoadAll);
+		
+		JScrollPane scrTradesmenList = new JScrollPane();
+		scrTradesmenList.setBounds(32, 80, 949, 284);
+		panelTradesmenList.add(scrTradesmenList);
+		
+		tblTradesmenList = new JTable(){
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+		    public boolean isCellEditable(int row, int column)
+		    {
+		        return false;
+		    }
+			
+			public TableCellRenderer getCellRenderer( int row, int col ) { 
+				
+				TableCellRenderer renderer = super.getCellRenderer(row,col);
+				
+				// Right justify the last column (Price)
+				if ( col == dataModel.getColumnCount() - 1 ) 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.RIGHT );
+				
+				// Left justify the other columns
+				else 
+					((JLabel) renderer).setHorizontalAlignment( SwingConstants.LEFT );
+				
+				return renderer; 
+			}
+			
+			// CENTER Align the headers
+			public void HeaderRenderer(JTable table) {
+				DefaultTableCellRenderer renderer = (DefaultTableCellRenderer)
+		            table.getTableHeader().getDefaultRenderer();
+		        renderer.setHorizontalAlignment(JLabel.CENTER);
+		    }
+			
+		};
+		tblTradesmenList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+				try {
+					
+					// We use the table's getSelectedRow() method to find the row that the User selected. 
+					int row = tblTradesmenList.getSelectedRow();
+					
+					// Then we can get the id of the row that we require.
+					// We then get the value of column 0 for that row in the model of our table, which returns an Object so we get the String of it and convert to integer
+					String idString = tblTradesmenList.getModel().getValueAt(row, 0).toString();
+					int idRow = Integer.valueOf(idString);
+					
+					String query = "SELECT * FROM tradesman WHERE tradesmanID= ? ";
+					PreparedStatement pst = dao.conn.prepareStatement(query);
+					pst.setInt( 1, idRow);
+
+					ResultSet rs = pst.executeQuery();
+					
+					while(rs.next()){
+						txtTradesmenID.setText(idString);
+						txtTradesmenName.setText(rs.getString("name"));
+						txtTradesmenAddressLine1.setText(rs.getString("addressLine1") );
+						txtTradesmenAddressLine2.setText(rs.getString("addressLine2") );
+						txtTradesmenPhone.setText(rs.getString("phone") );
+					}
+					
+					pst.close();
+					rs.close();
+					
+				}catch(Exception e){
+					JOptionPane.showMessageDialog(null, e);
+				}
+			}
+		});
+		tblTradesmenList.setFont(new Font("Times New Roman", Font.PLAIN, 12));
+		// This formats the Headers
+		tblTradesmenList.getTableHeader().setFont(new Font("Times New Roman", Font.BOLD, 16));
+		scrTradesmenList.setViewportView(tblTradesmenList);
+		
+		JLabel lblTradesmenLogo = new JLabel("New label");
+		lblTradesmenLogo.setBounds(1006, 114, 199, 210);
+		// Put Logo image on tradesmen tab
+		lblTradesmenLogo.setIcon(imageIcon);
+		panelTradesmenList.add(lblTradesmenLogo);
+		
+		JPanel panelTradesmenMaintenance = new JPanel();
+		panelTradesmenMaintenance.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelTradesmenMaintenance.setBounds(23, 424, 1237, 161);
+		panel_4.add(panelTradesmenMaintenance);
+		panelTradesmenMaintenance.setLayout(null);
+		
+		JLabel lblTradesmenName = new JLabel("Name");
+		lblTradesmenName.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblTradesmenName.setBounds(38, 19, 72, 19);
+		panelTradesmenMaintenance.add(lblTradesmenName);
+		
+		JLabel lblTradesmenAddressLine1 = new JLabel("Address Line 1");
+		lblTradesmenAddressLine1.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblTradesmenAddressLine1.setBounds(217, 19, 135, 19);
+		panelTradesmenMaintenance.add(lblTradesmenAddressLine1);
+		
+		JLabel lblTradesmenAddressLine2 = new JLabel("Address Line 2");
+		lblTradesmenAddressLine2.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblTradesmenAddressLine2.setBounds(627, 19, 135, 19);
+		panelTradesmenMaintenance.add(lblTradesmenAddressLine2);
+		
+		JLabel lblTradesmenPhone = new JLabel("Phone");
+		lblTradesmenPhone.setFont(new Font("Georgia", Font.BOLD, 16));
+		lblTradesmenPhone.setBounds(1055, 19, 72, 19);
+		panelTradesmenMaintenance.add(lblTradesmenPhone);
+		
+		txtTradesmenID = new JTextField();
+		txtTradesmenID.setEnabled(false);
+		txtTradesmenID.setEditable(false);
+		txtTradesmenID.setVisible(false);
+		txtTradesmenID.setBounds(10, 49, 4, 20);
+		panelTradesmenMaintenance.add(txtTradesmenID);
+		txtTradesmenID.setColumns(10);
+		
+		txtTradesmenName = new JTextField();
+		txtTradesmenName.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradesmenName.setBounds(38, 49, 144, 28);
+		panelTradesmenMaintenance.add(txtTradesmenName);
+		txtTradesmenName.setColumns(10);
+		
+		txtTradesmenAddressLine1 = new JTextField();
+		txtTradesmenAddressLine1.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradesmenAddressLine1.setColumns(10);
+		txtTradesmenAddressLine1.setBounds(217, 49, 400, 28);
+		panelTradesmenMaintenance.add(txtTradesmenAddressLine1);
+		
+		txtTradesmenAddressLine2 = new JTextField();
+		txtTradesmenAddressLine2.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradesmenAddressLine2.setColumns(10);
+		txtTradesmenAddressLine2.setBounds(627, 49, 400, 28);
+		panelTradesmenMaintenance.add(txtTradesmenAddressLine2);
+		
+		txtTradesmenPhone = new JTextField();
+		txtTradesmenPhone.setFont(new Font("Georgia", Font.PLAIN, 16));
+		txtTradesmenPhone.setColumns(10);
+		txtTradesmenPhone.setBounds(1055, 49, 144, 28);
+		panelTradesmenMaintenance.add(txtTradesmenPhone);
+		
+		JButton btnTradesmenInsert = new JButton("INSERT");
+		btnTradesmenInsert.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					// First check that something was entered in the Customer fields
+					if(!txtTradesmenName.getText().isEmpty()) {
+						
+						boolean result = dao.tradesmenInsert(txtTradesmenName.getText(), txtTradesmenAddressLine1.getText(), txtTradesmenAddressLine2.getText(), txtTradesmenPhone.getText());
+						if(result) {
+							refreshTradesmenTable();
+							txtTradesmenSrch.setText("");
+							txtTradesmenID.setText("");
+							txtTradesmenName.setText("");
+							txtTradesmenAddressLine1.setText("");
+							txtTradesmenAddressLine2.setText("");
+							txtTradesmenPhone.setText("");
+						}
+							
+					} else {
+						JOptionPane.showMessageDialog(null, "You must enter a Tradesman Name !");
+					}
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnTradesmenInsert.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradesmenInsert.setBounds(310, 104, 128, 38);
+		panelTradesmenMaintenance.add(btnTradesmenInsert);
+		
+		JButton btnTradesmenUpdate = new JButton("UPDATE");
+		btnTradesmenUpdate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					
+					// First check that something was entered in the Customer fields
+					if( !(txtTradesmenName.getText().isEmpty() && txtTradesmenPhone.getText().isEmpty()) ) {
+					
+						boolean result = dao.tradesmenUpdate(txtTradesmenID.getText(), txtTradesmenName.getText(), txtTradesmenAddressLine1.getText(), txtTradesmenAddressLine2.getText(), txtTradesmenPhone.getText());
+						if (result) {
+							refreshTradesmenTable();
+							txtTradesmenID.setText("");
+							txtTradesmenName.setText("");
+							txtTradesmenAddressLine1.setText("");
+							txtTradesmenAddressLine2.setText("");
+							txtTradesmenPhone.setText("");
+						}
+						
+					} else {
+						JOptionPane.showMessageDialog(null, "You must select a tradesman before you update !");	
+					}
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnTradesmenUpdate.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradesmenUpdate.setBounds(552, 104, 128, 38);
+		panelTradesmenMaintenance.add(btnTradesmenUpdate);
+		
+		JButton btnTradesmenDelete = new JButton("DELETE");
+		btnTradesmenDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					
+					boolean result = dao.tradesmenDelete(txtTradesmenID.getText(), txtTradesmenName.getText());
+					
+					if(result){
+						refreshTradesmenTable();
+						txtTradesmenID.setText("");
+						txtTradesmenName.setText("");
+						txtTradesmenAddressLine1.setText("");
+						txtTradesmenAddressLine2.setText("");
+						txtTradesmenPhone.setText("");
+					}
+					
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+			}
+		});
+		btnTradesmenDelete.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnTradesmenDelete.setBounds(790, 104, 128, 38);
+		panelTradesmenMaintenance.add(btnTradesmenDelete);
+		
+		JPanel Stock = new JPanel();
+		Stock.setBackground(Color.DARK_GRAY);
+		tabbedPane.addTab("Stock", null, Stock, null);
+		Stock.setLayout(null);
+		
+		JPanel panelItemStockList = new JPanel();
+		panelItemStockList.setBackground(UIManager.getColor("List.dropLineColor"));
+		panelItemStockList.setBounds(23, 27, 668, 522);
+		Stock.add(panelItemStockList);
+		panelItemStockList.setLayout(null);
+		
+		JScrollPane scrollPane_3 = new JScrollPane();
+		scrollPane_3.setBounds(26, 84, 616, 398);
+		panelItemStockList.add(scrollPane_3);
+		
+		tblItemStock = new JTable();
+		scrollPane_3.setViewportView(tblItemStock);
+		
+		textField = new JTextField();
+		textField.setBounds(26, 29, 242, 29);
+		panelItemStockList.add(textField);
+		textField.setColumns(10);
+		
+		JLabel lblLogo4 = new JLabel("New label");
+		// Put Logo image on products tab
+		lblLogo4.setIcon(imageIcon);
+
+		lblLogo4.setBounds(756, 339, 199, 210);
+		Stock.add(lblLogo4);
+		
+		JPanel panelPrinterSettings = new JPanel();
+		panelPrinterSettings.setBackground(UIManager.getColor("List.dropLineColor"));
+		tabbedPane.addTab("Printing Options", null, panelPrinterSettings, null);
+		panelPrinterSettings.setLayout(null);
+		
+		JPanel panel = new JPanel();
+		panel.setBackground(Color.WHITE);
+		panel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel.setBounds(58, 57, 269, 174);
+		panelPrinterSettings.add(panel);
+		panel.setLayout(null);
+		
+		btnSaveChanges = new JButton("SAVE CHANGES");
+		btnSaveChanges.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				if (saveReceiptPrintingChanges()){
+					btnSaveChanges.setEnabled(false);
+					btnCancelChanges.setEnabled(false);
+				}
+			}
+		});
+		btnSaveChanges.setEnabled(false);
+		btnSaveChanges.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnSaveChanges.setBounds(249, 523, 167, 38);
+		panelPrinterSettings.add(btnSaveChanges);
+		
+		JLabel lblTopIcon = new JLabel("Top Icon");
+		lblTopIcon.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblTopIcon.setBounds(58, 27, 89, 19);
+		panelPrinterSettings.add(lblTopIcon);
+		
+		txtTopIconXPosition = new JTextField();
+		txtTopIconXPosition.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtTopIconXPosition.setBounds(167, 46, 86, 20);
+		panel.add(txtTopIconXPosition);
+		txtTopIconXPosition.setColumns(10);
+		
+		JLabel lblTopIconXPosition = new JLabel("X Position");
+		lblTopIconXPosition.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTopIconXPosition.setBounds(167, 21, 74, 14);
+		panel.add(lblTopIconXPosition);
+		
+		JLabel lblTopIconYPosition = new JLabel("Y Position");
+		lblTopIconYPosition.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblTopIconYPosition.setBounds(167, 104, 74, 14);
+		panel.add(lblTopIconYPosition);
+		
+		txtTopIconYPosition = new JTextField();
+		txtTopIconYPosition.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtTopIconYPosition.setColumns(10);
+		txtTopIconYPosition.setBounds(167, 129, 86, 20);
+		panel.add(txtTopIconYPosition);
+		
+		btnPrintTopIcon = new JToggleButton("Print");
+		
+		// Remove border and assure that we have no extra background
+		btnPrintTopIcon.setBorderPainted(false);
+		btnPrintTopIcon.setContentAreaFilled(false);
+		btnPrintTopIcon.setFocusPainted(false);
+		btnPrintTopIcon.setOpaque(false);
+		
+		btnPrintTopIcon.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+		if(btnPrintTopIcon.getText().compareTo("Print")==0){
+			btnPrintTopIcon.setIcon(new ImageIcon(noImgPrintIcon));
+			txtTopIconXPosition.setEnabled(false);
+			txtTopIconYPosition.setEnabled(false);
+			btnPrintTopIcon.setText("noPrint");
+		} else {
+			btnPrintTopIcon.setIcon(new ImageIcon(yesImgPrintIcon));
+			txtTopIconXPosition.setEnabled(true);
+			txtTopIconYPosition.setEnabled(true);
+			btnPrintTopIcon.setText("Print");
+		}
+		btnSaveChanges.setEnabled(true);
+		btnCancelChanges.setEnabled(true);
+			}
+		});
+		btnPrintTopIcon.setBounds(21, 29, 120, 120);
+		panel.add(btnPrintTopIcon);
+		
+		JPanel panel_2 = new JPanel();
+		panel_2.setBackground(Color.WHITE);
+		panel_2.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_2.setBounds(414, 57, 269, 174);
+		panelPrinterSettings.add(panel_2);
+		panel_2.setLayout(null);
+		
+		JLabel lblBodyImageXPosition = new JLabel("X Position");
+		lblBodyImageXPosition.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblBodyImageXPosition.setBounds(167, 21, 74, 14);
+		panel_2.add(lblBodyImageXPosition);
+		
+		JLabel lblBodyImageYPosition = new JLabel("Y Position");
+		lblBodyImageYPosition.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblBodyImageYPosition.setBounds(167, 104, 74, 14);
+		panel_2.add(lblBodyImageYPosition);
+		
+		txtBodyImageXPosition = new JTextField();
+		txtBodyImageXPosition.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtBodyImageXPosition.setColumns(10);
+		txtBodyImageXPosition.setBounds(167, 46, 86, 20);
+		panel_2.add(txtBodyImageXPosition);
+		
+		txtBodyImageYPosition = new JTextField();
+		txtBodyImageYPosition.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtBodyImageYPosition.setColumns(10);
+		txtBodyImageYPosition.setBounds(167, 129, 86, 20);
+		panel_2.add(txtBodyImageYPosition);
+		
+		btnPrintBodyImage = new JToggleButton("Print");
+		
+		// Remove border and assure that we have no extra background
+		btnPrintBodyImage.setBorderPainted(false);
+		btnPrintBodyImage.setContentAreaFilled(false);
+		btnPrintBodyImage.setFocusPainted(false);
+		btnPrintBodyImage.setOpaque(false);
+		
+		btnPrintBodyImage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(btnPrintBodyImage.getText().compareTo("Print")==0){
+					btnPrintBodyImage.setIcon(new ImageIcon(noImgPrintIcon));
+					txtBodyImageXPosition.setEnabled(false);
+					txtBodyImageYPosition.setEnabled(false);
+					btnPrintBodyImage.setText("noPrint");
+				} else {
+					btnPrintBodyImage.setIcon(new ImageIcon(yesImgPrintIcon));
+					txtBodyImageXPosition.setEnabled(true);
+					txtBodyImageYPosition.setEnabled(true);
+					btnPrintBodyImage.setText("Print");
+				}
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		
+		btnPrintBodyImage.setBounds(21, 29, 120, 120);
+		panel_2.add(btnPrintBodyImage);
+		
+		JLabel lblVerticalGridLines = new JLabel("VerticalGridLines");
+		lblVerticalGridLines.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblVerticalGridLines.setBounds(747, 27, 166, 19);
+		panelPrinterSettings.add(lblVerticalGridLines);
+		
+		JPanel panel_3 = new JPanel();
+		panel_3.setBackground(Color.WHITE);
+		panel_3.setBounds(59, 308, 624, 174);
+		panelPrinterSettings.add(panel_3);
+		panel_3.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_3.setLayout(null);
+		
+		txtFooterTextLine1 = new JTextField();
+		txtFooterTextLine1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtFooterTextLine1.setBounds(84, 22, 493, 20);
+		panel_3.add(txtFooterTextLine1);
+		txtFooterTextLine1.setColumns(10);
+		
+		JLabel lblFooter1 = new JLabel("Footer 1");
+		lblFooter1.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblFooter1.setBounds(10, 20, 66, 20);
+		panel_3.add(lblFooter1);
+		
+		txtFooterTextLine2 = new JTextField();
+		txtFooterTextLine2.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtFooterTextLine2.setColumns(10);
+		txtFooterTextLine2.setBounds(84, 55, 493, 20);
+		panel_3.add(txtFooterTextLine2);
+		
+		JLabel lblFooter2 = new JLabel("Footer 2");
+		lblFooter2.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblFooter2.setBounds(10, 53, 66, 20);
+		panel_3.add(lblFooter2);
+		
+		txtFooterTextLine3 = new JTextField();
+		txtFooterTextLine3.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtFooterTextLine3.setColumns(10);
+		txtFooterTextLine3.setBounds(84, 88, 493, 20);
+		panel_3.add(txtFooterTextLine3);
+		
+		JLabel lblFooter3 = new JLabel("Footer 3");
+		lblFooter3.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblFooter3.setBounds(10, 86, 66, 20);
+		panel_3.add(lblFooter3);
+		
+		JLabel lblVatRate = new JLabel("Vat Rate");
+		lblVatRate.setFont(new Font("Georgia", Font.PLAIN, 16));
+		lblVatRate.setBounds(10, 119, 66, 20);
+		panel_3.add(lblVatRate);
+		
+		txtVatRate = new JTextField();
+		txtVatRate.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		txtVatRate.setBounds(84, 121, 86, 20);
+		panel_3.add(txtVatRate);
+		txtVatRate.setColumns(10);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(Color.WHITE);
+		panel_1.setBounds(747, 56, 199, 174);
+		panelPrinterSettings.add(panel_1);
+		panel_1.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		panel_1.setLayout(null);
+		
+		btnPrintVerticalGrid = new JToggleButton("Print");
+		
+		// Remove border and assure that we have no extra background
+		btnPrintVerticalGrid.setBorderPainted(false);
+		btnPrintVerticalGrid.setContentAreaFilled(false);
+		btnPrintVerticalGrid.setFocusPainted(false);
+		btnPrintVerticalGrid.setOpaque(false);
+		
+		btnPrintVerticalGrid.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(btnPrintVerticalGrid.getText().compareTo("Print")==0){
+					btnPrintVerticalGrid.setIcon(new ImageIcon(noImgPrintIcon));
+					btnPrintVerticalGrid.setText("noPrint");
+				} else {
+					btnPrintVerticalGrid.setIcon(new ImageIcon(yesImgPrintIcon));
+					btnPrintVerticalGrid.setText("Print");
+				}
+				btnSaveChanges.setEnabled(true);
+				btnCancelChanges.setEnabled(true);
+			}
+		});
+		
+		btnPrintVerticalGrid.setBounds(42, 26, 120, 120);
+		panel_1.add(btnPrintVerticalGrid);
+		
+		JLabel lblBodyImage = new JLabel("Body Image");
+		lblBodyImage.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblBodyImage.setBounds(414, 27, 117, 19);
+		panelPrinterSettings.add(lblBodyImage);
+		
+		JLabel lblFooterText = new JLabel("Footer Text");
+		lblFooterText.setFont(new Font("Georgia", Font.BOLD, 18));
+		lblFooterText.setBounds(59, 278, 117, 19);
+		panelPrinterSettings.add(lblFooterText);
+		
+		btnCancelChanges = new JButton("CANCEL CHANGES");
+		btnCancelChanges.setEnabled(false);
+		btnCancelChanges.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Get invoice settings from the database and update the icons/fields on the settings tab
+				try {
+					invoiceSettings.retrieveDatabasePrintSettings(dao);
+				}catch(Exception ex){
+					JOptionPane.showMessageDialog(null, ex);
+				}
+				updatePrintSettingsTab();
+				btnSaveChanges.setEnabled(false);
+				btnCancelChanges.setEnabled(false);
+			}
+		});
+		btnCancelChanges.setFont(new Font("Georgia", Font.BOLD, 16));
+		btnCancelChanges.setBounds(550, 523, 210, 38);
+		panelPrinterSettings.add(btnCancelChanges);
+		
+		JLabel lblLogo3 = new JLabel();
+		// Put Logo image on order tab by adding an image to the Logo Label
+		lblLogo3.setIcon(imageIcon);
+		lblLogo3.setBounds(747, 283, 199, 210);
+		panelPrinterSettings.add(lblLogo3);
+		
+		refreshProductsTable();
+		refreshCustomersTable();
+		refreshTradesmenTable();
+		
+		// Get invoice settings from the database and update the icons/fields on the settings tab
+		try {
+			invoiceSettings.retrieveDatabasePrintSettings(dao);
+		}catch(Exception e){
+			JOptionPane.showMessageDialog(null, e);
+		}
+		updatePrintSettingsTab();
+		
+	}
+}
