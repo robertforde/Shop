@@ -10,7 +10,7 @@ You need a MySql Database
 You need to change the username and password in the spring.xml file in the src directory to your MySql username and password
 There is a Shop.sql sql dump file in the src directory which can be imported into your MySql and this will create the database and necessary tables.
 
-# The application functionality:
+# Functionality
 
   Retail Orders
     
