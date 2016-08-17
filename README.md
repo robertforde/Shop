@@ -41,22 +41,45 @@ The application functionality:
       Convert a quote into an order
           List of Quotations displayed with many filters to find quotation
               Type, No, Name, Address, Date Range, Phone Value, Item Code or Description of item on quote
-          On Selection detail lines on quote displayed convert button to open retail/trade order screen with this quote
+          On Selection lines on quote displayed, convert button to open retail/trade order screen quote
   
   Accounts
   
+      List of all accounts displayed: name, address, phone, balance
+      Can filter by above fields
+      On selection of account - detail screen loaded with name, balance and last 20 transactions
+          A statement can be displayed for the account for a specific ate range
+          A payment can be made against the account
+          An trade order can be entered for the account
+          A trade quote can be entered for the account
+          A list of account Quotes can be displayed and converted to orders if required
+  
   Refunds
   
-  Item maintenance
+      List of Refunds displayed with many filters to find an order to refund against
+          Type, No, Name, Address, Date Range, Phone Value, Item Code or Description of item on quote
+      On Selection lines on quote displayed broken down to a quantity of 1 on each line
+          User selects the lines to refund which opens a frame showing to be refunded items with values
+          Refund button on to be refunded performs the refund.
   
-      Perform CRUD operations on Items
+  Product maintenance
+  
+      The list of Products are displayed - filters available are code and description
+          User can perform CRUD operations on Products
   
   Customer maintenance
   
-      Perform CRUD operations on Customers
+      The list of Customers are displayed - filters available are name, address and phone
+          User can perform CRUD operations on Customers
   
   Tradesmen Maintenance
   
-      Perform CRUD operations on Tradesmen
+      The list of Tradesmen are displayed - filters available are name, address and phone
+          User can perform CRUD operations on Tradesmen
       
   Settings
+      Various Vat and Receipt printing settings
+          Choose whether or not to print icons on the top of in the body of the page with their X an Y positions
+          Choose whether or not to print vertical grid lines on a receipt
+          Enter various lines of footer text that can be applied to the receipt's footer
+          Enter the current Vat Rate
