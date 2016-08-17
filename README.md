@@ -14,6 +14,10 @@ You need to change the username and password in the spring.xml file in the src d
 
 There is a Shop.sql sql dump file in the src directory which can be imported into your MySql and this will create the database and necessary tables.
 
+For running the application I recommend downloading mysqld.exe and running it first. It will open the MySql service so that the database can be accessed without having to open MySql each time the application is used.
+
+I have also included a compiled EXE for the application.
+
 # Functionality
 
   Retail Orders
