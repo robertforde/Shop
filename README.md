@@ -5,9 +5,13 @@ This is a Swing application for a retail outlet. It uses Swing, Spring DI, JDBC 
 
 #Installation
 Download source code and in Eclipse File Menu->Import->General->ExistingProjects into Workspace
+
 Browse to the directory where you downloaded to and click finish
+
 You need a MySql Database 
+
 You need to change the username and password in the spring.xml file in the src directory to your MySql username and password
+
 There is a Shop.sql sql dump file in the src directory which can be imported into your MySql and this will create the database and necessary tables.
 
 # Functionality
