@@ -3,7 +3,7 @@ Java Swing POS Application
 
 This is a Swing application for a retail outlet. It uses Swing, Spring DI, JDBC and mysql. I wrote this application after/while teaching myself Swing.
 
-The application functionality:
+# The application functionality:
 
   Retail Orders
     
