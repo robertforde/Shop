@@ -2,7 +2,6 @@ package com.daniel.dao;
 
 import java.util.List;
 
-import com.daniel.model.Order;
 import com.daniel.model.Tradesman;
 
 /**

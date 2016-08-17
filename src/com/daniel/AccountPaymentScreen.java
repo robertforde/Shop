@@ -10,7 +10,6 @@ import com.daniel.model.Account;
 import com.daniel.model.Payment;
 import com.daniel.utilities.Utilities;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
