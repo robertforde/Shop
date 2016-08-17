@@ -26,12 +26,22 @@ The application functionality:
   Suspended Orders
   
       Add retail or trade suspended orders
+      
+      List of Suspended Orders Displayed, can filter Retail or Trade Suspended Orders
+      Enter a Payment against a Suspended Order
+      Select a Suspended Order To Process
+          Release Order Lines from the Suspended Order
+          Add new Lines to the Suspended Order and re-print
+          Remove Lines from a Suspended Order
   
   Quotations
   
       Add Retail Quotes similar to orders without payment type
       Add Trade Quotes similar to orders without payment type
       Convert a quote into an order
+          List of Quotations displayed with many filters to find quotation
+              Type, No, Name, Address, Date Range, Phone Value, Item Code or Description of item on quote
+          On Selection detail lines on quote displayed convert button to open retail/trade order screen with this quote
   
   Accounts
   
