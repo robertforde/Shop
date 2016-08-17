@@ -78,6 +78,7 @@ The application functionality:
           User can perform CRUD operations on Tradesmen
       
   Settings
+  
       Various Vat and Receipt printing settings
           Choose whether or not to print icons on the top of in the body of the page with their X an Y positions
           Choose whether or not to print vertical grid lines on a receipt
