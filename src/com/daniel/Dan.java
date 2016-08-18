@@ -112,7 +112,7 @@ public class Dan{
 		frame.setBounds(30, 50, 1310, 660);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
-		frame.setTitle("D & S Plumbing & Fixings - Version 2.31");
+		frame.setTitle("COMPANY NAME - Version 2.31");
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(0, 0, 1294, 624);

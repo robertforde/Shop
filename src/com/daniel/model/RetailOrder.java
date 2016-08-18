@@ -239,11 +239,11 @@ public class RetailOrder extends Order implements Printable{
         }
         
         g2d.setFont(new Font("TimesRoman", Font.BOLD, 28));
-        g2d.drawString("D & S Plumbing & Fixings", 150, 40);
+        g2d.drawString("The Company Name In Here", 150, 40);
         g2d.setFont(new Font("TimesRoman", Font.BOLD, 14));
-        g2d.drawString("Unit 101, Malahide Road Industrial Estate, Dublin 17", 150, 80);
-        g2d.drawString("Phone: 01 8473868 / 01 8473869",150 ,100 );
-        g2d.drawString("Email: info@coolocktileoutlet.com",150 ,120 );
+        g2d.drawString("The Company Address goes on this line of the receipt", 150, 80);
+        g2d.drawString("Phone: 01 9999999 / 01 9999999",150 ,100 );
+        g2d.drawString("Email: thiscompanysname@gmail.com",150 ,120 );
         g2d.setFont(new Font("TimesRoman", Font.BOLD, 16));
         g2d.drawString("Date: " + thisDate, 30, 165);
         g2d.drawString("Invoice No: " + this.getReceiptNo(), 30, 189);
