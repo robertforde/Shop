@@ -234,8 +234,7 @@ public class TradeOrder extends Order implements Printable{
 	 * @throws This method can throw a Printer Exception
 	 */
 	@Override
-	public int print(Graphics graphics, PageFormat pageFormat, int pageIndex)
-			throws PrinterException {
+	public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
 
         String strOrderLinePrice = "";
 		float orderLinePrice = 0.00f;
@@ -284,7 +283,7 @@ public class TradeOrder extends Order implements Printable{
         g2d.drawString("Email: thiscompanysname@gmail.com",150 ,120 );
         g2d.setFont(new Font("TimesRoman", Font.BOLD, 16));
         g2d.drawString("Date: " + thisDate, 30, 165);
-        g2d.drawString("Invoice No: " + this.getReceiptNo(), 30, 189);
+        g2d.drawString("Trade Inv No: " + this.getReceiptNo(), 30, 189);
         g2d.setFont(new Font("TimesRoman", Font.BOLD | Font.PLAIN, 10));
         g2d.drawRoundRect(200, 140, 200, 50, 20, 20);
         g2d.drawString(this.getName(), 205, 152);

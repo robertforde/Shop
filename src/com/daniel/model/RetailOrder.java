@@ -196,8 +196,7 @@ public class RetailOrder extends Order implements Printable{
 	 * @throws This method can throw a Printer Exception
 	 */
 	@Override
-	public int print(Graphics graphics, PageFormat pageFormat, int pageIndex)
-			throws PrinterException {
+	public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
 
         String strOrderLinePrice = "";
 		float orderLinePrice = 0.00f;
