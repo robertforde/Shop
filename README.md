@@ -16,7 +16,9 @@ There is a Shop.sql sql dump file which can be imported into your MySql and this
 
 For running the application I recommend downloading mysqld.exe and running it first. It will open the MySql service so that the database can be accessed without having to open MySql each time the application is used.
 
-I have also included a compiled EXE for the application.
+I included a compiled EXE for the application.
+
+I also included a "Screenshots And Printout.zip" zip file containing the screenshots from the application and a sample of on of the receipt printouts
 
 # Functionality
 
