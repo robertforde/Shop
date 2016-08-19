@@ -18,7 +18,7 @@ For running the application I recommend downloading mysqld.exe and running it fi
 
 I included a compiled EXE for the application.
 
-I also included a "Screenshots And Printout.zip" zip file containing the screenshots from the application and a sample of on of the receipt printouts
+I also included a "Screenshots And Printout.zip" zip file containing the screenshots from the application and a sample of one of the receipt printouts
 
 # Functionality
 
