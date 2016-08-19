@@ -536,10 +536,10 @@ public class AccountOrderScreen extends JFrame{
 									txtAccountLineQty.setEnabled(false);
 									btnAccountNewOrderLine.setVisible(false);
 										
-									// Make the Account: Current Order, Print Order, PaymentMethod, GrossProfit, Rounding and AccountDetails panels visible
+									// Make the Account: Current Order, Print Order, GrossProfit, Rounding and AccountDetails panels visible
 									panelAccountCurrentOrder.setVisible(true);
 									panelAccountPrintOrder.setVisible(true);
-									panelAccountPaymentMethod.setVisible(true);
+									panelAccountPaymentMethod.setVisible(false);
 									panelAccountGrossProfit.setVisible(true);
 									panelAccountRounding.setVisible(true);
 									
@@ -753,7 +753,7 @@ public class AccountOrderScreen extends JFrame{
 		
 		panelAccountRounding = new JPanel();
 		panelAccountRounding.setBackground(UIManager.getColor("List.dropLineColor"));
-		panelAccountRounding.setBounds(855, 310, 164, 81);
+		panelAccountRounding.setBounds(855, 278, 164, 81);
 		panelAccountRounding.setBorder(new BevelBorder(BevelBorder.RAISED, null, new Color(160, 160, 160), new Color(0, 0, 0), UIManager.getColor("Button.darkShadow")));
 		getContentPane().add(panelAccountRounding);
 		panelAccountRounding.setLayout(null);
@@ -902,10 +902,10 @@ public class AccountOrderScreen extends JFrame{
 			txtAccountLineQty.setEnabled(false);
 			btnAccountNewOrderLine.setVisible(false);
 						
-			// Make the Account: Current Order, Print Order, PaymentMethod, GrossProfit, Rounding and AccountDetails panels visible
+			// Make the Account: Current Order, Print Order, GrossProfit, Rounding and AccountDetails panels visible
 			panelAccountCurrentOrder.setVisible(true);
 			panelAccountPrintOrder.setVisible(true);
-			panelAccountPaymentMethod.setVisible(true);
+			panelAccountPaymentMethod.setVisible(false);
 			panelAccountGrossProfit.setVisible(true);
 			panelAccountRounding.setVisible(true);
 					
@@ -992,7 +992,7 @@ public class AccountOrderScreen extends JFrame{
 	 */
 	public void startNewOrder(){
 		
-		// Make the current Account CurrentOrder, PrintOrder, PaymentMethod and the GrossProfit panel invisible
+		// Make the current Account CurrentOrder, PrintOrder and the GrossProfit panel invisible
 		panelAccountCurrentOrder.setVisible(false);
 		panelAccountPrintOrder.setVisible(false);
 		panelAccountPaymentMethod.setVisible(false);

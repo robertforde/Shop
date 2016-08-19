@@ -353,28 +353,34 @@ public class SuspendedProcessScreen extends JFrame{
 		btnSuspendProcessRemove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				// We use the table's getSelectedRow() method to find the row that the User selected. 
-				int row = tblSuspendProcessOrderLines.getSelectedRow();
-		
-				// Then we can get the description of the selected row by getting the model of the table and then using the getValueAt() method we can get the specific
-				// row and column that we require.
-				// This returns an Object so we get the toString of it and the Integer of the result.
-				int line = Integer.valueOf(tblSuspendProcessOrderLines.getModel().getValueAt(row, 0).toString());
-
-				// First we need to get the qty and remaining qty of the order line
-				int qty = Integer.valueOf(tblSuspendProcessOrderLines.getModel().getValueAt(row, 3).toString());
-				int remaining = Integer.valueOf(tblSuspendProcessOrderLines.getModel().getValueAt(row, 6).toString());
+				// First ask the user to confirm that they want to remove this order line
+				int action = JOptionPane.showConfirmDialog(null, "Do you really want to remove this Suspended Order Line","Remove Line",JOptionPane.YES_NO_OPTION);
 				
-				// If there is nothing to be dispatched then we can't delete it
-				if (remaining == 0) {
-					JOptionPane.showMessageDialog(null, "This order line has already been dispatched !");
+				if (action == 0) {
+				
+					// We use the table's getSelectedRow() method to find the row that the User selected. 
+					int row = tblSuspendProcessOrderLines.getSelectedRow();
+			
+					// Then we can get the description of the selected row by getting the model of the table and then using the getValueAt() method we can get the specific
+					// row and column that we require.
+					// This returns an Object so we get the toString of it and the Integer of the result.
+					int line = Integer.valueOf(tblSuspendProcessOrderLines.getModel().getValueAt(row, 0).toString());
+	
+					// First we need to get the qty and remaining qty of the order line
+					int qty = Integer.valueOf(tblSuspendProcessOrderLines.getModel().getValueAt(row, 3).toString());
+					int remaining = Integer.valueOf(tblSuspendProcessOrderLines.getModel().getValueAt(row, 6).toString());
 					
-				// If some of the qty on this line has already been dispatched
-				}else if (remaining != qty ){
-					deleteSelectedLineNoRemaining(line, qty, remaining);
-				// If nothing of this line has been dispatched yet	
-				}else {
-					deleteSelectedLineNo(line);
+					// If there is nothing to be dispatched then we can't delete it
+					if (remaining == 0) {
+						JOptionPane.showMessageDialog(null, "This order line has already been dispatched !");
+						
+					// If some of the qty on this line has already been dispatched
+					}else if (remaining != qty ){
+						deleteSelectedLineNoRemaining(line, qty, remaining);
+					// If nothing of this line has been dispatched yet	
+					}else {
+						deleteSelectedLineNo(line);
+					}
 				}
 			}
 		});
