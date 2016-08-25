@@ -27,7 +27,7 @@ I also included a "Screenshots And Printout.zip" zip file containing the screens
       The ability to add Retail Orders
       
       Apply discounts
-      Gross Profit percent and value calculated and siplayed on screen
+      Gross Profit percent and value calculated and displayed on screen
       Add customer details to the order
       Choose order pay type
       Print receipts
